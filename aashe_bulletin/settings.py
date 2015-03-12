@@ -14,7 +14,6 @@ import dj_database_url
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
@@ -42,7 +41,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 ALLOWED_HOSTS = [""]
 
-
 # Application definition
 
 INSTALLED_APPS = (
@@ -63,6 +61,7 @@ INSTALLED_APPS = (
     'bootstrap3',
     'bootstrap_pagination',
     'django_bootstrap_breadcrumbs',
+    'south'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -79,16 +78,7 @@ ROOT_URLCONF = 'aashe_bulletin.urls'
 
 WSGI_APPLICATION = 'aashe_bulletin.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.6/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+DATABASES = {'default': dj_database_url.config(env='BULLETIN_DATABASE_URL')}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
@@ -102,7 +92,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
@@ -121,7 +110,7 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 
 # CORS Setup:
-CORS_ORIGIN_ALLOW_ALL = True #@todo - security risk?
+CORS_ORIGIN_ALLOW_ALL = True  # @todo - security risk?
 CORS_URLS_REGEX = r'^.*/api/.*$'
 
 # Bulletin Settings:
@@ -134,7 +123,6 @@ BULLETIN_CONTENT_TYPE_PLUGINS = (
     'opportunity',
     'story',
 )
-
 
 # Constant Contact secrets:
 CONSTANT_CONTACT_API_KEY = os.environ['CONSTANT_CONTACT_API_KEY']
