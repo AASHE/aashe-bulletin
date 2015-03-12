@@ -1,0 +1,19 @@
+<text>
+# The AASHE Bulletin for {{ issue }}
+
+{% for section in issue.sections.all %}
+
+## {{ section }}
+
+{% for post in section.posts.all %}
+
+- {{ post }}
+
+  {{ post.blurb }}
+
+  {{ post.url }}
+
+{% endfor %}
+
+{% endfor %}
+</text>

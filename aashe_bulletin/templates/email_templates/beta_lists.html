@@ -1,0 +1,111 @@
+{% load staticfiles %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+ "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en"
+      xml:lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cctd="http://www.constantcontact.com/cctd">
+  <head>
+    <title>The Bulletin, by AASHE</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    {% include "css.html" %}  <!-- CSS shared between website and email -->
+    <link rel="stylesheet" type="text/css"
+          href="{% static "assets/css/email_style.css" %}">
+  </head>
+  <body>
+    <table width="100%">
+      <div id="header" class="header margin-bottom-10">
+        <tr>
+          <td>
+            <a class="logo" href="{% url "newsletter:front-page" %}">
+              <img id="logo-header"
+                   src="{% static "img/bulletin_logo_words_only.png" %}"
+                   alt="Logo" />
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <p class="pub-date">
+              {{ issue.pub_date }}
+            </p>
+          </td>
+        </tr>
+      </div> <!-- header -->
+
+      {% if issue.introduction %}
+        <tr>
+          <td>
+            <p class="introduction">
+              {{ issue.introduction }}
+            </p>
+          </td>
+        </tr>
+      {% endif %}
+
+      <tr>
+        <td>
+          {% if issue.sections.count %}
+            <ul class="section-list">
+              {% for section in issue.sections.all %}
+                <li>
+                  <div class="section-name headline">
+                    <h2>
+                      {{ section.name }}
+                    </h2>
+                  </div>
+
+                  {% if section.posts.count %}
+                    <ul class="post-list">
+                      {% for post in section.posts.all %}
+                        <!--Post-->
+                        <li class="post">
+                          <div class="post-headline headline">
+                            <a href="{{ post.url }}">
+                              <h4>
+                                {{ post.headline }}
+                              </h4>
+                            </a>
+                          </div>
+
+                          <p class="post-date">
+                            {{ post.post_date|date:"M j, Y" }}
+                          </p>
+                          {% if post.category %}
+                            <p class="post-category">
+                              {{ post.category }}
+                            </p>
+                          {% endif %}
+                          <div class="post-body">
+                            {{ post.body }}
+                          </div>
+                          {% if post.links.count %}
+                            <div class="post-links">
+                              <p>
+                                Also see:
+                              </p>
+                              <ul>
+                                {% for link in post.links.all %}
+                                  <li>
+                                    <a href="{{ link.url }}">
+                                      {{ link.text }}
+                                    </a>
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            </div>
+                          {% endif %}
+                        </li>
+                        <!--End Post-->
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

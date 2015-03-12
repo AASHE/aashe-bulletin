@@ -1,0 +1,95 @@
+{% load staticfiles %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en"
+      xml:lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cctd="http://www.constantcontact.com/cctd">
+  <head>
+    <title>The Bulletin, by AASHE</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    {% include "css.html" %}
+  </head>
+  <body>
+    <div class="container">
+
+      <table width="100%">
+        <tr>
+          <td>
+
+            <div class="row col-md-12">
+
+              <div class="header">
+                <div class="navbar navbar-default" role="navigation">
+                  <a class="navbar-brand" href="{% url "newsletter:front-page" %}">
+                    <img id="logo-header"
+                         src="{% static "img/bulletin_logo_words_only.png" %}"
+                         alt="Logo" />
+                  </a>
+                  <div class="pull-left">
+                    <h5>
+                      {{ issue.pub_date }}
+                    </h5>
+                  </div>
+                </div>
+              </div>
+
+              {% for section in issue.sections.all %}
+                <div class="col-md-12">
+                  <div class="panel panel-blue">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">
+                        {{ section.name }}
+                      </h3>
+                    </div>
+                    <div class="panel-body">
+                      {% if section.posts.count %}
+                        <ul class="list-group">
+                          {% for post in section.posts.all %}
+                            <!--Post-->
+                            <li class="list-group-item">
+                              <div class="row blog blog-medium margin-bottom-40">
+                                <div class="col-md-12 text-center">
+                                  <h4>
+                                    <a href="{{ post.url }}">
+                                      {{ post.headline }}
+                                    </a>
+                                  </h4>
+                                  <ul class="list-unstyled list-inline blog-info">
+                                    <li><i class="icon-calendar"></i>
+                                      {{ post.post_date|date:"M j, Y" }}
+                                    </li>
+                                    <li><i class="icon-tag"></i>
+                                      {{ post.category }}
+                                    </li>
+                                  </ul>
+                                  <div class="margin-bottom-10">
+                                    {{ post.body }}
+                                  </div>
+                                  {% if post.links.count %}
+                                    <p>
+                                      Also see:
+                                    </p>
+                                    <ul class="list-inline">
+                                      {% for link in post.links.all %}
+                                        <li><a href="{{ link.url }}">{{ link.text }}</a></li>
+                                      {% endfor %}
+                                    </ul>
+                                  {% endif %}
+                                </div>
+                              </div>
+                              <!--End Post-->
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

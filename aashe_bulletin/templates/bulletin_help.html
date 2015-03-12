@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="row blog-page">
+    <!-- Left Sidebar -->
+    <div class="col-md-9 md-margin-bottom-40">
+      <h3>Frequently Asked Questions</h3>
+      <p>
+        <b>How do I submit a post?</b>
+        Select the submit button located at the top bar. There you can select the type of content you want to post, i.e., news story, opportunity, new resource, event or job. Once you select the type of content that best fits your submission, follow the form to complete your submission.
+      </p>
+
+      <p>
+        <b>I've got something to post. How do I tell if it's a news story, a new resource, an opportunity, event or job?</b>
+        Visit the <a href="{% url 'plugins:plugin-list' %}?next={{ request.path }}">submission page</a> for more details on what broadly constitutes a news story, new resource, opportunity, event or job.
+      </p>
+
+      <p>
+        <b>What's the difference between an opportunity and a job?</b>
+        An opportunity is something targeted toward the entire campus sustainability community such as a call for proposal process for an upcoming conference or survey announcements and results. Jobs are only posted in the jobs section, and are never posted in the opportunity section.
+      </p>
+
+      <p>
+        <b>Where does a fellowship get posted?</b>
+        A fellowship should be included as a job submission. Job opportunities, fellowships and internships available to students/faculty/staff at only one school, or programs that are not new programs but are just seeking graduates are not accepted.
+      </p>
+
+      <p>
+        <b>Why isn't my submission on the website?</b>
+        Submissions typically take two full business days to be reviewed before it can be published to the site. If after two days, the submission is still not published and you haven’t received a response, email <a href="mailto:bulletin@aashe.org">bulletin@aashe.org</a>.
+      </p>
+
+      <p>
+        <b>My post wasn't approved! Why not?</b>
+        We’re sorry that your post was not accepted. We encourage you to check out our submission guidelines. If you still have questions after reviewing the submission guidelines, email <a href="mailto:bulletin@aashe.org">bulletin@aashe.org</a> and provide your submission details.
+      </p>
+
+      <p>
+        <b>What are the criteria used to select the news stories that go into the email newsletter?</b>
+        Selected by the editor, pieces that go into the email newsletter share best practices and communicate innovative and high-impact achievements related to sustainability in higher education.
+      </p>
+
+      <p>
+        <b>Why isn't my submission in the email newsletter?</b>
+        AASHE’s Bulletin editor selects submissions that share best practices and communicate innovative and high-impact achievements related to sustainability in higher education. As a result, not all stories will be included in the newsletter.
+      </p>
+
+      <p>
+        <b>My submission is on the website. Why wasn't it in the newsletter?</b>
+        Typically, items that appear in the newsletter share best practices and communicate innovative and high-impact achievements related to sustainability in higher education.
+      </p>
+
+      <p>
+        <b>I’m interested in advertising in the Bulletin. Is that possible?</b>
+        Yes! One or three month packages can be purchased for banner ads. The ad dimensions are 468px by 60px and they appear in the Bulletin e-newsletter only. If you are interested in purchasing a slot for a banner ad, contact Skyelar Habberfield at skyelar.habberfield@aashe.org.
+      </p>
+
+      <p>
+        <b>I want to submit a job opportunity that’s only available to students, faculty and/or staff at my school. Can I submit it to the Bulletin website?</b>
+        We encourage people who want to advertise a program that is only for their schools
+      </p>
+
+      <p>
+        <b>Can non-AASHE members submit a piece for the Bulletin?</b>
+        Yes! We welcome submissions from everyone. We do require that you are signed in with your FREE AASHE account in order to submit a piece for consideration. Sign up for an account <a href="http://www.aashe.org/user/register">here</a>. We also encourage you to explore <a href="http://www.aashe.org/membership">AASHE membership benefits</a>. We offer discounts, exclusive resources and free access to our webinars.
+      </p>
+
+      <p>
+        <b>I've got a question not listed here. Who can I contact?</b>
+        Please email <a href="mailto:bulletin@aashe.org">bulletin@aashe.org</a>.
+      </p>
+
+    </div>
+    <!-- End Left Sidebar -->
+
+    {% include "newsletter/sidebar.html" %}
+  </div><!--/row-->
+{% endblock %}

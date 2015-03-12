@@ -1,0 +1,124 @@
+{% load staticfiles %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+ "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en"
+      xml:lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:cctd="http://www.constantcontact.com/cctd">
+  <head>
+    <title>The Bulletin, by AASHE</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    {% include "css.html" %}  <!-- CSS shared between website and email -->
+    <link rel="stylesheet" type="text/css"
+          href="{% static "assets/css/email_style.css" %}">
+  </head>
+  <body>
+    <table width="100%">
+      <div id="header" class="header">
+        <tr>
+          <td align="center">
+            <a class="logo" href="{% url "newsletter:front-page" %}">
+              <img id="logo-header"
+                   src="{% static "img/bulletin_logo_words_only.png" %}"
+                   alt="Logo" />
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <p class="pub-date">
+              {{ issue.pub_date }}
+            </p>
+          </td>
+        </tr>
+      </div> <!-- header -->
+
+      {% if issue.introduction %}
+        <tr>
+          <td>
+            <p class="introduction">
+              {{ issue.introduction }}
+            </p>
+          </td>
+        </tr>
+      {% endif %}
+
+      <tr>
+        <td>
+          {% if issue.sections.count %}
+            {% for section in issue.sections.all %}
+              <!-- Section -->
+              <table id="xxx" class="xxx">
+                <tr>
+                  <td>
+                    <div class="section-name headline">
+                      <h3>
+                        {{ section.name }}
+                      </h3>
+                    </div>
+                  </td>
+                </tr>
+
+                {% if section.posts.count %}
+                  {% for post in section.posts.all %}
+                    <!-- Post -->
+                    <table class="post">
+                      <tr>
+                        <td>
+                          <div class="post-headline headline">
+                            <a href="{{ post.url }}">
+                              <h4>
+                                {{ post.headline }}
+                              </h4>
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>
+                          <div class="post-date-category">
+                            {{ post.post_date|date:"M j, Y" }}
+                            {% if post.category %}
+                              -
+                              {{ post.category }}
+                            {% endif %}
+                          </div>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>
+                          <div class="post-body">
+                            {{ post.body }}
+                          </div>
+                        </td>
+                      </tr>
+
+                      {% if post.links.count %}
+                        <tr>
+                          <td>
+                            <div class="post-links">
+                              Also see:
+                              {% for link in post.links.all %}
+                                <a href="{{ link.url }}">
+                                  {{ link.text }}</a>{% if not forloop.last %},
+                                  {% endif %}
+                              {% endfor %}
+                            </div>
+                          </td>
+                        </tr>
+                      {% endif %}
+                    </table>
+                    <!-- End Post -->
+                  {% endfor %}
+                {% endif %}
+              </table>
+              <!-- End Section -->
+            {% endfor %}
+          {% endif %}
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

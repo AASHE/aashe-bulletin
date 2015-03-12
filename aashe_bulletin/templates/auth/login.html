@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+
+{% block title %}AASHE Account Login{% endblock title %}
+
+{% block content %}
+  {% if user.is_authenticated %}
+    <div class="row">
+      <div class="span12">
+        <h2>You are already signed-in</h2>
+        <p>
+          You're already signed-in!
+        </p>
+      </div>
+    </div>
+  {% else %}
+    <div class="row">
+      <div class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3">
+        <form class="reg-page"
+              method="post"
+              action="{% url 'aashe_auth_login' %}">
+          <div class="reg-header">
+            <h3>Please Login</h3>
+            {% if messages %}
+              {% for message in messages %}
+                <div
+                  {% if message.tags %}
+                    class="alert alert-{{ message.tags }}"
+                  {% endif %}>
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          {% csrf_token %}
+
+          <input type="hidden" name="next" id="id_next" value="{{ next }}">
+
+          <div class="input-group margin-bottom-20">
+            <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+            <input type="text" placeholder="Username"
+                   class="form-control" id="id_username"
+                   name="username">
+          </div>
+          <div class="input-group margin-bottom-20">
+            <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+            <input type="password" placeholder="Password" class="form-control"
+                   id="id_password" name="password">
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <button class="btn-u pull-right" type="submit">Login</button>
+            </div>
+          </div>
+
+          <hr>
+
+          <h4>Forget your Password?</h4>
+          <p>No worries,
+            <a class="color-green"
+               href="http://www.aashe.org/user/password">click here
+            </a>
+            to reset your password.
+          </p>
+
+          <h4>Don't Have an AASHE Account?</h4>
+          <p>
+            To create an account,
+            <a href="http://www.aashe.org/user/register">
+              click here</a>.
+          </p>
+
+        </form>
+      </div>
+    </div><!--/row-->
+
+
+  {% endif %}
+{% endblock content %}

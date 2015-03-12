@@ -1,0 +1,307 @@
+{% load static from staticfiles %}
+{% load django_bootstrap_breadcrumbs %}
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
+<!--[if !IE]><!--> <html lang="en"> <!--<![endif]-->
+  <head>
+    <title>AASHE Bulletin</title>
+
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    {% include "css.html" %}
+
+    <!-- JS Global Compulsory -->
+    <script type="text/javascript"
+            src="{% static "assets/plugins/jquery-1.10.2.min.js" %}"></script>
+    <script type="text/javascript"
+            src="{% static "assets/plugins/jquery-migrate-1.2.1.min.js" %}">
+    </script>
+    <script type="text/javascript"
+            src="{% static "assets/plugins/bootstrap/js/bootstrap.min.js" %}">
+    </script>
+    <script type="text/javascript"
+            src="{% static "assets/plugins/hover-dropdown.min.js" %}"></script>
+    <script type="text/javascript"
+            src="{% static "assets/plugins/back-to-top.js" %}"></script>
+    <!-- JS Page Level -->
+    <script type="text/javascript"
+            src="{% static "assets/js/app.js" %}"></script>
+    <script type="text/javascript">
+     jQuery(document).ready(function() {
+       App.init();
+     });
+    </script>
+
+    <!-- For datetimepicker widget
+         https://github.com/asaglimbeni/django-datetime-widget -->
+    {{ form.media }}
+    <!-- End datetimepicker widget -->
+
+    {% block extra_css %}{% endblock %}
+
+    {% block extra_head %}{% endblock %}
+  </head>
+
+  <body>
+    <!--=== Top ===-->
+    <div class="top">
+      <div class="container">
+        <ul class="loginbar pull-right">
+          <li>
+            {% if user.is_authenticated %}
+              <a href="/accounts/logout/">
+                Logout
+              </a>
+            {% else %}
+              <a href="/accounts/login/?next={{ request.get_full_path }}">
+                Login
+              </a>
+            {% endif %}
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!--=== End Top ===-->
+
+    <!--=== Header ===-->
+    <div class="header">
+      <div class="navbar navbar-default" role="navigation">
+        <div class="container">
+          <!-- Brand and toggle get grouped for better mobile display -->
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed"
+                    data-toggle="collapse"
+                    data-target=".navbar-responsive-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="fa fa-bars"></span>
+            </button>
+
+            <a class="navbar-brand" href="{% url "bulletin:plugins:story-list" %}">
+              <img id="logo-header"
+                   src="{% static "assets/img/bulletin-logo_alt.png" %}"
+                   alt="Logo" />
+            </a>
+          </div>
+
+          <!-- Collect the nav links, forms, and other content for toggling -->
+          <div class="navbar-collapse navbar-responsive-collapse collapse"
+               style="height: 0px;">
+            <ul class="nav navbar-nav">
+              <li>
+                <a href="{% url "bulletin:plugins:story-list" %}">
+                  News
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'bulletin:plugins:opportunity-list' %}">
+                  Opportunities
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'bulletin:plugins:new-resource-list' %}">
+                  New Resources
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'bulletin:plugins:event-list' %}">
+                  Events
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'bulletin:plugins:job-list' %}">
+                  Jobs
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'bulletin:plugins:plugin-list' %}?next={{ request.path }}">
+                  Submissions
+                </a>
+              </li>
+              <li>
+                <a href="{% url 'help' %}">
+                  Help
+                </a>
+              </li>
+              <li>
+                <a href="mailto:beta@aashe.org"
+                   target="_blank">
+                  Beta Feedback
+                </a>
+              </li>
+
+              {% if request.user.is_staff %}
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle"
+                     data-toggle="dropdown" data-hover="dropdown"
+                     data-delay="0"
+                     data-close-others="false">
+                    Editorial &nbsp;
+                    <i class="icon-angle-down"></i>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li><a href="{% url "bulletin:unmoderated-post-list" %}">
+                      Moderation
+                    </a></li>
+                    <li><a href="{% url "bulletin:issue-editor:newsletter-issue-list" 1 %}">
+                      Issue Editor
+                    </a></li>
+                    <li><a href="{% url "bulletin:ad-list" %}">
+                      Ads
+                    </a></li>
+                    <li><a href="{% url "bulletin:newsletter-list" %}">
+                      Natural Newsletter Editor
+                    </a></li>
+                  </ul>
+                </li>
+              {% endif %}
+
+            </ul>
+          </div><!--/navbar-collapse-->
+        </div>
+      </div>
+    </div>
+    <!--=== End Header ===-->
+
+    <!--=== Breadcrumbs ===-->
+    {% block breadcrumbs %}
+    {% endblock %}
+    <div class="breadcrumbs margin-bottom-40">
+      <div class="container">
+        <div class="pull-right">
+          {% render_breadcrumbs "django_bootstrap_breadcrumbs/bootstrap3.html" %}
+        </div>
+      </div>
+    </div>
+    <!--=== End Breadcrumbs ===-->
+
+    <!--=== Content Part ===-->
+    <div class="container">
+      {% if headline %}
+        <div class="row">
+          <div class="col-sm-4 col-xs-6 pull-right">
+            {% block before_headline %}
+            {% endblock %}
+          </div>
+          <div class="headline col-sm-8">
+            <h2>
+              {{ headline|title }}
+            </h2>
+            {% block after_headline %}
+            {% endblock %}
+          </div>
+        </div>
+      {% endif %}
+      {% block content %}
+        {% block main %}
+        {% endblock %}
+      {% endblock %}
+    </div><!--/container-->
+    <!--=== End Content Part ===-->
+
+    <!---=== Footer Part ===-->
+    {% block footer %}
+      <div class="footer-v2">
+        <div class="footer">
+          <div class="container">
+            <div class="row">
+              <!-- Subscribe -->
+              <div class="col-md-4 md-margin-bottom-40">
+                <div class="headline"><h2>Subscribe</h2></div>
+                <p>Subscribe to the email version of
+                  the AASHE Bulletin, curated and delivered weekly.</p>
+                <form class="footer-subscribe margin-bottom-25 md-margin-bottom-40"
+                      method="post"
+                      action="{% url "bulletin:newsletter-subscribe" 1 %}">
+                  {% csrf_token %}
+                  <div class="input-group">
+                    <input type="email" class="form-control"
+                           required="true"
+                           placeholder="Email Address" name="email_address"
+                           id="id_email_address">
+                    <span class="input-group-btn">
+                      <button class="btn-u" type="submit">Subscribe</button>
+                    </span>
+                  </div>
+                </form>
+              </div>
+              <!-- End Subscribe -->
+
+              <!-- About AASHE -->
+              <div class="col-md-4 md-margin-bottom-40">
+                <div class="headline"><h2>About AASHE</h2></div>
+                <div class="media">
+                  <a class="pull-left" href="http://www.aashe.org/">
+                    <img class="media-object"
+                         src="{% static "assets/img/AASHE_rgb.png" %}">
+                  </a>
+                  <div class="media-body">
+                    <p>The Association for the Advancement of
+                    Sustainability in Higher Education is a membership
+                    association of colleges &amp; universities,
+                    businesses, and nonprofits who are working
+                    together to lead the sustainability
+                    transformation.
+                      <a href="http://www.aashe.org/about">
+                        Learn more about AASHE's mission.</a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- End About AASHE -->
+
+              <!-- Contact Us -->
+              <div class="col-md-4 md-margin-bottom-40">
+                <div class="headline"><h2>Contact Us</h2></div>
+                <address>
+                  <ul class="list-unstyled">
+                    <li><i class="icon-envelope-alt"
+                           style="color: white;"></i>
+                      <a href="mailto:bulletin@aashe.org">
+                        bulletin@aashe.org</a>
+                    </li>
+                  </ul>
+                </address>
+
+                <div class="headline"><h2>Stay Connected</h2></div>
+                <ul class="social-icons">
+                  <li><a href="https://www.facebook.com/aasheorg"
+                         data-original-title="Facebook"
+                         class="social_facebook"></a></li>
+                  <li><a href="http://twitter.com/AASHENews"
+                         data-original-title="Twitter"
+                         class="social_twitter"></a></li>
+                  <li><a href="http://www.linkedin.com/company/aashe"
+                         data-original-title="LinkedIn"
+                         class="social_linkedin"></a></li>
+                </ul>
+              </div>
+              <!-- End Contact Us -->
+            </div>
+          </div>
+        </div><!--/footer-->
+    <!--=== End Footer ===-->
+    {% endblock footer %}
+
+    {% block copyright %}
+      <div class="copyright">
+        <div class="container">
+          <p class="text-center">
+            Copyright © 2015 •
+            Association for the Advancement of Sustainability in Higher
+            Education
+          </p>
+        </div>
+      </div><!--/copyright-->
+    {% endblock %}
+
+    {% block end_of_body %}
+    {% endblock %}
+
+  </body>
+
+</html>
