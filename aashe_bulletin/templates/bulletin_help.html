@@ -12,7 +12,7 @@
 
       <p>
         <b>I've got something to post. How do I tell if it's a news story, a new resource, an opportunity, event or job?</b>
-        Visit the <a href="{% url 'plugins:plugin-list' %}?next={{ request.path }}">submission page</a> for more details on what broadly constitutes a news story, new resource, opportunity, event or job.
+        Visit the <a href="{% url 'bulletin:plugins:plugin-list' %}?next={{ request.path }}">submission page</a> for more details on what broadly constitutes a news story, new resource, opportunity, event or job.
       </p>
 
       <p>
@@ -73,6 +73,6 @@
     </div>
     <!-- End Left Sidebar -->
 
-    {% include "newsletter/sidebar.html" %}
+    {% include "bulletin/sidebar.html" %}
   </div><!--/row-->
 {% endblock %}
