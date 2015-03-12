@@ -1,15 +1,17 @@
+import aashe.aasheauth.urls
 from django.conf.urls import patterns, include, url
+from django.contrib import admin
 
-import bulletin
 from views import BulletinHelpView
 
-from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'aashe_bulletin.views.home', name='home'),
+urlpatterns = patterns(
+    '',
+
     url(r'^newsletter/', include('bulletin.urls', namespace='bulletin')),
+
+    url(r'^accounts/', include(aashe.aasheauth.urls)),
 
     url(r'^help/',
         BulletinHelpView.as_view(),

@@ -53,7 +53,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     # AASHE Apps
-    # 'aashe.aasheauth',
+    'aashe.aasheauth',
     'django_constant_contact',
     'bulletin',
     'bulletin.tools.plugins',
@@ -106,7 +106,7 @@ MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT',
                             os.path.join(BASE_DIR, MEDIA_URL.strip("/")))
 
-AUTHENTICATION_BACKENDS = (#'aashe.aasheauth.backends.AASHEBackend',
+AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',
                            'django.contrib.auth.backends.ModelBackend')
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
