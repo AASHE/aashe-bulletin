@@ -28,6 +28,7 @@ TEMPLATE_DEBUG = DEBUG
 TEMPLATE_DIRS = (
     BASE_DIR + '/aashe_bulletin/templates/',
 )
+
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
     "django.core.context_processors.debug",
@@ -53,9 +54,9 @@ INSTALLED_APPS = (
 
     # AASHE Apps
     # 'aashe.aasheauth',
+    'django_constant_contact',
     'bulletin',
     'bulletin.tools.plugins',
-    'django_constant_contact',
 
     # required by bulletin
     'bootstrap3',
@@ -95,7 +96,8 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
-# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'aashe_bulletin/static/theme'),
+                    os.path.join(BASE_DIR, 'aashe_bulletin/static'),)
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
 STATIC_ROOT = os.environ.get('STATIC_ROOT',
                              os.path.join(BASE_DIR, STATIC_URL.strip('/')))
