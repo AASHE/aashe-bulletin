@@ -62,7 +62,10 @@ INSTALLED_APPS = (
     'bootstrap3',
     'bootstrap_pagination',
     'django_bootstrap_breadcrumbs',
-    'south'
+    'south',
+
+    # good for development
+    'django_extensions'
 )
 
 MIDDLEWARE_CLASSES = (
