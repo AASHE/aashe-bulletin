@@ -3,8 +3,8 @@ import datetime
 
 from django.contrib.auth.models import User
 
-from apps.newsletter.models import Category, Issue, Newsletter, Section
-from apps.plugins.models import Opportunity, NewResource, Story
+from bulletin.models import Category, Issue, Newsletter, Section
+from bulletin.tools.plugins.models import Opportunity, NewResource, Story
 
 
 def historian_account():
@@ -232,7 +232,7 @@ def main():
     skipped_unpublished = []  # Stories skipped because they're "unpublished".
     skipped_global = []  # Skipped because global edition has no issue date.
 
-    with open('bulletin/utils/dumps/bulletin_dump_stories.csv') as csvfile:
+    with open('dumps/bulletin_dump_stories.csv') as csvfile:
         reader = csv.reader(csvfile)
         this_is_the_header = True
         for row in reader:

@@ -5,8 +5,8 @@ import datetime
 
 from django.contrib.auth.models import User
 
-from apps.newsletter.models import Issue, Newsletter, Section
-from apps.plugins.models import Job
+from bulletin.models import Issue, Newsletter, Section
+from bulletin.tools.plugins.models import Job
 
 
 def historian_account():
@@ -110,7 +110,7 @@ def main():
     skipped_no_issue_date = []  # Jobs skipped because no issue date.
     skipped_unpublished = []  # Jobs skipped because they're "unpublished".
 
-    with open('bulletin/utils/dumps/bulletin_dump_jobs.csv') as csvfile:
+    with open('dumps/bulletin_dump_jobs.csv') as csvfile:
         reader = csv.reader(csvfile)
         this_is_the_header = True
         for row in reader:

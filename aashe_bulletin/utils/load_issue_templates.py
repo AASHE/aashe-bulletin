@@ -1,10 +1,10 @@
 """Load initial IssueTemplates (and SectionTemplates).
 """
-from apps.newsletter.models import (Category,
-                                    IssueTemplate,
-                                    Newsletter,
-                                    SectionTemplate)
-from apps.plugins.utils import get_active_plugins
+from bulletin.models import (Category,
+                             IssueTemplate,
+                             Newsletter,
+                             SectionTemplate)
+from bulletin.tools.plugins.utils import get_active_plugins
 
 
 def main():

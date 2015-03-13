@@ -1,6 +1,6 @@
 """Load initial ad sizes into bulletin db.
 """
-from apps.newsletter.models import AdSize
+from bulletin.models import AdSize
 
 
 def main():

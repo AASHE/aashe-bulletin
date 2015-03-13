@@ -1,4 +1,4 @@
-from apps.newsletter.models import Category
+from bulletin.models import Category
 
 categories = {
     'Academics': [
