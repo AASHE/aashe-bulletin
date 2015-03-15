@@ -58,12 +58,14 @@ INSTALLED_APPS = (
     'bulletin',
     'bulletin.tools.plugins',
 
+    # required by our email templates
+    'mathfilters',
+
     # required by bulletin
     'bootstrap3',
     'bootstrap_pagination',
     'django_bootstrap_breadcrumbs',
     'south',
-    'mathfilters',
 
     # good for development
     'django_extensions'
