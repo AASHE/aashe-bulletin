@@ -63,6 +63,7 @@ INSTALLED_APPS = (
     'bootstrap_pagination',
     'django_bootstrap_breadcrumbs',
     'south',
+    'mathfilters',
 
     # good for development
     'django_extensions'
