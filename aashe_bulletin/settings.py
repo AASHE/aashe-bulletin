@@ -60,6 +60,7 @@ INSTALLED_APPS = (
 
     # required by our email templates
     'mathfilters',
+    'sorl.thumbnail',
 
     # required by bulletin
     'bootstrap3',
