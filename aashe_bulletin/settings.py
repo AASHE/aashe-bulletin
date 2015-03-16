@@ -57,6 +57,7 @@ INSTALLED_APPS = (
     'django_constant_contact',
     'bulletin',
     'bulletin.tools.plugins',
+    'bulletin.tools.issue_editor',
 
     # required by our email templates
     'mathfilters',
