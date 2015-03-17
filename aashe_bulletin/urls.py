@@ -11,7 +11,7 @@ urlpatterns = patterns(
     '',
 
     url(r'^$',
-        RedirectView.as_view(pattern_name='plugins:story-list'),
+        RedirectView.as_view(pattern_name='bulletin:plugins:story-list'),
         name='front-page'),
 
     url(r'^newsletter/',
