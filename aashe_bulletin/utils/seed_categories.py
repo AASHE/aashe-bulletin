@@ -2,48 +2,84 @@ from bulletin.models import Category
 
 categories = {
     'Academics': [
-        'Curriculum',
-        'Research',
+        {'name': 'Curriculum',
+         'url': 'http://www.aashe.org/resources/curriculum-resources/'},
+        {'name': 'Research',
+         'url': ('http://www.aashe.org/resources/'
+                 'resources-sustainability-research/')},
     ],
     'Engagement': [
-        'Campus Engagement',
-        'Public Engagement',
+        {'name': 'Campus Engagement',
+         'url': ('http://www.aashe.org/resources/'
+                 'co-curricular-education-resources/')},
+        {'name': 'Public Engagement',
+         'url': ('http://www.aashe.org/resources/'
+                 'resources-campus-public-engagement-sustainability/')},
     ],
     'Operations': [
-        'Air & Climate',
-        'Buildings',
-        'Dining Services',
-        'Energy',
-        'Grounds',
-        'Purchasing',
-        'Transportation',
-        'Waste',
-        'Water',
+        {'name': 'Air & Climate',
+         'url': 'http://www.aashe.org/resources/climate-resources/'},
+        {'name': 'Buildings',
+         'url': ('http://www.aashe.org/resources/'
+                 'green-buildings-higher-education/')},
+        {'name': 'Dining Services',
+         'url': 'http://www.aashe.org/resources/dining-services/'},
+        {'name': 'Energy',
+         'url': 'http://www.aashe.org/resources/resources-energy-management/'},
+        {'name': 'Grounds',
+         'url': 'http://www.aashe.org/resources/grounds/'},
+        {'name': 'Purchasing',
+         'url': 'http://www.aashe.org/resources/'
+         'resources-sustainable-purchasing-higher-education/'},
+        {'name': 'Transportation',
+         'url': 'http://www.aashe.org/resources/'
+         'resources-about-sustainable-transportation-campus/'},
+        {'name': 'Waste',
+         'url': 'http://www.aashe.org/resources/'
+         'resources-waste-minimization-and-recycling-campus/'},
+        {'name': 'Water',
+         'url': 'http://www.aashe.org/resources/water-resources/'},
     ],
     'Planning & Administration': [
-        'Coordination, Planning & Governance',
-        'Diversity & Affordability',
-        'Health, Wellbeing & Work',
-        'Investment',
+        {'name': 'Coordination, Planning & Governance',
+         'url': 'http://www.aashe.org/resources/'
+         'resources-sustainability-coordination-planning/'},
+        {'name': 'Diversity & Affordability',
+         'url': 'http://www.aashe.org/resources/'
+         'resources-higher-education-affordability-and-access/'},
+        {'name': 'Health, Wellbeing & Work',
+         'url': 'http://www.aashe.org/resources/human-resources/'},
+        {'name': 'Investment',
+         'url': 'http://www.aashe.org/resources/'
+         'resources-sustainable-investment-and-financing/'},
     ],
     'Innovation': [
-        'Innovation'
+        {'name': 'Innovation',
+         'url': ''},
     ],
     'Other': [
-        'Assessments & Ratings',
-        'Funding',
-        'Campus Sustainability in the Media',
-        'Policy & Legislation'
+        {'name': 'Assessments & Ratings',
+         'url': ('http://www.aashe.org/resources/'
+                 'assessment-tools-reports-indicators/')},
+        {'name': 'Funding',
+         'url': ''},
+        {'name': 'Campus Sustainability in the Media',
+         'url': ''},
+        {'name': 'Policy & Legislation',
+         'url': ('http://www.aashe.org/resources/'
+                 'campus-sustainability-policy-bank/')},
     ]
 }
 
 
 def main():
-    for parent_name, children_names in categories.items():
+    for parent_name, children in categories.items():
         parent_category = Category.objects.create(name=parent_name)
-        for child_name in children_names:
-            Category.objects.create(name=child_name,
-                                    parent=parent_category)
+        for child in children:
+            Category.objects.create(parent=parent_category,
+                                    name=child['name'],
+                                    url=child['url'])
+
 
 if __name__ == '__main__':
     main()
