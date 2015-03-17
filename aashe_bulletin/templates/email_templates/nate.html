@@ -459,12 +459,18 @@
                   {% for event in section.posts.all %}
                     <tr>
                       <td style="font-size: 14px; color: #333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
-                        {{ event.date|date }} -
+                        {{ event.start_date|date }}
+                        {% if event.end_date %}
+                          - {{ event.end_date|date }}
+                        {% endif %}
                         <a href="{{ event.url }}"
                            style="text-decoration: none;"
                            class="event-title">
                           {{ event.title }}
                         </a>
+                        {% if event.time %}
+                          ({{ event.time }})
+                        {% endif %}
                       </td>
                     </tr>
                   {% endfor %}
