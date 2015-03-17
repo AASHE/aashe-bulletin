@@ -66,6 +66,7 @@ INSTALLED_APPS = (
     # required by bulletin
     'bootstrap3',
     'bootstrap_pagination',
+    'datetimewidget',
     'django_bootstrap_breadcrumbs',
     'south',
 
