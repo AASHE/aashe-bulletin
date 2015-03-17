@@ -163,7 +163,7 @@ def event(event_data, issue):
         section=section,
         pub_date=issue.pub_date,
         organization=institution,
-        location=institution,  # Because we have no real location.
+        location='Unknown',
         start_date=str_to_date(event_data['date_time'],
                                'date_time'))
 
