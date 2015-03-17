@@ -458,16 +458,17 @@
                   </tr>
                   {% for event in section.posts.all %}
                     <tr>
-                      <td style="font-size: 14px; color: #333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
-                        {{ event.start_date|date }}
-                        {% if event.end_date %}
-                          - {{ event.end_date|date }}
-                        {% endif %}
+                      <td style="font-size: 14px; color: #333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
                         <a href="{{ event.url }}"
                            style="text-decoration: none;"
                            class="event-title">
                           {{ event.title }}
                         </a>
+                        -
+                        {{ event.start_date|date }}
+                        {% if event.end_date %}
+                          - {{ event.end_date|date }}
+                        {% endif %}
                         {% if event.time %}
                           ({{ event.time }})
                         {% endif %}
