@@ -360,10 +360,7 @@
                               </tr>
                               <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
                                 <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
-                                  <a href="{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
-                                     style="text-decoration: none">
-                                    {{ job.organization|upper }}
-                                  </a>
+                                  {{ job.organization|upper }}
                                 </td>
                               </tr>
                             {% endif %}
@@ -397,10 +394,7 @@
                               </tr>
                               <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
                                 <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
-                                  <a href="{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
-                                     style="text-decoration: none">
-                                    {{ job.organization|upper }}
-                                  </a>
+                                  {{ job.organization|upper }}
                                 </td>
                               </tr>
                             {% endif %}
@@ -523,35 +517,29 @@
                                  cellspacing="0" align="left"
                                  class="deviceWidth">
                             {% for event in section.posts.all %}
-                              {% if forloop.counter <= half %}
+                              {% if forloop.counter <= half|add:1 %}
                                 <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
                                   <td style="font-size: 16px; color: #303030; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px 10px 0; ">
                                     <a href="{{ event.url }}"
                                        style="text-decoration: none">
-                                      {{ job.title }}
+                                      {{ event.title }}
                                     </a>
                                   </td>
                                 </tr>
                                 <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
                                   <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
-                                    <a href="{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
-                                       style="text-decoration: none">
-                                      {{ event.location|upper }}
-                                    </a>
+                                    {{ event.location|upper }}
                                   </td>
                                 </tr>
                                 <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
                                   <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
-                                    <a href="{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
-                                       style="text-decoration: none">
-                                      {{ event.start_date|date }}
-                                      {% if event.end_date %}
-                                        - {{ event.end_date|date }}
-                                      {% endif %}
-                                      {% if event.time %}
-                                        ({{ event.time }})
-                                      {% endif %}
-                                    </a>
+                                    {{ event.start_date|date }}
+                                    {% if event.end_date %}
+                                      - {{ event.end_date|date }}
+                                    {% endif %}
+                                    {% if event.time %}
+                                      ({{ event.time }})
+                                    {% endif %}
                                   </td>
                                 </tr>
                               {% endif %}
@@ -559,49 +547,44 @@
                           </table>
 
                           <table width="45%" border="0" cellpadding="0"
-                                 cellspacing="0" align="right"
+                                 cellspacing="0" align="left"
                                  class="deviceWidth">
-                            {% for job in section.posts.all %}
-                              {% if forloop.counter > half %}
+                            {% for event in section.posts.all %}
+                              {% if forloop.counter > half|add:1 %}
                                 <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
                                   <td style="font-size: 16px; color: #303030; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px 10px 0; ">
-
-                                    <a href="{{ job.url }}">
-                                      {% thumbnail job.image "260x190" as im %}
-                                      <img src="{{ im.url }}"
-                                           width="{{ im.width }}"
-                                           height="{{ im.height }}"
-                                           class="deviceWidth">
-                                      {% endthumbnail %}
-                                    </a>
-                                  </td>
-                                </tr>
-                                <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
-                                  <td style="font-size: 16px; color: #303030; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px 10px 0; ">
-                                    <a href="{{ job.url }}"
+                                    <a href="{{ event.url }}"
                                        style="text-decoration: none">
-                                      {{ job.title }}
+                                      {{ event.title }}
                                     </a>
                                   </td>
                                 </tr>
                                 <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
                                   <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
-                                    <a href="{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
-                                       style="text-decoration: none">
-                                      {{ job.organization|upper }}
-                                    </a>
+                                    {{ event.location|upper }}
+                                  </td>
+                                </tr>
+                                <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
+                                  <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                                    {{ event.start_date|date }}
+                                    {% if event.end_date %}
+                                      - {{ event.end_date|date }}
+                                    {% endif %}
+                                    {% if event.time %}
+                                      ({{ event.time }})
+                                    {% endif %}
                                   </td>
                                 </tr>
                               {% endif %}
                             {% endfor %}
                           </table>
+
                         {% endwith %}
                       </td>
                     </tr>
                   </tbody>
                 </table>
                 <!--End Events-->
-
               {% endif %}
             {% endif %}
           {% endfor %}
