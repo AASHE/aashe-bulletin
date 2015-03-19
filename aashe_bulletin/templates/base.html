@@ -91,38 +91,38 @@
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="navbar-collapse navbar-responsive-collapse collapse"
                style="height: 0px;">
-            <ul class="nav navbar-nav">
-              <li>
+            <ul id="navbar-list" class="nav navbar-nav">
+              <li class="{% block news_tab_class %}{% endblock %}">
                 <a href="{% url "bulletin:plugins:story-list" %}">
                   News
                 </a>
               </li>
-              <li>
+              <li class="{% block opportunities_tab_class %}{% endblock %}">
                 <a href="{% url 'bulletin:plugins:opportunity-list' %}">
                   Opportunities
                 </a>
               </li>
-              <li>
+              <li class="{% block new_resources_tab_class %}{% endblock %}">
                 <a href="{% url 'bulletin:plugins:new-resource-list' %}">
                   New Resources
                 </a>
               </li>
-              <li>
+              <li class="{% block events_tab_class %}{% endblock %}">
                 <a href="{% url 'bulletin:plugins:event-list' %}">
                   Events
                 </a>
               </li>
-              <li>
+              <li class="{% block jobs_tab_class %}{% endblock %}">
                 <a href="{% url 'bulletin:plugins:job-list' %}">
                   Jobs
                 </a>
               </li>
-              <li>
+              <li class="{% block submissions_tab_class %}{% endblock %}">
                 <a href="{% url 'bulletin:plugins:plugin-list' %}?next={{ request.path }}">
                   Submissions
                 </a>
               </li>
-              <li>
+              <li class="{% block help_tab_class %}{% endblock %}">
                 <a href="{% url 'help' %}">
                   Help
                 </a>
@@ -141,7 +141,7 @@
               </li>
 
               {% if request.user.is_staff %}
-                <li class="dropdown">
+                <li class="dropdown {% block editorial_tab_class %}{% endblock %}">
                   <a href="#" class="dropdown-toggle"
                      data-toggle="dropdown" data-hover="dropdown"
                      data-delay="0"
@@ -301,6 +301,12 @@
         </div>
       </div><!--/copyright-->
     {% endblock %}
+
+    <!-- Set the active tab.  Note that an element named "active_tab_index"
+         should be defined in templates that extend this one.-->
+    <script type="text/javascript">
+      $(document).ready(function() { $("#_" + $(".active_tab_index").attr("id")).removeClass("normal").addClass("selected"); })
+    </script>
 
     {% block end_of_body %}
     {% endblock %}
