@@ -9,4 +9,12 @@ class BulletinHelpView(SetHeadlineMixin,
                        TemplateView):
 
     headline = 'Help'
-    template_name = "bulletin_help.html"
+    template_name = 'bulletin_help.html'
+
+
+class SubmissionGuidelinesView(SetHeadlineMixin,
+                               SidebarView,
+                               TemplateView):
+
+    headline = 'Submission Guidelines'
+    template_name = 'submission_guidelines.html'

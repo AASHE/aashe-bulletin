@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
 
-from views import BulletinHelpView
+from views import BulletinHelpView, SubmissionGuidelinesView
 
 admin.autodiscover()
 
@@ -25,6 +25,13 @@ urlpatterns = patterns(
         BulletinHelpView.as_view(),
         name='help'),
 
+    url(r'^submission-guidelines/',
+        SubmissionGuidelinesView.as_view(),
+        name='submission-guidelines'),
+
     url(r'^admin/',
         include(admin.site.urls)),
+
+    url(r'^flat-pages/',
+        include('django.contrib.flatpages.urls'))
 )
