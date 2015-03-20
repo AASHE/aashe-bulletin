@@ -130,7 +130,7 @@
               <tr bgcolor="ffffff">
                 <td width="15%"></td>
                 <td width="70%"
-                    style="font-size: 13px; color: #333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px;">
+                    style="font-size: 13px; color: #333333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px;">
                   {{ issue.introduction|safe }}
                 </td>
                 <td width="15%"></td>
@@ -208,7 +208,7 @@
                                 {% endif %}
 
                                 <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
-                                  <td style="font-size: 12px; color: #333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                                  <td style="font-size: 12px; color: #333333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
                                     {{ story.blurb|truncatechars:166 }}
                                   </td>
                                 </tr>
@@ -277,7 +277,7 @@
                                   {% endif %}
                                 {% endif %}
                                 <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
-                                  <td style="font-size: 12px; color: #333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                                  <td style="font-size: 12px; color: #333333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
                                     {{ story.blurb|truncatechars:166 }}
                                   </td>
                                 </tr>
@@ -441,13 +441,13 @@
                   </tr>
                   {% for opportunity in section.posts.all %}
                     <tr>
-                      <td style="font-size: 14px; color: #333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                      <td style="font-size: 14px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
                         <a href="{{ opportunity.url }}"
                            style="text-decoration: none;"
                            class="job-title">
                           {{ opportunity.title }}
                         </a>
-                        <p style="font-size: 12px; color: #333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                        <p style="font-size: 12px; color: #333333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
                           {{ opportunity.blurb }}
                         </p>
                       </td>
@@ -495,13 +495,13 @@
                   </tr>
                   {% for resource in section.posts.all %}
                     <tr>
-                      <td style="font-size: 14px; color: #333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                      <td style="font-size: 14px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
                         <a href="{{ resource.url }}"
                            style="text-decoration: none;"
                            class="job-title">
                           {{ resource.title }}
                         </a>
-                        <p style="font-size: 12px; color: #333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                        <p style="font-size: 12px; color: #333333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
                           {{ resource.blurb }}
                         </p>
                       </td>
