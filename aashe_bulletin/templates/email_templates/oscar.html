@@ -168,7 +168,7 @@
                                 <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
                                   <td style="font-size: 16px; color: #303030; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px 10px 0; ">
                                     <a href="{{ story.url }}">
-                                      {% thumbnail story.image "260x190" as im %}
+                                      {% thumbnail story.image "260x190" upscale=False as im %}
                                         <img src="{{ im.url }}"
                                              width="{{ im.width }}"
                                              height="{{ im.height }}"
@@ -361,7 +361,7 @@
                         <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
                           <td style="font-size: 16px; color: #303030; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px 10px 0; ">
                             <a href="{{ job.url }}">
-                              {% thumbnail job.image "156x125" as im %}
+                              {% thumbnail job.image "156x125" upscale=False as im %}
                               <img src="{{ im.url }}"
                                    width="{{ im.width }}"
                                    height="{{ im.height }}"
