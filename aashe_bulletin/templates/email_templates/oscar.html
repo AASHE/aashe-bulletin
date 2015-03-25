@@ -187,7 +187,7 @@
 
                                 {% if story.category %}
                                   <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
-                                    <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                                    <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
                                       <a href="{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
                                          style="text-decoration: none">
                                         {{ story.category.fully_qualified_name|upper }}
@@ -196,7 +196,7 @@
                                   </tr>
                                   {% if story.category.url %}
                                     <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
-                                      <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 0px">
+                                      <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 0px">
                                         <a href="{{ story.category.url }}"
                                            style="text-decoration: none">
                                           {{ story.category.name|title }} Resources
@@ -267,7 +267,7 @@
                                 </tr>
                                 {% if story.category %}
                                   <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
-                                    <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                                    <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
                                       <a href="{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
                                          style="text-decoration: none">
                                         {{ story.category.fully_qualified_name|upper }}
@@ -276,7 +276,7 @@
                                   </tr>
                                   {% if story.category.url %}
                                     <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
-                                      <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 0px">
+                                      <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 0px">
                                         <a href="{{ story.category.url }}"
                                            style="text-decoration: none">
                                           {{ story.category.name|title }} Resources
@@ -412,7 +412,7 @@
                                   </td>
                                 </tr>
                                 <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
-                                  <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                                  <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
                                     {{ job.organization|upper }}
                                   </td>
                                 </tr>
@@ -455,7 +455,7 @@
                                   </td>
                                 </tr>
                                 <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
-                                  <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                                  <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
                                     {{ job.organization|upper }}
                                   </td>
                                 </tr>
@@ -568,12 +568,12 @@
                                   </td>
                                 </tr>
                                 <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
-                                  <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                                  <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
                                     {{ event.location|upper }}
                                   </td>
                                 </tr>
                                 <tr bgcolor="{% cycle '#f7f7f7' '#ffffff' %}">
-                                  <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                                  <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
                                     {{ event.start_date|date }}
                                     {% if event.end_date %}
                                       - {{ event.end_date|date }}
@@ -601,12 +601,12 @@
                                   </td>
                                 </tr>
                                 <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
-                                  <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                                  <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
                                     {{ event.location|upper }}
                                   </td>
                                 </tr>
                                 <tr bgcolor="{% cycle '#ffffff' '#f7f7f7' %}">
-                                  <td style="font-size: 10px; color: grey; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                                  <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
                                     {{ event.start_date|date }}
                                     {% if event.end_date %}
                                       - {{ event.end_date|date }}
