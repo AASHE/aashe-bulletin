@@ -177,7 +177,7 @@
                           </td>
                         </tr>
                         <tr>
-                          <td style="font-size: 16px; color: #303030; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px 10px 0; ">
+                          <td style="font-size: 16px; color: #303030; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px 5px 0; ">
                             <a href="{{ story.url }}"
                                style="text-decoration: none">
                               {{ story.title }}
@@ -185,17 +185,23 @@
                           </td>
                         </tr>
 
+                        <tr>
+                          <td style="font-size: 12px; color: #333333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                            {{ story.blurb|truncatechars:166 }}
+                          </td>
+                        </tr>
+
                         {% if story.category %}
                           <tr>
-                            <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                            <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 10px; vertical-align: middle; padding: 5px">
                               <a href="{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
                                  style="text-decoration: none">
-                                {{ story.category.fully_qualified_name|upper }}
+                                {{ story.category.name }} News
                               </a>
                             </td>
                           </tr>
                           <tr>
-                            <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 0px">
+                            <td style="font-size: 10px; color: #333333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 10px; vertical-align: middle; padding: 5px">
                               {% if story.category.url %}
                                 <a href="{{ story.category.url }}"
                                    style="text-decoration: none">
@@ -206,27 +212,6 @@
                           </tr>
                         {% endif %}
 
-                        <tr>
-                          <td style="font-size: 12px; color: #333333; font-weight: bold; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
-                            {{ story.blurb|truncatechars:166 }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td style="font-size: 10px; color: #b3b2b2; font-weight: bold; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
-                            <a href="{{ story.url }}"
-                               style="text-decoration: none">
-                              Full Story</a>
-                            &nbsp; &nbsp;
-                            &nbsp; &nbsp;
-                            &nbsp; &nbsp;
-                            &nbsp; &nbsp;
-                            {% if story.category %}
-                              <a href="{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
-                                 style="text-decoration: none">
-                                More Like This</a>
-                            {% endif %}
-                          </td>
-                        </tr>
                       </table>
                       {% if forloop.counter|divisibleby:"2" %}
                           </td>
