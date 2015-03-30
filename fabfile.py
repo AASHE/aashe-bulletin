@@ -62,7 +62,7 @@ def test():
 
 def production():
     common_env()
-    env.hosts = ['django.aashe.org']
+    env.hosts = ['bulletin.aashe.org']
 
 
 def deploy():
