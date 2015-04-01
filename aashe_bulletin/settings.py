@@ -125,7 +125,7 @@ CORS_ORIGIN_ALLOW_ALL = True  # @todo - security risk?
 CORS_URLS_REGEX = r'^.*/api/.*$'
 
 # Bulletin Settings:
-NUM_POSTS_ON_FRONT_PAGE = 10
+NUM_POSTS_ON_FRONT_PAGE = 50
 
 BULLETIN_CONTENT_TYPE_PLUGINS = (
     'event',
