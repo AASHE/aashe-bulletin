@@ -70,6 +70,9 @@ INSTALLED_APPS = (
     'django_bootstrap_breadcrumbs',
     'south',
 
+    # misc 3rd party apps
+    'overextends',
+
     # good for development
     'django_extensions'
 )
