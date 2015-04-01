@@ -4,12 +4,12 @@ from django.views.generic import TemplateView
 from bulletin.views import SidebarView
 
 
-class BulletinHelpView(SetHeadlineMixin,
+class FAQView(SetHeadlineMixin,
                        SidebarView,
                        TemplateView):
 
-    headline = 'Help'
-    template_name = 'bulletin_help.html'
+    headline = 'Frequently Asked Questions'
+    template_name = 'faq.html'
 
 
 class SubmissionGuidelinesView(SetHeadlineMixin,

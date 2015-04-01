@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.views.generic import RedirectView
 
-from views import BulletinHelpView, SubmissionGuidelinesView
+from views import FAQView, SubmissionGuidelinesView
 
 admin.autodiscover()
 
@@ -22,8 +22,8 @@ urlpatterns = patterns(
         include(aashe.aasheauth.urls)),
 
     url(r'^help/',
-        BulletinHelpView.as_view(),
-        name='help'),
+        FAQView.as_view(),
+        name='faq'),
 
     url(r'^submission-guidelines/',
         SubmissionGuidelinesView.as_view(),
