@@ -38,6 +38,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.tz",
     "django.contrib.messages.context_processors.messages",
     "django.core.context_processors.request",
+    "aashe_bulletin.context_processors.domain"
 )
 
 ALLOWED_HOSTS = [""]
@@ -50,6 +51,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.sites',
     'django.contrib.staticfiles',
 
     # AASHE Apps
@@ -92,6 +94,8 @@ ROOT_URLCONF = 'aashe_bulletin.urls'
 WSGI_APPLICATION = 'aashe_bulletin.wsgi.application'
 
 DATABASES = {'default': dj_database_url.config(env='BULLETIN_DATABASE_URL')}
+
+SITE_ID = 1
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
