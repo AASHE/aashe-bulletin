@@ -31,7 +31,7 @@ urlpatterns = patterns(
     url(r'^flat-pages/',
         include('django.contrib.flatpages.urls')),
 
-    url(r'',
+    url(r'^',
         include('bulletin.urls',
                 namespace='bulletin')),
 )
