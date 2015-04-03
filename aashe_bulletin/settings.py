@@ -136,7 +136,7 @@ NUM_POSTS_ON_FRONT_PAGE = 50
 BULLETIN_CONTENT_TYPE_PLUGINS = (
     'event',
     'job',
-    'new resource',
+    'newresource',
     'opportunity',
     'story',
 )
