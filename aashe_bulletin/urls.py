@@ -10,14 +10,6 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
 
-    url(r'^$',
-        RedirectView.as_view(pattern_name='bulletin:plugins:story-list'),
-        name='front-page'),
-
-    url(r'^newsletter/',
-        include('bulletin.urls',
-                namespace='bulletin')),
-
     url(r'^accounts/',
         include(aashe.aasheauth.urls)),
 
@@ -33,5 +25,9 @@ urlpatterns = patterns(
         include(admin.site.urls)),
 
     url(r'^flat-pages/',
-        include('django.contrib.flatpages.urls'))
+        include('django.contrib.flatpages.urls')),
+
+    url(r'^',
+        include('bulletin.urls',
+                namespace='bulletin')),
 )
