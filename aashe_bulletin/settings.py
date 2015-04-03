@@ -171,3 +171,5 @@ third party, including but not limited to intellectual property rights,
 or any other rights protected by law (such as the right to privacy or
 right of publicity).
 """
+
+MAX_STORY_BLURB_LENGTH = 400
