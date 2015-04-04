@@ -7,7 +7,7 @@ https://docs.djangoproject.com/en/1.6/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.6/ref/settings/
 """
-
+from django.contrib.messages import constants as message_constants
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import dj_database_url
@@ -173,3 +173,9 @@ right of publicity).
 """
 
 MAX_STORY_BLURB_LENGTH = 400
+
+MESSAGE_TAGS = {message_constants.DEBUG: 'alert fade in alert-debug',
+                message_constants.INFO: 'alert fade in alert-info',
+                message_constants.SUCCESS: 'alert fade in alert-success',
+                message_constants.WARNING: 'alert fade in alert-warning',
+                message_constants.ERROR: 'alert fade in alert-error'}
