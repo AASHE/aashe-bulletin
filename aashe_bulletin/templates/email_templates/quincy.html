@@ -171,9 +171,10 @@
                           <td style="font-size: 20px; color: #303030; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px 10px 0; ">
                             <a href="{{ story.url }}">
                               {% thumbnail story.image "260x190" as im %}
-                              <img src="{{ im.url }}"
-                                   width="{{ im.width }}"
-                                   height="{{ im.height }}">
+                                <img src="{{ im.url }}"
+                                    width="{{ im.x }}"
+                                    height="{{ im.y }}"
+                                    style="margin:{{ im|margin:"260x190" }}">
                               {% endthumbnail %}
                             </a>
                           </td>
