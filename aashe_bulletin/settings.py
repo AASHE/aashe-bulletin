@@ -22,7 +22,12 @@ SECRET_KEY = '-m7iu+(0mcb_fh0y6#uj0xep+3b+72f@11_i%^&omsg(qzn68r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.environ.get('DEBUG', False)
+debug_string = os.environ.get('DEBUG', 'false')
+if debug_string.lower() == 'true':
+    DEBUG = True
+else:
+    DEBUG = False
+
 TEMPLATE_DEBUG = DEBUG
 
 TEMPLATE_DIRS = (
