@@ -14,13 +14,7 @@ import dj_database_url
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '-m7iu+(0mcb_fh0y6#uj0xep+3b+72f@11_i%^&omsg(qzn68r'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -40,7 +34,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request"
 )
 
-ALLOWED_HOSTS = [""]
+ALLOWED_HOSTS = [".aashe.org"]
 
 # Application definition
 
