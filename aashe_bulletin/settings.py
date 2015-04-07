@@ -14,9 +14,14 @@ import dj_database_url
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-SECRET_KEY = '-m7iu+(0mcb_fh0y6#uj0xep+3b+72f@11_i%^&omsg(qzn68r'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
-DEBUG = False
+debug_string = os.environ.get('DEBUG', 'False')
+if debug_string.lower() == 'true':
+    DEBUG = True
+else:
+    DEBUG = False
+
 TEMPLATE_DEBUG = DEBUG
 
 TEMPLATE_DIRS = (
