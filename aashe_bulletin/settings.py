@@ -1,17 +1,13 @@
 """
 Django settings for aashe_bulletin project.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/1.6/topics/settings/
-
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.6/ref/settings/
 """
-from django.contrib.messages import constants as message_constants
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import logging.config
+
+from django.contrib.messages import constants as message_constants
 import dj_database_url
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
@@ -41,7 +37,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 ALLOWED_HOSTS = [".aashe.org"]
 
-# Application definition
+ADMINS = (('Bob Erb', 'bob.erb@aashe.org'),)
 
 INSTALLED_APPS = (
     'django.contrib.admin',
@@ -72,6 +68,7 @@ INSTALLED_APPS = (
 
     # misc 3rd party apps
     'overextends',
+    'raven.contrib.django.raven_compat',
 
     # good for development
     'django_extensions'
@@ -178,3 +175,42 @@ MESSAGE_TAGS = {message_constants.DEBUG: 'alert fade in alert-debug',
                 message_constants.SUCCESS: 'alert fade in alert-success',
                 message_constants.WARNING: 'alert fade in alert-warning',
                 message_constants.ERROR: 'alert fade in alert-error'}
+
+LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', 'INFO')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'console': {
+            'format': '%(asctime)s:%(levelname)s:%(name)s:%(message)s',
+            'datefmt': '%m/%d/%Y-%H:%M:%S'
+            },
+        },
+
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'console'
+            },
+        'sentry': {
+            'level': 'ERROR',
+            'class': 'raven.handlers.logging.SentryHandler',
+            'dsn': ('https://6f14dc148c26474f9d08c6de7c74f049:'
+                    'ad632c3061ce47e8b5c668aa25d2b449'
+                    '@app.getsentry.com/41366')
+            },
+        },
+
+    'loggers': {
+        '': {
+            'handlers': ['console', 'sentry'],
+            'level': LOGGING_LEVEL,
+            'propagate': False,
+        },
+    }
+}
+
+logging.config.dictConfig(LOGGING)
