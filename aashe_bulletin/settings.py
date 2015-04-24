@@ -214,3 +214,6 @@ LOGGING = {
 }
 
 logging.config.dictConfig(LOGGING)
+
+# Define a css class for required fields so we can mark them.
+BOOTSTRAP3 = {'required_css_class': 'required-input'}
