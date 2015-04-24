@@ -185,7 +185,7 @@
 
                         <tr>
                           <td style="font-size: 16px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
-                            {{ story.blurb|truncatechars:166 }}
+                            {{ story.blurb|safe|truncatewords_html:25 }}
                           </td>
                         </tr>
 
@@ -366,7 +366,7 @@
                           {{ opportunity.title }}
                         </a>
                         <p style="font-size: 16px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
-                          {{ opportunity.blurb }}
+                          {{ opportunity.blurb|safe }}
                         </p>
                       </td>
                     </tr>
@@ -397,7 +397,7 @@
                           {{ resource.title }}
                         </a>
                         <p style="font-size: 16px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
-                          {{ resource.blurb }}
+                          {{ resource.blurb|safe }}
                         </p>
                       </td>
                     </tr>
