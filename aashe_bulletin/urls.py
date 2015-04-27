@@ -1,9 +1,10 @@
 import aashe.aasheauth.urls
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from django.views.generic import RedirectView
 
-from views import FAQView, SubmissionGuidelinesView
+from views import (FAQView,
+                   FrontPageView,
+                   SubmissionGuidelinesView)
 
 admin.autodiscover()
 
@@ -11,7 +12,7 @@ urlpatterns = patterns(
     '',
 
     url(r'^$',
-        RedirectView.as_view(pattern_name='bulletin:plugins:story-list'),
+        FrontPageView.as_view(),
         name='front-page'),
 
     url(r'^accounts/',

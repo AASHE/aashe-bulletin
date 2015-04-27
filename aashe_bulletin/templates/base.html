@@ -93,7 +93,7 @@
               <span class="fa fa-bars"></span>
             </button>
 
-            <a class="navbar-brand" href="{% url "bulletin:plugins:story-list" %}">
+            <a class="navbar-brand" href="{% url "front-page" %}">
               <img id="logo-header"
                    src="{% static "assets/img/bulletin-website-logo-10-yr.png" %}"
                    alt="Logo" />
@@ -104,6 +104,11 @@
           <div class="navbar-collapse navbar-responsive-collapse collapse"
                style="height: 0px;">
             <ul id="navbar-list" class="nav navbar-nav">
+              <li class="{% block front_page_tab_class %}{% endblock %}">
+                <a href="{% url "bulletin:front-page" %}">
+                  Home
+                </a>
+              </li>
               <li class="{% block news_tab_class %}{% endblock %}">
                 <a href="{% url "bulletin:plugins:story-list" %}">
                   News
