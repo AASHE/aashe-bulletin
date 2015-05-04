@@ -35,7 +35,7 @@
               <h2>{{ post.title }}</h2>
             </a>
             <div class="margin-bottom-10">
-              {{ post.blurb }}
+              {{ post.blurb|safe }}
             </div>
             <ul class="list-unstyled list-inline blog-info">
               <li><span class="glyphicon glyphicon-calendar"></span>
