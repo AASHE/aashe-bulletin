@@ -184,14 +184,14 @@
                         </tr>
 
                         <tr>
-                          <td style="font-size: 16px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                          <td style="font-size: 16px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 20px; vertical-align: middle; padding: 5px;">
                             {{ story.blurb|safe|truncatewords_html:25 }}
                           </td>
                         </tr>
 
                         {% if story.category %}
                           <tr>
-                            <td style="font-size: 14px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                            <td style="font-size: 14px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 15px; vertical-align: middle; padding: 5px;">
                               <a href="http://{{ domain }}{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
                                 style="text-decoration: none">
                                 More {{ story.category.name }} News
@@ -199,7 +199,7 @@
                             </td>
                           </tr>
                           <tr>
-                            <td style="font-size: 14px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                            <td style="font-size: 14px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 15px; vertical-align: middle; padding: 5px;">
                               {% if story.category.url %}
                                 <a href="{{ story.category.url }}"
                                    style="text-decoration: none">
@@ -320,7 +320,7 @@
                             </td>
                           </tr>
                           <tr>
-                            <td style="font-size: 14px; color: #333333; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                            <td style="font-size: 14px; color: #333333; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 10px; vertical-align: middle; padding: 5px;">
                               {{ job.organization }}
                             </td>
                           </tr>
@@ -365,7 +365,7 @@
                            class="job-title">
                           {{ opportunity.title }}
                         </a>
-                        <p style="font-size: 16px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                        <p style="font-size: 16px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 20px; vertical-align: middle; padding: 5px;">
                           {{ opportunity.blurb|safe }}
                         </p>
                       </td>
@@ -396,7 +396,7 @@
                            class="job-title">
                           {{ resource.title }}
                         </a>
-                        <p style="font-size: 16px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px;">
+                        <p style="font-size: 16px; color: #333333; font-weight: normal; text-align: left; font-family: Arial, Helvetica, sans-serif; line-height: 20px; vertical-align: middle; padding: 5px;">
                           {{ resource.blurb|safe }}
                         </p>
                       </td>
@@ -437,12 +437,12 @@
                           </td>
                         </tr>
                         <tr>
-                          <td style="font-size: 14px; color: #333333; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                          <td style="font-size: 14px; color: #333333; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 10px; vertical-align: middle; padding: 5px">
                             {{ event.location }}
                           </td>
                         </tr>
                         <tr>
-                          <td style="font-size: 14px; color: #333333; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px">
+                          <td style="font-size: 14px; color: #333333; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 10px; vertical-align: middle; padding: 5px">
                             {{ event.start_date|date }}
                             {% if event.end_date %}
                               - {{ event.end_date|date }}
