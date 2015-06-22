@@ -48,6 +48,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
+    'haystack',
+
     # AASHE Apps
     'aashe.aasheauth',
     'django_constant_contact',
@@ -217,3 +219,12 @@ logging.config.dictConfig(LOGGING)
 
 # Define a css class for required fields so we can mark them.
 BOOTSTRAP3 = {'required_css_class': 'required-input'}
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index')
+    },
+}
+
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'

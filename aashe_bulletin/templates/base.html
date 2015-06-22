@@ -100,6 +100,19 @@
             </a>
           </div>
 
+          <!-- Search form -->
+          <form method="GET" action="{% url "bulletin:haystack_search" %}">
+            <div class="input-group">
+              <input type="text" class="form-control" name="q" id="id_q">
+              <span class="input-group-btn">
+                <button class="btn" type="submit">
+                  <span class="glyphicon glyphicon-search"></span>
+                  Search
+                </button>
+              </span>
+            </div>
+          </form>
+
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="navbar-collapse navbar-responsive-collapse collapse"
                style="height: 0px;">
