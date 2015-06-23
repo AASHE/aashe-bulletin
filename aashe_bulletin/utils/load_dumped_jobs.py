@@ -29,7 +29,10 @@ def int_for_month(str):
            'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5,
            'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10,
            'Nov': 11, 'Dec': 12}
-    return map[str]
+    if str in map:
+        return map[str]
+    else:
+        return int(str)
 
 
 def str_to_date(str, date_type):
@@ -42,11 +45,15 @@ def str_to_date(str, date_type):
                              int_for_month(str=month_str),
                              int(day_str))
     elif date_type == 'issue_date':
-        # ['January', '14,', '2014']
-        month_str, day_str, year_str = str[0], str[1], str[2]
-        return datetime.date(int(year_str),
-                             int_for_month(str=month_str),
-                             int(day_str[:-1]))  # drop trailing comma on day
+        try:
+            # ['January', '14,', '2014']
+            month_str, day_str, year_str = str[0], str[1], str[2]
+        except IndexError:
+            # ['M/DD/YY']
+            month_str, day_str, year_str = str[0].split('/')
+            return datetime.date(int(year_str),
+                                 int(month_str),
+                                 int(day_str))
     else:
         # January 2, 2014
         month_str, day_str, year_str = str.split()
@@ -92,7 +99,12 @@ def job(job_data, issue):
 def name_issue(issue_date_str):
     # January 20, 2015 November 18, 1999
     # Only want first date, if there's more than one.
-    month_str, day_str, year_str = issue_date_str.split()[:3]
+    try:
+        # Jan. 7 2010
+        month_str, day_str, year_str = issue_date_str.split()[:3]
+    except ValueError:
+        # M/DD/YY
+        month_str, day_str, year_str = issue_date_str.split('/')
     return 'Bulletin {year}-{month}-{day}'.format(
         year=year_str,
         month=str(int_for_month(month_str)).zfill(2),
@@ -110,7 +122,7 @@ def main():
     skipped_no_issue_date = []  # Jobs skipped because no issue date.
     skipped_unpublished = []  # Jobs skipped because they're "unpublished".
 
-    with open('dumps/bulletin_dump_jobs.csv') as csvfile:
+    with open('dumps/jobs.csv') as csvfile:
         reader = csv.reader(csvfile)
         this_is_the_header = True
         for row in reader:
@@ -159,9 +171,16 @@ def main():
                     name=issue_name,
                     pub_date=pub_date)
 
-            new_job = job(job_data, issue)
+            unloadable = []
+
+            try:
+                new_job = job(job_data, issue)
+            except Exception as exc:
+                unloadable.append(job_data)
+                unloadable.append(exc)
             new_jobs.append(new_job)
 
     return {'new_jobs': new_jobs,
             'skipped_no_issue_date': skipped_no_issue_date,
-            'skipped_unpublished': skipped_unpublished}
+            'skipped_unpublished': skipped_unpublished,
+            'unloadable': unloadable}

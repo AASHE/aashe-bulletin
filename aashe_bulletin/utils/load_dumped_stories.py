@@ -106,6 +106,12 @@ def str_to_date(str, date_type):
         return datetime.date(int(year_num_str),
                              int(month_num_str),
                              int(day_num_str))
+    elif date_type == 'global_date':
+        # "February 2010 (Global)"
+        month_str, year_num_str = str.split()[:2]
+        return datetime.date(int(year_num_str),
+                             int_for_month(str=month_str),
+                             1)
     else:
         # January 2, 2014
         month_str, day_str, year_str = str.split()
@@ -199,17 +205,33 @@ def name_issue(issue_date_str):
     # 'January 20, 2015 November 18, 1999'
     # OR
     # '1/3/08'
+    # OR
+    # '01/24/2011 01/18/2011'
+
+    # Do we have two slash-separated strings?
+    try:
+        d1, d2 = issue_date_str.split()
+        if len(d1.split('/')) == 3:
+            issue_date_str = d1
+    except ValueError:
+        pass
+
     # Is this a slash-separated string?
     try:
         month_num_str, day_num_str, year_num_str = issue_date_str.split('/')
-        month_num_str = month_num_str.zfill(2)
-        day_num_str = day_num_str.zfill(2)
-        year_num_str = str(int(year_num_str) + 2000)
     except ValueError:
-        # Only want first date, if there's more than one.
-        month_str, day_str, year_num_str = issue_date_str.split()[:3]
-        day_num_str = day_str[:-1].zfill(2)
-        month_num_str = str(int_for_month(month_str)).zfill(2)
+        try:
+            month_num_str, day_num_str, year_num_str = (
+                issue_date_str.split()[0].split('/'))
+        except ValueError:
+            # Only want first date, if there's more than one.
+            month_str, day_str, year_num_str = issue_date_str.split()[:3]
+            day_num_str = day_str[:-1].zfill(2)
+            month_num_str = str(int_for_month(month_str)).zfill(2)
+        else:
+            month_num_str = month_num_str.zfill(2)
+            day_num_str = day_num_str.zfill(2)
+            year_num_str = str(int(year_num_str) + 2000)
     return 'Bulletin {year}-{month}-{day}'.format(
         year=year_num_str,
         month=month_num_str,
@@ -230,12 +252,17 @@ def main():
     skipped_bad_story_format = []  # Stories w/fundamentally bad data.
     skipped_no_issue_date = []  # Stories skipped because no issue date.
     skipped_unpublished = []  # Stories skipped because they're "unpublished".
-    skipped_global = []  # Skipped because global edition has no issue date.
 
-    with open('dumps/bulletin_dump_stories.csv') as csvfile:
+    with open('dumps/stories.csv') as csvfile:
+        unloadable_resources = []
+        unloadable_opportunities = []
+        unloadable_stories = []
+
         reader = csv.reader(csvfile)
         this_is_the_header = True
+
         for row in reader:
+
             # Kludge to skip the header row.
             if this_is_the_header:
                 this_is_the_header = False
@@ -266,26 +293,21 @@ def main():
                 continue
 
             # Sometimes the issue date is "unpublished". We're just
-            # counting and skipping these, too.
+            # counting and skipping these.
             if 'unpublished' in story_data['issue_date'].lower():
                 skipped_unpublished.append(story_data)
                 continue
 
-            # Sometimes the issue date is something like "February
-            # 2010 (Global)", and we can't parse a date from that,
-            # so we're just counting and skipping these, too.
-            try:
-                if 'global' in story_data['issue_date'].split()[2].lower():
-                    skipped_global.append(story_data)
-                    continue
-            except IndexError:
-                pass
-
-            # What we're calling "issue_date" here is sometimes
-            # a list of dates. When that happens, we only care about
-            # the first one.
-            pub_date = str_to_date(story_data['issue_date'].split()[:3],
-                                   'issue_date')
+            # Sometimes issue date is like "February 2010 (Global)":
+            if 'global' in story_data['issue_date'].lower():
+                pub_date = str_to_date(story_data['issue_date'],
+                                       'global_date')
+            else:
+                # What we're calling "issue_date" here is sometimes
+                # a list of dates. When that happens, we only care about
+                # the first one.
+                pub_date = str_to_date(story_data['issue_date'].split()[:3],
+                                       'issue_date')
 
             # Get or create an Issue.
             try:
@@ -302,14 +324,23 @@ def main():
             # identified in this CSV by their category name of "New
             # Resources" or "Opportunities".
             if story_data['category_name'] == 'New Resources':
-                new_new_resource = story_to_new_resource(story_data, issue)
-                new_new_resources.append(new_new_resource)
+                try:
+                    new_new_resource = story_to_new_resource(story_data, issue)
+                    new_new_resources.append(new_new_resource)
+                except:
+                    unloadable_resources.append(story_data)
             elif story_data['category_name'] == 'Opportunities':
-                new_opportunity = story_to_opportunity(story_data, issue)
-                new_opportunities.append(new_opportunity)
+                try:
+                    new_opportunity = story_to_opportunity(story_data, issue)
+                    new_opportunities.append(new_opportunity)
+                except:
+                    unloadable_opportunities.append(story_data)
             else:
-                new_story = story(story_data, issue)
-                new_stories.append(new_story)
+                try:
+                    new_story = story(story_data, issue)
+                    new_stories.append(new_story)
+                except:
+                    unloadable_stories.append(story_data)
 
     return {'new_stories': new_stories,
             'new_opportunities': new_opportunities,
@@ -317,4 +348,6 @@ def main():
             'skipped_no_issue_date': skipped_no_issue_date,
             'skipped_bad_story_format': skipped_bad_story_format,
             'skipped_unpublished': skipped_unpublished,
-            'skipped_global': skipped_global}
+            'unloadable_resources': unloadable_resources,
+            'unloadable_opportunities': unloadable_opportunities,
+            'unloadable_stories': unloadable_stories}

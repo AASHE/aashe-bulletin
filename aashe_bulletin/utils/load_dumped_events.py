@@ -30,7 +30,10 @@ def int_for_month(str):
            'Jun': 6, 'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10,
            'Nov': 11, 'Dec': 12,
            'Sept': 9}
-    return map[str]
+    if str in map:
+        return map[str]
+    else:
+        return map[str.split('-')[0]]  # E.g., 'February-May'
 
 
 def str_to_date(str, date_type):
@@ -73,6 +76,12 @@ def str_to_date(str, date_type):
         return datetime.date(int(year_num_str),
                              int(month_num_str),
                              int(day_num_str))
+    elif date_type == 'global_date':
+        # "February 2010 (Global)"
+        month_str, year_num_str = str.split()[:2]
+        return datetime.date(int(year_num_str),
+                             int_for_month(str=month_str),
+                             1)
     elif date_type == 'date_time':
         # Jan. 20, 2014
         #   or
@@ -89,6 +98,8 @@ def str_to_date(str, date_type):
         # May 28, 2013 at 2:00 p.m. ET
         #  or
         # Sept. 10, 2013: 11:30 a.m.
+        #  or
+        # June 23, 2011 and June 27, 2011
 
         # Drop the time.
         just_date = str.split(';')[0]
@@ -113,8 +124,13 @@ def str_to_date(str, date_type):
 
         try:
             month_str, day_str, year_str = just_date.split()
-        except ValueError:  # Is it like 'Feb. 28 - Mar. 1, 2014'?
-            start_date, end_date = just_date.split('-')
+        except ValueError:
+            # Is it like 'Feb. 28 - Mar. 1, 2014' or
+            # 'June 23, 2011 and June 27, 2011'?
+            try:
+                start_date, end_date = just_date.split('-')
+            except ValueError:
+                start_date, end_date = just_date.split('and')
             month_str = start_date.split()[0]
             day_str = start_date.split()[1]
             year_str = end_date.split()[-1]
@@ -134,12 +150,15 @@ def str_to_date(str, date_type):
     else:
         # January 2, 2014
         month_str, day_str, year_str = str.split()
-        return datetime.date(int(year_str),
-                             int_for_month(str=month_str),
-                             int(day_str[:-1]))  # drop trailing comma on day
+        try:
+            dt = datetime.date(int(year_str),
+                               int_for_month(str=month_str),
+                               int(day_str[:-1]))  # drop trailing comma on day
+        except:
 
 
-def event(event_data, issue):
+
+def event_factory(event_data, issue):
     """Create a event based on `event_data`.
     """
     # Get or create a Section.
@@ -217,9 +236,10 @@ def main():
 
     skipped_no_issue_date = []  # Events skipped because no issue date.
     skipped_unpublished = []  # Events skipped because they're "unpublished".
-    skipped_global = []  # Skipped because global edition has no issue date.
 
-    with open('dumps/bulletin_dump_events.csv') as csvfile:
+    unloadable = []  # Just can't load
+
+    with open('dumps/events.csv') as csvfile:
         reader = csv.reader(csvfile)
         this_is_the_header = True
         for row in reader:
@@ -253,20 +273,16 @@ def main():
                 continue
 
             # Sometimes the issue date is something like "February
-            # 2010 (Global)", and we can't parse a date from that,
-            # so we're just counting and skipping these, too.
-            try:
-                if 'global' in event_data['issue_date'].split()[2].lower():
-                    skipped_global.append(event_data)
-                    continue
-            except IndexError:
-                pass
-
-            # What we're calling "issue_date" here is sometimes
-            # a list of dates. When that happens, we only care about
-            # the first one.
-            pub_date = str_to_date(event_data['issue_date'].split()[:3],
-                                   'issue_date')
+            # 2010 (Global)".
+            if 'global' in event_data['issue_date'].lower():
+                pub_date = str_to_date(story_data['issue_date'],
+                                       'global_date')
+            else:
+                # What we're calling "issue_date" here is sometimes
+                # a list of dates. When that happens, we only care about
+                # the first one.
+                pub_date = str_to_date(event_data['issue_date'].split()[:3],
+                                       'issue_date')
 
             # Get or create an Issue.
             try:
@@ -278,10 +294,14 @@ def main():
                     name=issue_name,
                     pub_date=pub_date)
 
-            new_event = event(event_data, issue)
+            try:
+                new_event = event_factory(event_data, issue)
+            except:
+                unloadable.append(event_data)
             new_events.append(new_event)
 
     return {'new_events': new_events,
             'skipped_no_issue_date': skipped_no_issue_date,
             'skipped_unpublished': skipped_unpublished,
-            'skipped_global': skipped_global}
+            'skipped_global': skipped_global,
+            'unloadable': unloadable}
