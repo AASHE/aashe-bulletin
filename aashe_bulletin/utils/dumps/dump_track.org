@@ -1,13 +1,20 @@
-| Content Type |       From | To         | Filename                      | Locally loaded? | Loaded on dev? | Loaded on production? |
+| Content Type |       From |         To | Filename                      | Locally loaded? | Loaded on dev? | Loaded on production? |
 |--------------+------------+------------+-------------------------------+-----------------+----------------+-----------------------|
-| Event        | 2014-01-01 | Present    | events_20140101-go-live.csv   | Yes             | Yes            | Yes                   |
-| Job          | 2014-01-01 | Present    | jobs_20140101-go-live.csv     | Yes             | Yes            | Yes                   |
-| News Story   | 2014-01-01 | Present    | stories_20140101-go-live.csv  | Yes             | Yes            | Yes                   |
-| Opportunity  | 2014-01-01 | Present    | "                             | "               | "              | "                     |
-| Resources    | 2014-01-01 | Present    | "                             | "               | "              | "                     |
+| Event        | 2014-01-01 |    Present | events_20140101-go-live.csv   | Yes             | Yes            | Yes                   |
+| Job          | 2014-01-01 |    Present | jobs_20140101-go-live.csv     | Yes             | Yes            | Yes                   |
+| News Story   | 2014-01-01 |    Present | stories_20140101-go-live.csv  | Yes             | Yes            | Yes                   |
+| Opportunity  | 2014-01-01 |    Present | "                             | "               | "              | "                     |
+| Resources    | 2014-01-01 |    Present | "                             | "               | "              | "                     |
 |--------------+------------+------------+-------------------------------+-----------------+----------------+-----------------------|
 | Event        | 2010-01-01 | 2013-12-31 | events_20100101-20131231.csv  | All but 3       |                |                       |
 | Job          | 2010-01-01 | 2013-12-31 | jobs_20100101-20131231.csv    | All but 3       |                |                       |
-| News Story   | 2010-01-01 | 2013-12-31 | stories_20100101-20131231.csv | No              |                |                       |
+| News Story   | 2010-01-01 | 2013-12-31 | stories_20100101-20131231.csv | All but a few   |                |                       |
 | Opportunity  | 2010-01-01 | 2013-12-31 | "                             | "               |                |                       |
 | Resources    | 2010-01-01 | 2013-12-31 | "                             | "               |                |                       |
+|--------------+------------+------------+-------------------------------+-----------------+----------------+-----------------------|
+| Event        | 2000-01-01 | 2009-12-31 | events_20000101-20091231.csv  |                 |                |                       |
+| Job          | 2000-01-01 | 2009-12-31 | jobs_20000101-20091231.csv    |                 |                |                       |
+| News Story   | 2000-01-01 | 2009-12-31 | stories_20000101-20091231.csv |                 |                |                       |
+| Opportunity  | 2000-01-01 | 2009-12-31 | "                             |                 |                |                       |
+| Resources    | 2000-01-01 | 2009-12-31 | "                             |                 |                |                       |
+|--------------+------------+------------+-------------------------------+-----------------+----------------+-----------------------|

@@ -150,12 +150,9 @@ def str_to_date(str, date_type):
     else:
         # January 2, 2014
         month_str, day_str, year_str = str.split()
-        try:
-            dt = datetime.date(int(year_str),
-                               int_for_month(str=month_str),
-                               int(day_str[:-1]))  # drop trailing comma on day
-        except:
-
+        return datetime.date(int(year_str),
+                             int_for_month(str=month_str),
+                             int(day_str[:-1]))
 
 
 def event_factory(event_data, issue):
@@ -303,5 +300,4 @@ def main():
     return {'new_events': new_events,
             'skipped_no_issue_date': skipped_no_issue_date,
             'skipped_unpublished': skipped_unpublished,
-            'skipped_global': skipped_global,
             'unloadable': unloadable}
