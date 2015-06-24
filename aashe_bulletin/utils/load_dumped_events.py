@@ -272,7 +272,7 @@ def main():
             # Sometimes the issue date is something like "February
             # 2010 (Global)".
             if 'global' in event_data['issue_date'].lower():
-                pub_date = str_to_date(story_data['issue_date'],
+                pub_date = str_to_date(event_data['issue_date'],
                                        'global_date')
             else:
                 # What we're calling "issue_date" here is sometimes
