@@ -78,10 +78,31 @@ def str_to_date(str, date_type):
                              int(day_num_str))
     elif date_type == 'global_date':
         # "February 2010 (Global)"
-        month_str, year_num_str = str.split()[:2]
-        return datetime.date(int(year_num_str),
-                             int_for_month(str=month_str),
-                             1)
+        #  or
+        # "8/23/2011"
+        #  or
+        # "8/23/2011 August 2011 Global Edition"
+        #  or (no kidding)
+        # "May 8, 2012 March 27, 2012 12/20/2011 8/23/2011 August 2011 Global Edition"
+        if len(str.split()) > 5:
+            month_str, day_str, year_num_str = str.split()[:3]
+            month_num_str = int_for_month(str=month_str)
+            day_num_str = day_str.strip(',')
+            return datetime.date(int(year_num_str),
+                                 int(month_num_str),
+                                 int(day_num_str))
+
+        try:
+            month_num_str, day_num_str, year_num_str = str.split('/')
+        except ValueError:
+            month_str, year_num_str = str.split()[:2]
+            return datetime.date(int(year_num_str),
+                                 int_for_month(
+                                     str=month_str.split(',')[0]), 1)
+        else:
+            return datetime.date(int(year_num_str.split()[0]),
+                                 int(month_num_str),
+                                 int(day_num_str))
     elif date_type == 'date_time':
         # Jan. 20, 2014
         #   or
