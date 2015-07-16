@@ -81,5 +81,13 @@ def main():
                                     url=child['url'])
 
 
+def backfill():
+    for parent_name, children in categories.items():
+        for child in children:
+            child_category = Category.objects.filter(name=child['name'])[0]
+            child_category.url = child['url']
+            child_category.save()
+
+
 if __name__ == '__main__':
     main()

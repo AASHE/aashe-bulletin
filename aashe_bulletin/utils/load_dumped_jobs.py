@@ -62,7 +62,7 @@ def str_to_date(str, date_type):
                              int(day_str[:-1]))  # drop trailing comma on day
 
 
-def job(job_data, issue):
+def job_factory(job_data, issue):
     """Create a job based on `job_data`.
     """
     # Get or create a Section.
@@ -174,7 +174,7 @@ def main():
             unloadable = []
 
             try:
-                new_job = job(job_data, issue)
+                new_job = job_factory(job_data, issue)
             except Exception as exc:
                 unloadable.append(job_data)
                 unloadable.append(exc)
