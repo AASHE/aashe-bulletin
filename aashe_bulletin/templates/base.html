@@ -61,7 +61,6 @@
     <!--=== Top ===-->
     <div class="top">
       <div class="container">
-
         <ul class="loginbar pull-right">
           <li>
             {% if user.is_authenticated %}
@@ -75,7 +74,6 @@
             {% endif %}
           </li>
         </ul>
-
       </div>
     </div>
     <!--=== End Top ===-->
@@ -101,17 +99,41 @@
           </div>
 
           <!-- Search form -->
-          <form method="GET" action="{% url "bulletin:haystack_search" %}">
+          {% if user.is_authenticated %}
+            {% if user.aasheuser and user.aasheuser.is_member %}
+              <form method="GET" action="{% url "bulletin:haystack_search" %}">
+                <div class="input-group col-md-4 pull-right">
+                  <input type="text" class="form-control" name="q" id="id_q">
+                  <span class="input-group-btn">
+                    <button class="btn" type="submit">
+                      <span class="glyphicon glyphicon-search"></span>
+                      Search
+                    </button>
+                  </span>
+                </div>
+              </form>
+            {% else %}
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <a href="http://www.aashe.org/membership"
+                     class="btn btn-default pull-right">
+                    <span class="glyphicon glyphicon-star"></span>
+                    Join AASHE and you'll be able to search the Bulletin.
+                  </a>
+                </span>
+              </div>
+            {% endif %}
+          {% else %}
             <div class="input-group">
-              <input type="text" class="form-control" name="q" id="id_q">
               <span class="input-group-btn">
-                <button class="btn" type="submit">
+                <a href="/accounts/login/?next={{ request.get_full_path }}"
+                   class="btn btn-default pull-right">
                   <span class="glyphicon glyphicon-search"></span>
-                  Search
-                </button>
+                  AASHE members! Login to search the Bulletin!
+                </a>
               </span>
             </div>
-          </form>
+          {% endif %}
 
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="navbar-collapse navbar-responsive-collapse collapse"
