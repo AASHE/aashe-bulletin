@@ -1,5 +1,5 @@
 Django==1.6.10
--e hg+ssh://hg@bitbucket.org/aashe/aashe-auth#egg=aashe_auth
+-e git+ssh://git@github.com/AASHE/aashe-auth.git#egg=aashe_auth
 dj_database_url
 -e git+https://github.com/AASHE/django-constant-contact.git#egg=django_constant_contact
 -e git+https://github.com/AASHE/django-bulletin.git#egg=django_bulletin
