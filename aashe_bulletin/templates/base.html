@@ -59,30 +59,43 @@
 
   <body>
     <!--=== Top ===-->
+
     <div class="top">
       <div class="container">
-        <div class="row">
-          <ul class="loginbar pull-right">
-            <li>
+        <div class="row top-nav">
+          <div class="span7 aashe-tabs">
+            <a href="http://www.aashe.org/" class="left">
+              aashe
+            </a>
+            <a href="http://stars.aashe.org/" class="left">
+              stars
+            </a>
+            <a href="http://www.aashe.org/conference" class="left">
+              conference
+            </a>
+            <a href="http://bulletin.aashe.org/" class="left">
+              bulletin
+            </a>
+            <div class="top-menu" style="float: right;">
               {% if user.is_authenticated %}
                 <a href="/accounts/logout/">
-                  Logout
+                  logout
                 </a>
               {% else %}
                 <a href="/accounts/login/?next={{ request.get_full_path }}">
-                  Login
+                  login
                 </a>
               {% endif %}
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
         <div class="row">
-
-        <!-- Search form -->
-        {% if user.is_authenticated %}
-          {% if user.aasheuser and user.aasheuser.is_member %}
-            <form method="GET" action="{% url "bulletin:haystack_search" %}">
-                <div class="input-group col-md-5 pull-right">
+          <!-- Search form -->
+          <div class="col-md-5 col-sm-4 pull-right">
+          {% if user.is_authenticated %}
+            {% if user.aasheuser and user.aasheuser.is_member %}
+              <form method="GET" action="{% url "bulletin:haystack_search" %}">
+                <div class="input-group">
                   <input type="text" class="form-control" name="q" id="id_q"
                          value="{{ request.GET.q }}">
                   <span class="input-group-btn">
@@ -102,8 +115,8 @@
                 <span class="input-group-btn">
                   <a href="http://www.aashe.org/membership"
                      class="btn btn-default pull-right">
+                    <span class="glyphicon glyphicon-star"></span>
                     <span style="font-size: 12px">
-                      <span class="glyphicon glyphicon-star"></span>
                       Join AASHE to search the Bulletin
                     </span>
                   </a>
@@ -115,19 +128,16 @@
               <span class="input-group-btn">
                 <a href="/accounts/login/?next={{ request.get_full_path }}"
                    class="btn btn-default pull-right">
+                  <span class="glyphicon glyphicon-search"></span>
                   <span style="font-size: 12px">
-                    <span class="glyphicon glyphicon-search"></span>
                     AASHE members login to search
                   </span>
                 </a>
               </span>
             </div>
           {% endif %}
-
         </div>
-
-
-
+        </div>
       </div>
     </div>
     <!--=== End Top ===-->
