@@ -65,27 +65,25 @@
         <div class="row top-nav margin-bottom-10">
           <div class="span7 aashe-tabs">
             <a href="http://www.aashe.org/" class="left">
-              aashe
-            </a>
+              aashe</a>
             <a href="http://stars.aashe.org/" class="left">
-              stars
-            </a>
+              stars</a>
             <a href="http://www.aashe.org/conference" class="left">
-              conference
-            </a>
+              conference</a>
             <a href="http://bulletin.aashe.org/" class="left">
-              bulletin
-            </a>
+              bulletin</a>
             <div class="top-menu" style="float: right;">
               {% if user.is_authenticated %}
                 <a href="/accounts/logout/">
-                  logout
-                </a>
+                  logout</a>
               {% else %}
                 <a href="/accounts/login/?next={{ request.get_full_path }}">
-                  login
-                </a>
+                  login</a>
               {% endif %}
+              <a href="{% url "bulletin:haystack_search" %}" %}">
+                search</a>
+              <a href="http://www.aashe.org/membership">
+                become a member</a>
             </div>
           </div>
         </div>
@@ -123,18 +121,6 @@
                 </span>
               </div>
             {% endif %}
-          {% else %}
-            <div class="input-group">
-              <span class="input-group-btn">
-                <a href="/accounts/login/?next={{ request.get_full_path }}"
-                   class="btn btn-default pull-right">
-                  <span class="glyphicon glyphicon-search"></span>
-                  <span style="font-size: 12px">
-                    AASHE members login to search
-                  </span>
-                </a>
-              </span>
-            </div>
           {% endif %}
         </div>
         </div>
