@@ -74,7 +74,8 @@ INSTALLED_APPS = (
     'raven.contrib.django.raven_compat',
 
     # good for development
-    'django_extensions'
+    'django_extensions',
+    'template_repl'
 )
 
 MIDDLEWARE_CLASSES = (
