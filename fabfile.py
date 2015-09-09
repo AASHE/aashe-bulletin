@@ -48,11 +48,13 @@ def common_env():
         'BULLETIN_DATABASE_URL': os.environ.get('BULLETIN_DATABASE_URL',
                                                 '')
     }
+    env.branch = 'master'
 
 
 def development():
     common_env()
     env.hosts = ['bulletin-dev.aashe.org']
+    # env.branch = 'advanced-search'
 
 
 def test():
@@ -99,7 +101,8 @@ def export():
     export_path = release
 
     tarfile = '%s.tar.gz' % release
-    local('git archive --format=tar master | gzip > %s' % tarfile)
+    local('git archive --format=tar {branch} | gzip > {tarfile}'.format(
+        branch=env.branch, tarfile=tarfile))
 
     put(tarfile, env.remote_path)
     local("rm %s" % tarfile)
