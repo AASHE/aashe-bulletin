@@ -70,7 +70,7 @@
               stars</a>
             <a href="http://www.aashe.org/conference" class="left">
               conference</a>
-            <a href="http://bulletin.aashe.org/" class="left">
+            <a href="{% url "front-page" %}" class="left">
               bulletin</a>
             <div class="top-menu" style="float: right;">
               {% if user.is_authenticated %}
