@@ -1,13 +1,20 @@
-.top-nav {
-    border-bottom: 1px solid #687074;
-    margin-top: 10px;
-    padding-bottom: 5px;
-}
 .aashe-tabs a {
     color: #687074;
     margin-right: 10px;
     margin-left: 10px;
 }
+
+.aashe-site-link {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+.top-nav {
+    border-bottom: 1px solid #687074;
+    margin-top: 10px;
+    padding-bottom: 5px;
+}
+
 .top-menu a {
     color: #687074;
 }

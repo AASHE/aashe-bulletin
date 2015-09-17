@@ -64,13 +64,14 @@
       <div class="container">
         <div class="row top-nav margin-bottom-10">
           <div class="span7 aashe-tabs">
-            <a href="http://www.aashe.org/" class="left">
+            <a href="http://www.aashe.org/" class="left aashe-site-link">
               aashe</a>
-            <a href="http://stars.aashe.org/" class="left">
+            <a href="http://stars.aashe.org/" class="left aashe-site-link">
               stars</a>
-            <a href="http://www.aashe.org/conference" class="left">
+            <a href="http://www.aashe.org/conference"
+               class="left aashe-site-link">
               conference</a>
-            <a href="{% url "front-page" %}" class="left">
+            <a href="{% url "front-page" %}" class="left aashe-site-link">
               bulletin</a>
             <div class="top-menu" style="float: right;">
               {% if user.is_authenticated %}
