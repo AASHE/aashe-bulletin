@@ -29,10 +29,6 @@ urlpatterns = patterns(
         SubmissionGuidelinesView.as_view(),
         name='submission-guidelines'),
 
-    url(r'^search-firewall/',
-        login_required(SearchFirewallView.as_view()),
-        name='search-firewall'),
-
     url(r'^no-search-for-you/',
         NoSearchForYouView.as_view(),
         name='no-search-for-you'),
