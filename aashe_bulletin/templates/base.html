@@ -74,17 +74,19 @@
             <a href="{% url "front-page" %}" class="left aashe-site-link">
               bulletin</a>
             <div class="top-menu" style="float: right;">
-              {% if user.is_authenticated %}
-                <a href="/accounts/logout/">
-                  logout</a>
-              {% else %}
-                <a href="/accounts/login/?next={{ request.get_full_path }}">
-                  login</a>
-              {% endif %}
-              <a href="{% url "bulletin:haystack_search" %}" %}">
-                search</a>
-              <a href="http://www.aashe.org/membership">
-                become a member</a>
+              <span>
+                {% if user.is_authenticated %}
+                  <a href="/accounts/logout/">
+                    logout</a>
+                {% else %}
+                  <a href="/accounts/login/?next={{ request.get_full_path }}">
+                    login</a>
+                {% endif %}
+                <a href="{% url "bulletin:haystack_search" %}" %}">
+                  search</a>
+                <a href="http://www.aashe.org/membership">
+                  become a member</a>
+              </span>
             </div>
           </div>
         </div>
