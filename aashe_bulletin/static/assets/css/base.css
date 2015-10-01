@@ -1,7 +1,25 @@
+@font-face {
+	font-family: 'DejaVuSans';
+	src: url('/static/assets/fonts/dejavu-sans/DejaVuSans-webfont.eot');
+	src: local('☺'), url('/static/assets/fonts/dejavu-sans/DejaVuSans-webfont.woff') format('woff'), url('/static/assets/fonts/dejavu-sans/DejaVuSans-webfont.ttf') format('truetype'), url('/static/assets/fonts/dejavu-sans/DejaVuSans-webfont.svg#webfont1VsYjV21') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'DejaVuSans';
+	src: url('/static/assets/fonts/dejavu-sans/DejaVuSans-Bold-webfont.eot');
+	src: local('☺'), url('/static/assets/fonts/dejavu-sans/DejaVuSans-Bold-webfont.woff') format('woff'), url('/static/assets/fonts/dejavu-sans/DejaVuSans-Bold-webfont.ttf') format('truetype'), url('/static/assets/fonts/dejavu-sans/DejaVuSans-Bold-webfont.svg#webfonty0cMOwRz') format('svg');
+	font-weight: bold;
+	font-style: normal;
+}
+
 .aashe-tabs a {
-    color: #687074;
+    color: #223c52;
     margin-right: 10px;
     margin-left: 10px;
+    font-family: 'DejaVuSans', Helvetica, Arial, 'Liberation Sans',
+    FreeSans, sans-serif;
 }
 
 .aashe-site-link {
@@ -15,14 +33,19 @@
 }
 
 .top-menu {
-    width: 254px;
-    height: 34px;
-    line-height: 34px;
-    text-align: center;
+    width: 310px;
+    font-size: 1.1em;
+    height: 33px;
+    line-height: 33px;
+    text-align: right;
 }
 
 .top-menu span {
     display: inline-block;
     vertical-align: center;
     line-height: normal;
+}
+
+.top-menu span a {
+    color: #0080cf;
 }

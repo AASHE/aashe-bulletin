@@ -59,7 +59,6 @@
 
   <body>
     <!--=== Top ===-->
-
     <div class="top">
       <div class="container">
         <div class="row top-nav margin-bottom-10">
@@ -77,21 +76,22 @@
               <span>
                 {% if user.is_authenticated %}
                   <a href="/accounts/logout/">
-                    logout</a>
+                    Logout</a>
                 {% else %}
                   <a href="/accounts/login/?next={{ request.get_full_path }}">
-                    login</a>
+                    Login</a>
                 {% endif %}
                 <a href="{% url "bulletin:haystack_search" %}" %}">
-                  search</a>
+                  Search</a>
                 <a href="http://www.aashe.org/membership">
-                  become a member</a>
+                  Become a Member</a>
               </span>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <!--=== End Top ===-->
 
     <!--=== Header ===-->
