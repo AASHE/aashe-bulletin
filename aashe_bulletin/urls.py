@@ -1,9 +1,12 @@
 import aashe.aasheauth.urls
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 
 from views import (FAQView,
                    FrontPageView,
+                   NoSearchForYouView,
+                   SearchFirewallView,
                    SubmissionGuidelinesView)
 
 admin.autodiscover()
@@ -25,6 +28,10 @@ urlpatterns = patterns(
     url(r'^submission-guidelines/',
         SubmissionGuidelinesView.as_view(),
         name='submission-guidelines'),
+
+    url(r'^no-search-for-you/',
+        NoSearchForYouView.as_view(),
+        name='no-search-for-you'),
 
     url(r'^admin/',
         include(admin.site.urls)),

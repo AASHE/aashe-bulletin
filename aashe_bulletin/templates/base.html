@@ -59,87 +59,39 @@
 
   <body>
     <!--=== Top ===-->
-
     <div class="top">
       <div class="container">
         <div class="row top-nav margin-bottom-10">
           <div class="span7 aashe-tabs">
-            <a href="http://www.aashe.org/" class="left">
-              aashe
-            </a>
-            <a href="http://stars.aashe.org/" class="left">
-              stars
-            </a>
-            <a href="http://www.aashe.org/conference" class="left">
-              conference
-            </a>
-            <a href="http://bulletin.aashe.org/" class="left">
-              bulletin
-            </a>
+            <a href="http://www.aashe.org/" class="left aashe-site-link">
+              aashe</a>
+            <a href="http://stars.aashe.org/" class="left aashe-site-link">
+              stars</a>
+            <a href="http://www.aashe.org/conference"
+               class="left aashe-site-link">
+              conference</a>
+            <a href="{% url "front-page" %}" class="left aashe-site-link">
+              bulletin</a>
             <div class="top-menu" style="float: right;">
-              {% if user.is_authenticated %}
-                <a href="/accounts/logout/">
-                  logout
-                </a>
-              {% else %}
-                <a href="/accounts/login/?next={{ request.get_full_path }}">
-                  login
-                </a>
-              {% endif %}
+              <span>
+                {% if user.is_authenticated %}
+                  <a href="/accounts/logout/">
+                    Logout</a>
+                {% else %}
+                  <a href="/accounts/login/?next={{ request.get_full_path }}">
+                    Login</a>
+                {% endif %}
+                <a href="{% url "bulletin:haystack_search" %}" %}">
+                  Search</a>
+                <a href="http://www.aashe.org/membership">
+                  Become a Member</a>
+              </span>
             </div>
           </div>
         </div>
-        <div class="row">
-          <!-- Search form -->
-          <div class="col-md-5 col-sm-4 pull-right">
-          {% if user.is_authenticated %}
-            {% if user.aasheuser and user.aasheuser.is_member %}
-              <form method="GET" action="{% url "bulletin:haystack_search" %}">
-                <div class="input-group">
-                  <input type="text" class="form-control" name="q" id="id_q"
-                         value="{{ request.GET.q }}">
-                  <span class="input-group-btn">
-                    <button class="btn" type="submit">
-                      <span style="font-size: 11px">
-                        <span class="glyphicon glyphicon-search"></span>
-                        <span style="text-transform: uppercase">
-                          Search
-                        </span>
-                      </span>
-                    </button>
-                  </span>
-                </div>
-              </form>
-            {% else %}
-              <div class="input-group">
-                <span class="input-group-btn">
-                  <a href="http://www.aashe.org/membership"
-                     class="btn btn-default pull-right">
-                    <span class="glyphicon glyphicon-star"></span>
-                    <span style="font-size: 12px">
-                      Join AASHE to search the Bulletin
-                    </span>
-                  </a>
-                </span>
-              </div>
-            {% endif %}
-          {% else %}
-            <div class="input-group">
-              <span class="input-group-btn">
-                <a href="/accounts/login/?next={{ request.get_full_path }}"
-                   class="btn btn-default pull-right">
-                  <span class="glyphicon glyphicon-search"></span>
-                  <span style="font-size: 12px">
-                    AASHE members login to search
-                  </span>
-                </a>
-              </span>
-            </div>
-          {% endif %}
-        </div>
-        </div>
       </div>
     </div>
+
     <!--=== End Top ===-->
 
     <!--=== Header ===-->

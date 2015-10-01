@@ -74,7 +74,8 @@ INSTALLED_APPS = (
     'raven.contrib.django.raven_compat',
 
     # good for development
-    'django_extensions'
+    'django_extensions',
+    'template_repl'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -229,3 +230,15 @@ HAYSTACK_CONNECTIONS = {
 }
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
+
+def is_member(user):
+    try:
+        aasheuser = user.aasheuser
+    except AttributeError:
+        return False
+    return aasheuser.is_member()
+
+SEARCH_LOGIN_REQUIRED = True
+SEARCH_USER_PASSES_TEST = is_member
+SEARCH_USER_FAILS_TEST_URL = '/no-search-for-you/'

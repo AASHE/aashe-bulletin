@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+          <div class="col-md-5 col-sm-4 pull-right">
+          {% if user.is_authenticated %}
+            {% if user.aasheuser and user.aasheuser.is_member %}
+              <form method="GET" action="{% url "bulletin:haystack_search" %}">
+                <div class="input-group">
+                  <input type="text" class="form-control" name="q" id="id_q"
+                         value="{{ request.GET.q }}">
+                  <span class="input-group-btn">
+                    <button class="btn" type="submit">
+                      <span style="font-size: 11px">
+                        <span class="glyphicon glyphicon-search"></span>
+                        <span style="text-transform: uppercase">
+                          Search
+                        </span>
+                      </span>
+                    </button>
+                  </span>
+                </div>
+              </form>
+            {% else %}
+              <div class="input-group">
+                <span class="input-group-btn">
+                  <a href="http://www.aashe.org/membership"
+                     class="btn btn-default pull-right">
+                    <span class="glyphicon glyphicon-star"></span>
+                    <span style="font-size: 12px">
+                      Join AASHE to search the Bulletin
+                    </span>
+                  </a>
+                </span>
+              </div>
+            {% endif %}
+          {% endif %}
+        </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
