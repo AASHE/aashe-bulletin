@@ -241,4 +241,4 @@ def is_member(user):
 
 SEARCH_LOGIN_REQUIRED = True
 SEARCH_USER_PASSES_TEST = is_member
-SEARCH_USER_FAILS_TEST_URL = '/no-search-for-you/'
+SEARCH_USER_FAILS_TEST_URL = '/search-permission-denied/'

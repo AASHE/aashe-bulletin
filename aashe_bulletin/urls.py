@@ -29,7 +29,7 @@ urlpatterns = patterns(
         SubmissionGuidelinesView.as_view(),
         name='submission-guidelines'),
 
-    url(r'^no-search-for-you/',
+    url(r'^search-permission-denied/',
         NoSearchForYouView.as_view(),
         name='no-search-for-you'),
 
