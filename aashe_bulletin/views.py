@@ -25,17 +25,6 @@ class NoSearchForYouView(TemplateView):
     template_name = 'no_search_for_you.html'
 
 
-class SearchFirewallView(RedirectView):
-
-    def get_redirect_url(self, *args, **kwargs):
-        if self.request.user.aasheuser.is_member():
-            return reverse('bulletin:haystack_search',
-                           args=args,
-                           kwargs=kwargs)
-        else:
-            return reverse('no-search-for-you')
-
-
 class SubmissionGuidelinesView(SetHeadlineMixin,
                                bulletin_views.SidebarView,
                                TemplateView):
