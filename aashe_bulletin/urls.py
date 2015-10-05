@@ -4,6 +4,7 @@ from django.contrib import admin
 
 from views import (FAQView,
                    FrontPageView,
+                   LatestNewsFeedView,
                    NoSearchForYouView,
                    SubmissionGuidelinesView)
 
@@ -36,6 +37,10 @@ urlpatterns = patterns(
 
     url(r'^flat-pages/',
         include('django.contrib.flatpages.urls')),
+
+    url(r'^rss/',
+        LatestNewsFeedView(),
+        name='latest-news-feed'),
 
     url(r'^',
         include('bulletin.urls',

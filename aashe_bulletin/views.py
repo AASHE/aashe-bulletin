@@ -1,8 +1,18 @@
 from braces.views import SetHeadlineMixin
 from django.core.urlresolvers import reverse
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import TemplateView
+from django.contrib.syndication.views import Feed
 
 from bulletin import views as bulletin_views
+from bulletin.tools.plugins.models import Story
+
+
+class FAQView(SetHeadlineMixin,
+              bulletin_views.SidebarView,
+              TemplateView):
+
+    headline = 'Frequently Asked Questions'
+    template_name = 'faq.html'
 
 
 class FrontPageView(bulletin_views.FrontPageView,
@@ -12,12 +22,25 @@ class FrontPageView(bulletin_views.FrontPageView,
     headline = 'All Items'
 
 
-class FAQView(SetHeadlineMixin,
-              bulletin_views.SidebarView,
-              TemplateView):
+class LatestNewsFeedView(Feed):
 
-    headline = 'Frequently Asked Questions'
-    template_name = 'faq.html'
+    title = "AASHE Bulletin news"
+    description = "Latest news from the AASHE Bulletin."
+
+    def link(self):
+        return reverse('latest-news-feed')
+
+    def items(self):
+        return Story.objects.order_by("-pub_date")[:5]
+
+    def item_title(self, item):
+        return item.title
+
+    def item_description(self, item):
+        return item.blurb
+
+    def item_link(self, item):
+        return item.url
 
 
 class NoSearchForYouView(TemplateView):
