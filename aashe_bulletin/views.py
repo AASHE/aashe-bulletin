@@ -24,14 +24,14 @@ class FrontPageView(bulletin_views.FrontPageView,
 
 class LatestNewsFeedView(Feed):
 
-    title = "AASHE Bulletin news"
-    description = "Latest news from the AASHE Bulletin."
+    title = 'AASHE Bulletin news'
+    description = 'Latest news from the AASHE Bulletin.'
 
     def link(self):
         return reverse('latest-news-feed')
 
     def items(self):
-        return Story.objects.order_by("-pub_date")[:5]
+        return Story.objects.order_by('-pub_date')[:5]
 
     def item_title(self, item):
         return item.title
