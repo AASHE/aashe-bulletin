@@ -7,19 +7,19 @@ from bulletin import views as bulletin_views
 from bulletin.tools.plugins.models import Story
 
 
+class AllItemsView(bulletin_views.FrontPageView,
+                   bulletin_views.SidebarView):
+
+    template_name = 'all_items.html'
+    headline = 'All Items'
+
+
 class FAQView(SetHeadlineMixin,
               bulletin_views.SidebarView,
               TemplateView):
 
     headline = 'Frequently Asked Questions'
     template_name = 'faq.html'
-
-
-class FrontPageView(bulletin_views.FrontPageView,
-                    bulletin_views.SidebarView):
-
-    template_name = 'bulletin/front_page.html'
-    headline = 'All Items'
 
 
 class LatestNewsFeedView(Feed):
