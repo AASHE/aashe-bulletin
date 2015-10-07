@@ -14,8 +14,10 @@
      .ExternalClass {width: 100%; background-color: #ffffff;}
      body     {width: 100%; background-color: #ffffff; margin:0;
                padding:0; -webkit-font-smoothing: antialiased;
-               font-family: Arial, Helvetica, sans-serif}
-     table {border-collapse: collapse;
+               font-family: Arial, Helvetica, sans-serif;
+               color: #333;}
+     table {border-collapse: separate;
+            border-spacing: 10px;
             border: none;
             mso-table-lspace: 0pt;
             mso-table-rspace: 0pt;}
@@ -41,28 +43,25 @@
      }
 
      p {
-       font-size: 11px;
+       font-size: 12px;
        padding-left: 25px;
+       padding-right: 25px;
        margin: 0;
      }
 
-     .introduction {
-       padding-top: 25px;
-     }
-
      .post-title {
-       font-size: 12px;
-       padding-left: 25px;
+       font-size: 14px;
+       padding-top: 10px;
      }
 
      .feature-title {
        padding-left: 4px;
+       padding-top: 15px;
      }
 
      .supplemental-link {
-       font-size: 10px;
+       font-size: 11px;
        padding-left: 4px;
-       padding-bottom: 1em;
      }
 
      .feature-row {
@@ -70,18 +69,18 @@
      }
 
      .feature-image {
-       padding-bottom: 10px;
+       padding-top: 15px;
      }
 
      .feature-row p {
        padding-left: 4px;
+       padding-right: 0px;
      }
 
      .section-title {
        font-size: 18px;
        padding-left: 25px;
        padding-top: 15px;
-
      }
 
      .category-title {
@@ -93,11 +92,35 @@
 
      .unfeatured-story {
        padding-left: 35px;
+       padding-top: 0px;
      }
 
-     .advertisement-warning {
-       padding-left: 42px;
+     .advertisement-warning p {
+       padding-left: 58px;
        padding-top: 10px;
+     }
+
+     .button {
+       background-color: #3498db;
+       font-size: 14px;
+       font-weight: bold;
+       color: #ffffff;
+       text-align: center;
+       vertical-align: middle;
+       padding: 10px 10px 10px 10px;
+       border-bottom-width: 0px;
+     }
+
+     a {
+       text-decoration: none;
+       color: #555;
+       border-bottom-color: #72c02c;
+       border-bottom-width: 1px;
+       border-bottom-style: solid;
+     }
+
+     .submit-news-button {
+       padding-top: 15px;
      }
      </style>
   </head>
@@ -130,28 +153,23 @@
                   style="font-size: 17px; color: #272727; font-weight: light; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 20px 0px 10px 0px;">
                 <a href="#news"
                    style="text-decoration: none; color: #3b3b3b;">
-                  NEWS
-                </a>
+                  NEWS</a>
                 &nbsp; &nbsp;
                 <a href="#opportunities"
                    style="text-decoration: none; color: #3b3b3b;">
-                  OPPORTUNITIES
-                </a>
+                  OPPORTUNITIES</a>
                 &nbsp; &nbsp;
                 <a href="#new-resources"
                    style="text-decoration: none; color: #3b3b3b;">
-                  RESOURCES
-                </a>
+                  RESOURCES</a>
                 &nbsp; &nbsp;
                 <a href="#events"
                    style="text-decoration: none; color: #3b3b3b;">
-                  EVENTS
-                </a>
+                  EVENTS</a>
                 &nbsp; &nbsp;
                 <a href="#jobs"
                    style="text-decoration: none; color: #3b3b3b;">
-                  JOBS
-                </a>
+                  JOBS</a>
               </td>
             </tr>
             <!--End nav-->
@@ -205,6 +223,7 @@
                 <tr>
                   <td colspan="2" class="section-title">
                     News of the Week
+                    <br />
                   </td>
                 </tr>
                 {% for story in section.posts.all %}
@@ -230,16 +249,15 @@
                           {{ story.blurb|safe }}
                         </p>
                         <div class="supplemental-link">
-                        {% if story.category %}
-                          <a href="http://{{ domain }}{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}">
-                            More {{ story.category.name }} News
-                          </a>
-                        {% endif %}
-                        {% if story.category.url %}
-                          <a href="{{ story.category.url }}">
-                            AASHE {{ story.category.name|title }} Resources
-                          </a>
-                        {% endif %}
+                          {% if story.category %}
+                            <a href="http://{{ domain }}{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}">
+                              More {{ story.category.name }} News</a>
+                            &nbsp;
+                          {% endif %}
+                          {% if story.category.url %}
+                            <a href="{{ story.category.url }}">
+                              AASHE {{ story.category.name|title }} Resources</a>
+                          {% endif %}
                         </div>
                       </td>
                     </tr>
@@ -268,210 +286,261 @@
                     {% endif %}
                   {% endfor %}
                 {% endfor %}
-
               </tbody>
             </table>
-                <!--End News Stories-->
+            <!--End News Stories-->
 
-                {% comment %}
-                 First ad goes after news stories.
-                {% endcomment %}
-                {% for ad in ads %}
-                  {% if forloop.first %}
-                    <!--Start first 468x60 Ad-->
-                    <table width="600" border="0" cellpadding="0"
-                           cellspacing="0" align="center"
-                           class="deviceWidth">
-                      <tr>
-                        <td class="advertisement-warning">
-                          <p>
-                            Advertisement
-                          </p>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="vertical-align: middle; padding: 0px 0px 0;">
-                          <center>
-                            <a href="{{ ad.url }}">
-                              <img src="{{ ad.image.url }}"
-                                   class="deviceWidth"
-                                   width="468" height="120">
-                            </a>
-                          </center>
-                        </td>
-                      </tr>
-                    </table>
-                    <!--End first 468x60 Ad-->
-                  {% endif %}
-                {% endfor %}
+            {% comment %}
+            "Submit an item" button comes after news stories.
+            {% endcomment %}
+            <center>
+              <div class="submit-news-button">
+                <a class="button"
+                   href="http://bulletin.aashe.org/posts/submit">
+                  Submit sustainability news &amp; information from your school
+                </a>
+              </div>
+            </center>
 
-              {% elif section.name == "Jobs" %}
-
-                {% comment %}
-                 Second ad goes before jobs.
-                {% endcomment %}
-                {% for ad in ads %}
-                  {% if forloop.last %}
-                    {% if forloop.counter > 1 %}
-                      <!--Start last 468x60 Ad-->
-                      <table width="600" border="0" cellpadding="0"
-                             cellspacing="0" align="center"
-                             class="deviceWidth">
-                        <tr>
-                          <td class="advertisement-warning">
-                            <p>
-                              Advertisement
-                            </p>
-                          </td>
-                        </tr>
-                        <tr>
-                          <td style="vertical-align: middle; padding: 0px 0px 0;">
-                            <center>
-                              <a href="{{ ad.url }}">
-                                <img src="{{ ad.image.url }}"
-                                     class="deviceWidth"
-                                     width="468" height="120">
-                              </a>
-                            </center>
-                          </td>
-                        </tr>
-                      </table>
-                      <!--End last 468x60 Ad-->
-                    {% endif %}
-                  {% endif %}
-                {% endfor %}
-
-                <a name="jobs"></a>
-                <table width="600" border="0" cellpadding="10" cellspacing="0"
-                       align="center" class="deviceWidth">
-                  <tbody>
-                    <tr>
-                      <td colspan="2" class="section-title">
-                        Jobs & Internships
-                      </td>
-                    </tr>
-                    {% for job in section.posts.all %}
-                      <tr>
-                        <td align="center">
-                          <a href="{{ job.url }}">
-                            {% thumbnail job.image "156x125" as im %}
-                            <img src="{{ im.url }}"
-                                 width="{{ im.width }}"
-                                 height="{{ im.height }}">
-                            {% endthumbnail %}
-                          </a>
-                        </td>
-                        <td>
-                          <a href="{{ job.url }}" class="post-title">
-                            {{ job.title }}
-                          </a>
-                          <p>
-                            {{ job.organization }}
-                          </p>
-                        </td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                <!--End Jobs-->
-
-              {% elif section.name == "Opportunities" %}
-
-                <!--Start Opportunities-->
-                <a name="opportunities"></a>
-                <table width="600" border="0" cellpadding="0" cellspacing="0"
-                       align="center" class="deviceWidth"
-                       bgcolor="#ffffff">
+            {% comment %}
+            First ad goes after news stories.
+            {% endcomment %}
+            {% for ad in ads %}
+              {% if forloop.first %}
+                <!--Start first 468x60 Ad-->
+                <table width="600" border="0" cellpadding="0"
+                       cellspacing="0" align="center"
+                       class="deviceWidth">
                   <tr>
-                    <td class="section-title">
-                      Opportunities
+                    <td class="advertisement-warning">
+                      <p>
+                        Advertisement
+                      </p>
                     </td>
                   </tr>
-                  {% for opportunity in section.posts.all %}
-                    <tr>
-                      <td>
-                        <a href="{{ opportunity.url }}" class="post-title">
-                          {{ opportunity.title }}
-                        </a>
-                        <p>
-                          {{ opportunity.blurb|safe }}
-                        </p>
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </table>
-                <!--End Opportunities-->
-
-              {% elif section.name == "New Resources" %}
-
-                <!--Start New Resources-->
-                <a name="new-resources"></a>
-                <table width="600" border="0" cellpadding="0" cellspacing="0"
-                       align="center" class="deviceWidth"
-                       bgcolor="#ffffff">
                   <tr>
-                    <td class="section-title">
-                      New Resources
+                    <td style="vertical-align: middle; padding: 0px 0px 0;">
+                      <center>
+                        <a href="{{ ad.url }}">
+                          <img src="{{ ad.image.url }}"
+                               class="deviceWidth"
+                               width="468" height="120">
+                        </a>
+                      </center>
                     </td>
                   </tr>
-                  {% for resource in section.posts.all %}
-                    <tr>
-                      <td>
-                        <a href="{{ resource.url }}" class="post-title">
-                          {{ resource.title }}
-                        </a>
-                        <p>
-                          {{ resource.blurb|safe }}
-                        </p>
-                      </td>
-                    </tr>
-                  {% endfor %}
                 </table>
-                <!--End New Resources-->
-
-              {% elif section.name == "Events" %}
-
-                <!--Start Events-->
-                <a name="events"></a>
-                <table width="600" border="0" cellpadding="0" cellspacing="0"
-                       align="center" class="deviceWidth">
-                  <tbody>
-                    <tr>
-                      <td colspan="2" class="section-title">
-                        Events
-                      </td>
-                    </tr>
-                    {% for event in section.posts.all %}
-                      <tr>
-                        <td>
-                          <a href="{{ event.url }}" class="post-title">
-                            {{ event.title }}
-                          </a>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <p>
-                            {{ event.start_date|date }}
-                            {% if event.end_date %}
-                              - {{ event.end_date|date }}
-                            {% endif %}
-                            {% if event.time %}
-                              ({{ event.time }})
-                            {% endif %};
-                            {{ event.location }}
-                          </p>
-                        </td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-                <!--End Events-->
+                <!--End first 468x60 Ad-->
               {% endif %}
-            {% endif %}
-          {% endfor %}
-        </td>
-      </tr>
+            {% endfor %}
+
+          {% elif section.name == "Jobs" %}
+
+            {% comment %}
+            Second ad goes before jobs.
+            {% endcomment %}
+            {% for ad in ads %}
+              {% if forloop.last %}
+                {% if forloop.counter > 1 %}
+                  <!--Start last 468x60 Ad-->
+                  <table width="600" border="0" cellpadding="0"
+                         cellspacing="0" align="center"
+                         class="deviceWidth">
+                    <tr>
+                      <td class="advertisement-warning">
+                        <p>
+                          Advertisement
+                        </p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="vertical-align: middle; padding: 0px 0px 0;">
+                        <center>
+                          <a href="{{ ad.url }}">
+                            <img src="{{ ad.image.url }}"
+                                 class="deviceWidth"
+                                 width="468" height="120">
+                          </a>
+                        </center>
+                      </td>
+                    </tr>
+                  </table>
+                  <!--End last 468x60 Ad-->
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+
+            <a name="jobs"></a>
+            <table width="600" border="0" cellpadding="10" cellspacing="0"
+                   align="center" class="deviceWidth">
+              <tbody>
+                <tr>
+                  <td colspan="2" class="section-title">
+                    Jobs & Internships
+                  </td>
+                </tr>
+                {% for job in section.posts.all %}
+                  <tr>
+                    <td align="center">
+                      <a href="{{ job.url }}">
+                        {% thumbnail job.image "156x125" as im %}
+                        <img src="{{ im.url }}"
+                             width="{{ im.width }}"
+                             height="{{ im.height }}">
+                        {% endthumbnail %}
+                      </a>
+                    </td>
+                    <td>
+                      <p>
+                        <a href="{{ job.url }}" class="post-title">
+                          {{ job.title }}
+                        </a>
+                      </p>
+                      <p>
+                        {{ job.organization }}
+                      </p>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <!--End Jobs-->
+
+            {% comment %}
+            "Forward to a colleague" and "Advertise in the AASHE Bulletin"
+            buttons comes after jobs.
+            {% endcomment %}
+            <center>
+              <table>
+                <tbody>
+                  <tr>
+                    <td>
+                      <a class="button"
+                         href="http://ui.constantcontact.com/sa/fwtf.jsp?m=$ACCOUNT.UID&amp;a=$AGENT.AGENT_UID&amp;ea=$SUBSCRIBER.EMAIL">
+                        Forward to a colleague
+                      </a>
+                    </td>
+                    <td>
+                      <a class="button"
+                         href="http://www.aashe.org/about/advertising-opportunities%20#e-newsletters">
+                        Advertise in the AASHE Bulletin
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </center>
+
+
+          {% elif section.name == "Opportunities" %}
+
+            <!--Start Opportunities-->
+            <a name="opportunities"></a>
+            <table width="600" border="0" cellpadding="0" cellspacing="0"
+                   align="center" class="deviceWidth"
+                   bgcolor="#ffffff">
+              <tr>
+                <td class="section-title">
+                  Opportunities
+                </td>
+              </tr>
+              {% for opportunity in section.posts.all %}
+                <tr>
+                  <td>
+                    <p>
+                      <a href="{{ opportunity.url }}" class="post-title">
+                        {{ opportunity.title }}
+                      </a>
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <p>
+                      {{ opportunity.blurb|safe }}
+                    </p>
+                  </td>
+                </tr>
+              {% endfor %}
+            </table>
+            <!--End Opportunities-->
+
+          {% elif section.name == "New Resources" %}
+
+            <!--Start New Resources-->
+            <a name="new-resources"></a>
+            <table width="600" border="0" cellpadding="0" cellspacing="0"
+                   align="center" class="deviceWidth"
+                   bgcolor="#ffffff">
+              <tr>
+                <td class="section-title">
+                  New Resources
+                </td>
+              </tr>
+              {% for resource in section.posts.all %}
+                <tr>
+                  <td>
+                    <p>
+                      <a href="{{ resource.url }}" class="post-title">
+                        {{ resource.title }}
+                      </a>
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <p>
+                      {{ resource.blurb|safe }}
+                    </p>
+                  </td>
+                </tr>
+              {% endfor %}
+            </table>
+            <!--End New Resources-->
+
+          {% elif section.name == "Events" %}
+
+            <!--Start Events-->
+            <a name="events"></a>
+            <table width="600" border="0" cellpadding="0" cellspacing="0"
+                   align="center" class="deviceWidth">
+              <tbody>
+                <tr>
+                  <td colspan="2" class="section-title">
+                    Events
+                  </td>
+                </tr>
+                {% for event in section.posts.all %}
+                  <tr>
+                    <td>
+                      <p>
+                        <a href="{{ event.url }}" class="post-title">
+                          {{ event.title }}
+                        </a>
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <p>
+                        {{ event.start_date|date }}
+                        {% if event.end_date %}
+                          - {{ event.end_date|date }}
+                        {% endif %}
+                        {% if event.time %}
+                          ({{ event.time }})
+                        {% endif %}-
+                        {{ event.location }}
+                      </p>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <!--End Events-->
+          {% endif %}
+        {% endif %}  {# if section.posts.count #}
+      {% endfor %}  {# for section in issue.sections #}
     </table>
     <!-- End Wrapper -->
   </body>
