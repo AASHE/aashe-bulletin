@@ -37,7 +37,7 @@
        body[yahoo] .center {text-align: center!important;}
 
        {% comment %}
-       The following bit to overcome the fat footer Constant Contact puts one
+       The following bit to overcome the fat footer Constant Contact puts on
        emails and sets to 595px, breaking responsive design.
        https://community.constantcontact.com/t5/Email-Marketing/Mobile-Friendly-Footer/td-p/70895/page/2
        {% endcomment %}
@@ -61,6 +61,17 @@
 
      a {
        text-decoration: none;
+     }
+
+     .button {
+       background-color: #3498db;
+       font-size: 14px;
+       font-weight: bold;
+       color: #ffffff;
+       text-align: center;
+       vertical-align: middle;
+       padding: 10px 10px 10px 10px;
+       border-bottom-width: 0px;
      }
      </style>
   </head>
@@ -402,6 +413,47 @@
                   This extra hr is here because Jobs is the last section.
                 {% endcomment %}
                 <hr width="300"/>
+
+                {% comment %}
+                "Forward to a colleague" and "Advertise in the AASHE Bulletin"
+                buttons comes after jobs.
+                {% endcomment %}
+                  <table width="600" border="0" cellpadding="0" cellspacing="0"
+                         align="center" class="deviceWidth">
+                    <tbody>
+                      <tr>
+                        <td>
+                          <table border="0" cellpadding="10"
+                                 cellspacing="0" align="left">
+                            <tbody>
+                              <tr>
+                                <td align="center">
+                                  <a class="button"
+                                     href="http://ui.constantcontact.com/sa/fwtf.jsp?m=$ACCOUNT.UID&amp;a=$AGENT.AGENT_UID&amp;ea=$SUBSCRIBER.EMAIL">
+                                    Forward to a colleague
+                                  </a>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+
+                          <table border="0" cellpadding="10"
+                                 cellspacing="0" align="right">
+                            <tbody>
+                              <tr>
+                                <td align="center">
+                                  <a class="button"
+                                     href="http://www.aashe.org/about/advertising-opportunities%20#e-newsletters">
+                                    Advertise in the AASHE Bulletin
+                                  </a>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
 
               {% elif section.name == "Opportunities" %}
 
