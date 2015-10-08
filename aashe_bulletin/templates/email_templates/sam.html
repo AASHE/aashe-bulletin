@@ -272,7 +272,7 @@
                   </tr>
                   {% for story in section.posts.all %}
                     {% if not story.feature %}
-                      {% if story.category.name == category %}
+                      {% if story.category.parent.name == category %}
                         <tr>
                           <td colspan="2">
                             <div class="post-title unfeatured-story">
@@ -296,7 +296,7 @@
             <center>
               <div class="submit-news-button">
                 <a class="button"
-                   href="http://bulletin.aashe.org/posts/submit">
+                   href="{% url "bulletin:plugins:plugin-list" %}">
                   Submit sustainability news &amp; information from your school
                 </a>
               </div>

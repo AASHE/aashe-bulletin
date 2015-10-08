@@ -44,21 +44,19 @@
        body > table:last-of-type table{width:90% !important;}
      }
 
-     .post-title {
-       font-size: 14px;
-       padding-top: 10px;
-     }
-
      .category-title {
-       font-size: 15px;
+       font-size: 12px;
        font-style: italic;
        padding-left: 25px;
        padding-top: 10px;
+       padding-bottom: 2px;
      }
 
      .unfeatured-story {
+       font-size: 14px;
        padding-left: 35px;
        padding-top: 0px;
+       padding-bottom: 2px;
      }
 
      a {
@@ -177,17 +175,16 @@
                     <tr>
                       <td colspan="2"
                           style="font-size: 24px; color: #303030; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 10px; vertical-align: middle; padding: 20px 10px 5px;">
-                        Top News of the Week
+                        News of the Week
                       </td>
                     </tr>
                     <tr>
                       <td colspan="2"
-                          style="font-size: 16px; color: #303030; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px 10px 12px;">
-                        <i>For a complete view of last week's news
-                          stories, or to submit news and information
-                          from your school,
-                          <a href="http://bulletin.aashe.org/">
-                            click here</a>.
+                          style="font-size: 16px; color: #303030; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px 10px 0px;">
+                        <i>
+                          <a href="{% url "bulletin:plugins:plugin-list" %}">
+                            Submit news and information
+                            from your school</a>.
                         </i>
                       </td>
                     </tr>
@@ -268,7 +265,7 @@
                       </tr>
                       {% for story in section.posts.all %}
                         {% if not story.feature %}
-                          {% if story.category.name == category %}
+                          {% if story.category.parent.name == category %}
                             <tr>
                               <td colspan="2">
                                 <div class="post-title unfeatured-story">
