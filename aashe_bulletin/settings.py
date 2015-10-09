@@ -193,7 +193,15 @@ MESSAGE_TAGS = {message_constants.DEBUG: 'alert fade in alert-debug',
                 message_constants.WARNING: 'alert fade in alert-warning',
                 message_constants.ERROR: 'alert fade in alert-error'}
 
-LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', 'INFO')
+import raven
+RAVEN_CONFIG = {
+    'dsn': os.environ.get('RAVEN_DSN', None),
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.fetch_git_sha(BASE_DIR),
+}
+
+LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', 'DEBUG')
 
 LOGGING = {
     'version': 1,
