@@ -12,12 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-debug_string = os.environ.get('DEBUG', 'False')
-if debug_string.lower() == 'true':
-    DEBUG = True
-else:
-    DEBUG = False
-
+DEBUG = os.environ.get('DEBUG', False)
 TEMPLATE_DEBUG = DEBUG
 
 TEMPLATE_DIRS = (
@@ -93,7 +88,7 @@ ROOT_URLCONF = 'aashe_bulletin.urls'
 
 WSGI_APPLICATION = 'aashe_bulletin.wsgi.application'
 
-DATABASES = {'default': dj_database_url.config(env='BULLETIN_DATABASE_URL')}
+DATABASES = {'default': dj_database_url.config()}
 
 SITE_ID = 1
 
@@ -115,12 +110,22 @@ USE_TZ = True
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'aashe_bulletin/static/theme'),
                     os.path.join(BASE_DIR, 'aashe_bulletin/static'),)
 STATIC_URL = os.environ.get('STATIC_URL', '/static/')
-STATIC_ROOT = os.environ.get('STATIC_ROOT',
-                             os.path.join(BASE_DIR, STATIC_URL.strip('/')))
+# STATIC_ROOT = os.environ.get('STATIC_ROOT',
+#                              os.path.join(BASE_DIR, STATIC_URL.strip('/')))
+#
+# MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
+# MEDIA_ROOT = os.environ.get('MEDIA_ROOT',
+#                             os.path.join(BASE_DIR, MEDIA_URL.strip("/")))
 
-MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
-MEDIA_ROOT = os.environ.get('MEDIA_ROOT',
-                            os.path.join(BASE_DIR, MEDIA_URL.strip("/")))
+# HEROKU
+# import os
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = 'staticfiles'
+# STATIC_URL = '/static/'
+#
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, 'static'),
+# )
 
 AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',
                            'django.contrib.auth.backends.ModelBackend')

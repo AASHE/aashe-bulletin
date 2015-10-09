@@ -5,6 +5,8 @@ dj_database_url
 -e git+https://github.com/AASHE/django-bulletin.git#egg=django_bulletin
 django-haystack==2.4.0rc1
 django-overextends
+dj-static==0.0.6
+gunicorn==19.3.0
 ipython
 raven
 psycopg2
