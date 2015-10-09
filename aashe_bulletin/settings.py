@@ -235,12 +235,31 @@ logging.config.dictConfig(LOGGING)
 # Define a css class for required fields so we can mark them.
 BOOTSTRAP3 = {'required_css_class': 'required-input'}
 
+# Searchbox backend for Haystack
+from urlparse import urlparse
+es = urlparse(os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/')
+port = es.port or 80
+HAYSTACK_ENGINE = os.environ.get(
+    'HAYSTACK_ENGINE',
+    'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine')
+
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.path.join(BASE_DIR, '..', 'bulletin_index')
+        'ENGINE': HAYSTACK_ENGINE,
+        'URL': es.scheme + '://' + es.hostname + ':' + str(port),
+        'INDEX_NAME': 'documents',
     },
 }
+if es.username:
+    HAYSTACK_CONNECTIONS['default']['KWARGS'] = {"http_auth": es.username + ':' + es.password}
+
+# Old whoosh backend
+# HAYSTACK_CONNECTIONS = {
+#     'default': {
+#         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+#         'PATH': os.path.join(BASE_DIR, '..', 'bulletin_index')
+#     },
+# }
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
