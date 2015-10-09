@@ -1,14 +1,16 @@
 from braces.views import SetHeadlineMixin
 from django.core.urlresolvers import reverse
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import TemplateView
+from django.contrib.syndication.views import Feed
 
 from bulletin import views as bulletin_views
+from bulletin.tools.plugins.models import Story
 
 
-class FrontPageView(bulletin_views.FrontPageView,
-                    bulletin_views.SidebarView):
+class AllItemsView(bulletin_views.FrontPageView,
+                   bulletin_views.SidebarView):
 
-    template_name = 'bulletin/front_page.html'
+    template_name = 'all_items.html'
     headline = 'All Items'
 
 
@@ -20,20 +22,30 @@ class FAQView(SetHeadlineMixin,
     template_name = 'faq.html'
 
 
+class LatestNewsFeedView(Feed):
+
+    title = 'AASHE Bulletin news'
+    description = 'Latest news from the AASHE Bulletin.'
+
+    def link(self):
+        return reverse('latest-news-feed')
+
+    def items(self):
+        return Story.objects.order_by('-pub_date')[:5]
+
+    def item_title(self, item):
+        return item.title
+
+    def item_description(self, item):
+        return item.blurb
+
+    def item_link(self, item):
+        return item.url
+
+
 class NoSearchForYouView(TemplateView):
 
     template_name = 'no_search_for_you.html'
-
-
-class SearchFirewallView(RedirectView):
-
-    def get_redirect_url(self, *args, **kwargs):
-        if self.request.user.aasheuser.is_member():
-            return reverse('bulletin:haystack_search',
-                           args=args,
-                           kwargs=kwargs)
-        else:
-            return reverse('no-search-for-you')
 
 
 class SubmissionGuidelinesView(SetHeadlineMixin,

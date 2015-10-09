@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     # required by our email templates
     'mathfilters',
     'sorl.thumbnail',
+    'aashe_bulletin.newsletter',
 
     # required by bulletin
     'bootstrap3',
@@ -172,6 +173,7 @@ or any other rights protected by law (such as the right to privacy or
 right of publicity).
 """
 
+# MAX_STORY_TITLE_LENGTH = 90
 MAX_STORY_BLURB_LENGTH = 400
 
 MESSAGE_TAGS = {message_constants.DEBUG: 'alert fade in alert-debug',

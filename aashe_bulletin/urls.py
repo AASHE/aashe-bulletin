@@ -1,12 +1,12 @@
 import aashe.aasheauth.urls
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from django.contrib.auth.decorators import login_required
+from bulletin.tools.plugins.views.story import StoryListView
 
-from views import (FAQView,
-                   FrontPageView,
+from views import (AllItemsView,
+                   FAQView,
+                   LatestNewsFeedView,
                    NoSearchForYouView,
-                   SearchFirewallView,
                    SubmissionGuidelinesView)
 
 admin.autodiscover()
@@ -15,8 +15,12 @@ urlpatterns = patterns(
     '',
 
     url(r'^$',
-        FrontPageView.as_view(),
+        StoryListView.as_view(),
         name='front-page'),
+
+    url(r'^all-items/$',
+        AllItemsView.as_view(),
+        name='all-items'),
 
     url(r'^accounts/',
         include(aashe.aasheauth.urls)),
@@ -38,6 +42,10 @@ urlpatterns = patterns(
 
     url(r'^flat-pages/',
         include('django.contrib.flatpages.urls')),
+
+    url(r'^rss/',
+        LatestNewsFeedView(),
+        name='latest-news-feed'),
 
     url(r'^',
         include('bulletin.urls',
