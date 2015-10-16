@@ -63,7 +63,6 @@ INSTALLED_APPS = (
     'datetimewidget',
     'django_bootstrap_breadcrumbs',
     'rest_framework',
-    'south',
 
     # misc 3rd party apps
     'overextends',

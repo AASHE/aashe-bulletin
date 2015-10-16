@@ -2,7 +2,7 @@ Django==1.6.10
 -e git+https://2e5f11c1b9f8882f92f333df3f0516e64e2ac61b:x-oauth-basic@github.com/AASHE/aashe-auth.git@migrations#egg=aashe_auth
 dj_database_url
 -e git+https://github.com/AASHE/django-constant-contact.git#egg=django_constant_contact
--e git+https://github.com/AASHE/django-bulletin.git#egg=django_bulletin
+-e git+https://github.com/AASHE/django-bulletin.git@migrations#egg=django_bulletin
 django-haystack==2.2.0
 django-overextends
 dj-static==0.0.6
