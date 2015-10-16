@@ -223,9 +223,7 @@ LOGGING = {
         'sentry': {
             'level': 'ERROR',
             'class': 'raven.handlers.logging.SentryHandler',
-            'dsn': ('https://6f14dc148c26474f9d08c6de7c74f049:'
-                    'ad632c3061ce47e8b5c668aa25d2b449'
-                    '@app.getsentry.com/41366')
+            'dsn': os.environ.get('RAVEN_DSN', None)
             },
         },
 
