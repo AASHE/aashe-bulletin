@@ -201,42 +201,49 @@ RAVEN_CONFIG = {
     # 'release': raven.fetch_git_sha(BASE_DIR),
 }
 
-LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', 'DEBUG')
+# trying logging for heroku
+# http://stackoverflow.com/questions/18920428/django-logging-on-heroku
 
+LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', 'DEBUG')
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-
     'formatters': {
-        'console': {
-            'format': '%(asctime)s:%(levelname)s:%(name)s:%(message)s',
-            'datefmt': '%m/%d/%Y-%H:%M:%S'
-            },
+        'verbose': {
+            'format': ('%(asctime)s [%(process)d] [%(levelname)s] ' +
+                       'pathname=%(pathname)s lineno=%(lineno)s ' +
+                       'funcname=%(funcName)s %(message)s'),
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         },
-
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        }
+    },
     'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'console'
-            },
+            'formatter': 'verbose'
+        },
         'sentry': {
             'level': 'ERROR',
             'class': 'raven.handlers.logging.SentryHandler',
             'dsn': os.environ.get('RAVEN_DSN', None)
             },
-        },
-
+    },
     'loggers': {
-        '': {
+        'testlogger': {
             'handlers': ['console', 'sentry'],
             'level': LOGGING_LEVEL,
-            'propagate': False,
-        },
+        }
     }
 }
 
-logging.config.dictConfig(LOGGING)
+# logging.config.dictConfig(LOGGING)
 
 # Define a css class for required fields so we can mark them.
 BOOTSTRAP3 = {'required_css_class': 'required-input'}
