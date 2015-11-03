@@ -37,8 +37,7 @@ class LatestNewsFeedView(Feed):
         return item.title
 
     def item_description(self, item):
-        return '<img src="{url}" />{description}'.format(
-            url=item.image.url, description=item.blurb)
+        return item.blurb
 
     def item_link(self, item):
         return item.url
