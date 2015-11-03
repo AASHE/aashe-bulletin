@@ -24,7 +24,7 @@ class FAQView(SetHeadlineMixin,
 
 class LatestNewsFeedView(Feed):
 
-    title = 'AASHE Bulletin news'
+    title = 'AASHE Bulletin News'
     description = 'Latest news from the AASHE Bulletin.'
 
     def link(self):
@@ -37,7 +37,8 @@ class LatestNewsFeedView(Feed):
         return item.title
 
     def item_description(self, item):
-        return item.blurb
+        return '<img src="{url}" />{description}'.format(
+            url=item.image.url, description=item.blurb)
 
     def item_link(self, item):
         return item.url
