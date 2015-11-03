@@ -1,8 +1,7 @@
 from braces.views import SetHeadlineMixin
+from django.contrib.syndication.views import Feed
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
-from django.conf import settings
-from django.contrib.syndication.views import Feed
 
 from bulletin import views as bulletin_views
 from bulletin.tools.plugins.models import Story
@@ -38,11 +37,7 @@ class LatestNewsFeedView(Feed):
         return item.title
 
     def item_description(self, item):
-        if item.image:
-            return '<![CDATA[<img src={src} />{text}]]'.format(
-                src=item.image.url, text=item.blurb)
-        else:
-            return item.blurb
+        return item.blurb
 
     def item_link(self, item):
         return item.url
