@@ -1,11 +1,13 @@
 """
 Django settings for aashe_bulletin project.
 """
-import os
 import logging.config
+import os
 
-from django.contrib.messages import constants as message_constants
 import dj_database_url
+import raven
+from django.contrib.messages import constants as message_constants
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -176,6 +178,10 @@ right of publicity).
 # MAX_STORY_TITLE_LENGTH = 90
 MAX_STORY_BLURB_LENGTH = 400
 
+RAVEN_CONFIG = {
+    'dsn': 'https://6f14dc148c26474f9d08c6de7c74f049:ad632c3061ce47e8b5c668aa25d2b449@app.getsentry.com/41366'
+}
+
 MESSAGE_TAGS = {message_constants.DEBUG: 'alert fade in alert-debug',
                 message_constants.INFO: 'alert fade in alert-info',
                 message_constants.SUCCESS: 'alert fade in alert-success',
@@ -203,10 +209,7 @@ LOGGING = {
             },
         'sentry': {
             'level': 'ERROR',
-            'class': 'raven.handlers.logging.SentryHandler',
-            'dsn': ('https://6f14dc148c26474f9d08c6de7c74f049:'
-                    'ad632c3061ce47e8b5c668aa25d2b449'
-                    '@app.getsentry.com/41366')
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler'
             },
         },
 
