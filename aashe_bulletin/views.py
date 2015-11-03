@@ -1,6 +1,7 @@
 from braces.views import SetHeadlineMixin
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
+from django.conf import settings
 from django.contrib.syndication.views import Feed
 
 from bulletin import views as bulletin_views
@@ -31,13 +32,17 @@ class LatestNewsFeedView(Feed):
         return reverse('latest-news-feed')
 
     def items(self):
-        return Story.objects.order_by('-pub_date')[:5]
+        return Story.objects.filter(approved=True).order_by('-pub_date')[:5]
 
     def item_title(self, item):
         return item.title
 
     def item_description(self, item):
-        return item.blurb
+        if item.image:
+            return '<![CDATA[<img src={src} />{text}]]'.format(
+                src=item.image.url, text=item.blurb)
+        else:
+            return item.blurb
 
     def item_link(self, item):
         return item.url
