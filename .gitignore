@@ -2,6 +2,7 @@ bulletin-django.db
 
 # Uploaded files:
 media/
+staticfiles
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

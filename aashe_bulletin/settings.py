@@ -1,18 +1,21 @@
 """
 Django settings for aashe_bulletin project.
 """
-import os
 import logging.config
+import os
 
-from django.contrib.messages import constants as message_constants
 import dj_database_url
+import raven
+from django.contrib.messages import constants as message_constants
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-DEBUG = os.environ.get('DEBUG', False)
+DEBUG = os.environ.get('DEBUG', 'False')
+
 TEMPLATE_DEBUG = DEBUG
 
 TEMPLATE_DIRS = (
@@ -66,10 +69,9 @@ INSTALLED_APPS = (
 
     # misc 3rd party apps
     'overextends',
-    'raven.contrib.django.raven_compat',
 
     # good for development
-    'django_extensions',
+    # 'django_extensions',
     'template_repl'
 )
 
@@ -87,6 +89,7 @@ ROOT_URLCONF = 'aashe_bulletin.urls'
 
 WSGI_APPLICATION = 'aashe_bulletin.wsgi.application'
 
+# Assumes DATABASE_URL is set in the env
 DATABASES = {'default': dj_database_url.config()}
 
 SITE_ID = 1
@@ -95,36 +98,21 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'America/New_York'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.6/howto/static-files/
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'aashe_bulletin/static/theme'),
-                    os.path.join(BASE_DIR, 'aashe_bulletin/static'),)
-STATIC_URL = os.environ.get('STATIC_URL', '/static/')
-# STATIC_ROOT = os.environ.get('STATIC_ROOT',
-#                              os.path.join(BASE_DIR, STATIC_URL.strip('/')))
-#
-# MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
-# MEDIA_ROOT = os.environ.get('MEDIA_ROOT',
-#                             os.path.join(BASE_DIR, MEDIA_URL.strip("/")))
+# AASHE's Media Settings
+# if not DEBUG:
+from integration_settings.media.s3 import *
+INSTALLED_APPS += ('s3_folder_storage',)
+STATICFILES_DIRS = (os.path.join(os.path.dirname(__file__), 'static'),)
 
-# HEROKU
-# import os
-# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = 'staticfiles'
-# STATIC_URL = '/static/'
-#
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static'),
-# )
+# AASHE's Logging Settings
+# if not DEBUG:
+from integration_settings.logging import *
+INSTALLED_APPS += ('raven.contrib.django.raven_compat',)
 
 # HEROKU
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
@@ -192,57 +180,7 @@ MESSAGE_TAGS = {message_constants.DEBUG: 'alert fade in alert-debug',
                 message_constants.WARNING: 'alert fade in alert-warning',
                 message_constants.ERROR: 'alert fade in alert-error'}
 
-import raven
-RAVEN_CONFIG = {
-    'dsn': os.environ.get('RAVEN_DSN', None),
-    # If you are using git, you can also automatically configure the
-    # release based on the git info.
-    # 'release': raven.fetch_git_sha(BASE_DIR),
-}
 
-# trying logging for heroku
-# http://stackoverflow.com/questions/18920428/django-logging-on-heroku
-
-LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', 'DEBUG')
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': ('%(asctime)s [%(process)d] [%(levelname)s] ' +
-                       'pathname=%(pathname)s lineno=%(lineno)s ' +
-                       'funcname=%(funcName)s %(message)s'),
-            'datefmt': '%Y-%m-%d %H:%M:%S'
-        },
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        }
-    },
-    'handlers': {
-        'null': {
-            'level': 'DEBUG',
-            'class': 'logging.NullHandler',
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
-        },
-        'sentry': {
-            'level': 'ERROR',
-            'class': 'raven.handlers.logging.SentryHandler',
-            'dsn': os.environ.get('RAVEN_DSN', None)
-            },
-    },
-    'loggers': {
-        'testlogger': {
-            'handlers': ['console', 'sentry'],
-            'level': LOGGING_LEVEL,
-        }
-    }
-}
-
-# logging.config.dictConfig(LOGGING)
 
 # Define a css class for required fields so we can mark them.
 BOOTSTRAP3 = {'required_css_class': 'required-input'}
@@ -262,16 +200,6 @@ HAYSTACK_CONNECTIONS = {
         'INDEX_NAME': 'documents',
     },
 }
-if es.username:
-    HAYSTACK_CONNECTIONS['default']['KWARGS'] = {"http_auth": es.username + ':' + es.password}
-
-# Old whoosh backend
-# HAYSTACK_CONNECTIONS = {
-#     'default': {
-#         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-#         'PATH': os.path.join(BASE_DIR, '..', 'bulletin_index')
-#     },
-# }
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
