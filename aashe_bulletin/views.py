@@ -1,7 +1,7 @@
 from braces.views import SetHeadlineMixin
+from django.contrib.syndication.views import Feed
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
-from django.contrib.syndication.views import Feed
 
 from bulletin import views as bulletin_views
 from bulletin.tools.plugins.models import Story
@@ -24,14 +24,14 @@ class FAQView(SetHeadlineMixin,
 
 class LatestNewsFeedView(Feed):
 
-    title = 'AASHE Bulletin news'
+    title = 'AASHE Bulletin News'
     description = 'Latest news from the AASHE Bulletin.'
 
     def link(self):
         return reverse('latest-news-feed')
 
     def items(self):
-        return Story.objects.order_by('-pub_date')[:5]
+        return Story.objects.filter(approved=True).order_by('-pub_date')[:5]
 
     def item_title(self, item):
         return item.title

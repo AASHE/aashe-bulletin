@@ -43,37 +43,6 @@
        {% endcomment %}
        body > table:last-of-type table{width:90% !important;}
      }
-
-     .category-title {
-       font-size: 12px;
-       font-style: italic;
-       padding-left: 25px;
-       padding-top: 10px;
-       padding-bottom: 2px;
-     }
-
-     .unfeatured-story {
-       font-size: 14px;
-       padding-left: 35px;
-       padding-top: 0px;
-       padding-bottom: 2px;
-     }
-
-     a {
-       text-decoration: none;
-     }
-
-     .button {
-       background-color: #3498db;
-       font-size: 14px;
-       font-weight: bold;
-       color: #ffffff;
-       text-align: center;
-       vertical-align: middle;
-       padding: 10px 10px 10px 10px;
-       border-bottom-width: 0px;
-     }
-
      </style>
   </head>
 
@@ -194,7 +163,8 @@
                       <td colspan="2"
                           style="font-size: 16px; color: #303030; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px 10px 0px;">
                         <i>
-                          <a href="{% url "bulletin:plugins:plugin-list" %}">
+                          <a href="{% url "bulletin:plugins:plugin-list" %}"
+                             style="text-decoration: none">
                             Submit news and information
                             from your school</a>.
                         </i>
@@ -271,7 +241,8 @@
                     {% unfeatured_posts_categories section.posts.all as categories %}
                     {% for category in categories %}
                       <tr>
-                        <td colspan="2" class="category-title">
+                        <td colspan="2" class="category-title"
+                            style="font-size: 12px; font-style: italic; padding-left: 25px; padding-top: 10px; padding-bottom: 2px;">
                           {{ category }}
                         </td>
                       </tr>
@@ -280,8 +251,10 @@
                           {% if story.category.parent.name == category %}
                             <tr>
                               <td colspan="2">
-                                <div class="post-title unfeatured-story">
-                                  <a href="{{ story.url }}" class="title">
+                                <div class="post-title unfeatured-story"
+                                     style="font-size: 14px; padding-left: 35px; padding-top: 0px; padding-bottom: 2px;">
+                                  <a href="{{ story.url }}" class="title"
+                                     style="text-decoration: none;">
                                     {{ story.title }}
                                   </a>
                                 </div>
@@ -430,7 +403,8 @@
                               <tr>
                                 <td align="center">
                                   <a class="button"
-                                     href="http://ui.constantcontact.com/sa/fwtf.jsp?m=$ACCOUNT.UID&amp;a=$AGENT.AGENT_UID&amp;ea=$SUBSCRIBER.EMAIL">
+                                     href="http://ui.constantcontact.com/sa/fwtf.jsp?m=$ACCOUNT.UID&amp;a=$AGENT.AGENT_UID&amp;ea=$SUBSCRIBER.EMAIL"
+                                     style="background-color: #3498db; font-size: 14px; font-weight: bold; color: #ffffff; text-align: center; vertical-align: middle; padding: 10px 10px 10px 10px; border-bottom-width: 0px; text-decoration: none;">
                                     Forward to a colleague
                                   </a>
                                 </td>
@@ -444,7 +418,8 @@
                               <tr>
                                 <td align="center">
                                   <a class="button"
-                                     href="http://www.aashe.org/about/advertising-opportunities%20#e-newsletters">
+                                     href="http://www.aashe.org/about/advertising-opportunities%20#e-newsletters"
+                                     style="background-color: #3498db; font-size: 14px; font-weight: bold; color: #ffffff; text-align: center; vertical-align: middle; padding: 10px 10px 10px 10px; border-bottom-width: 0px; text-decoration: none;">
                                     Advertise in the AASHE Bulletin
                                   </a>
                                 </td>
