@@ -1,0 +1,42 @@
+language: python
+python:
+- '2.7'
+addons:
+  postgresql: '9.3'
+services:
+- postgresql
+- elasticsearch
+env:
+  global:
+  - DJANGO_SETTINGS_MODULE=aashe_bulletin.settings
+  - DEBUG=True
+  - BULLETIN_DATABASE_URL=postgresql://postgres@localhost/travis_ci_test
+  - SECRET_KEY='hah'
+  - MEDIA_URL='/media/'
+  - CONSTANT_CONTACT_FROM_EMAIL='bulletin@aashe.org'
+  - CONSTANT_CONTACT_REPLY_TO_EMAIL='bulletin@aashe.org'
+  - AASHE_DRUPAL_URI="http://www.aashe.org/services/xmlrpc"
+  - AASHE_DRUPAL_KEY_DOMAIN="bulletin.aashe.org"
+  - AASHE_DRUPAL_COOKIE_DOMAIN=".aashe.org"
+  # CONSTANT_CONTACT_API_KEY
+  - secure: "CP0ArmEzUMU/XT2p9FpJo3p0NoKE3nqLuF/EQIVG3U1WFs6QyPBpxyER7H9K0uq1y9xJCIEXvcQ5i6ellB3eUZu4Gh3xyXP167ffSJlD5vCwqcSl3sSbWdsehzwzqRyepPpwGKMTbf2O1T54SoyPzy/d/fonH/ZbhtA0pa4l1/U="
+  # CONSTANT_CONTACT_ACCESS_TOKEN
+  - secure: "ePdYhpic52VyzyPYEp94p3zqkUHlJxXzJJqALKU+mmhlsuHUF0uE/nlVTgBkdbSL64h0Ng5wie5/ChGci/jkZdRfdXvR60vva0cbrb4c0PHuTU+WRdHhWuUpnJMGQkQ/zBagfkaqST53rKJWgCsbvBxMCHIJlkhh8LPhODVH1M4="
+  # CONSTANT_CONTACT_USERNAME
+  - secure: "fIvc5rIreIZiVqn9/mY5BHpuHI7AOEIjq940VgZoDb/ZK9+e7AfEB9OvnKxLsZgqnRaA1jKd/imhNEBkW70HihyGkZXUcNCYhO4N4btH8+nBG4fTRGN4dBVqvPaB7oB3tUvwyrwPWGXSVYUXZBuJ2tWhbau1iMsV4kJxcwa+Hew="
+  # CONSTANT_CONTACT_PASSWORD
+  - secure: "eqA5jz3ZXtew6ktSddu2CX5KZmvyvnpM+hl53go5ILdLYUpKhi5gEM+cl6FYnAD7qU3rXm94aXe+qvZPyQRt3uEXVNT3N2qjo9JUIqN4v4Fq3ihuuwYAYRJle8B2iHQUij5z79JGmldn331oPGuYSQtGgvO+/4UsoYbaqg666Ss="
+  # MAILCHIMP_API_KEY
+  - secure: "cnQu3HXp/IDLCFHb1S8Pws/Fvxk29knwb0TmJ8r3LONJuFHVF9DoOfjuqMy3HR7ASC+7AT9OUkoM9C2OE9hT8oNX3bUi3sRDGSpQ68t1cpWl+0dYwHlS6N9ost1dvABtDkF+gUctxZwBkphGNQ1LjceA7lsMoI7uZN2gHdhOkaM="
+  # AASHE_DRUPAL_KEY
+  - secure: "cXzhRxudavCi7UFpI+rnVnCUbbYHEQUfoWXyiL8awe+KUicVJEEljnfzNgQ/u7Dh/abtBnfI8cBmdBc5ksHcLpdm1tj1IxQ0dhFILvI19ugc9gtct8y7HzrnGUtTYnwC5PeKY3iHRWHvwlUDMknWRBiFFd4MWaHSonNGamh2hOg="
+  # AASHE_DRUPAL_COOKIE_SESSION
+  - secure: "DfwcgfEkkZnbx1X+7VINjkOx5Lt0a7jQFTrDA8MNRKXCU9+Ef1/ZgpkMS1FFFZ+r8MQNSH19KhaVlWLermVWCvC35bCN65OzXhnQg0AfQLbph38zH0/9aku0SSq52ultv+g5BsfghY/vGxZ/zzlcHISW2UGROOq2nMElIsU3eKc="
+install:
+- pip install -r requirements.txt
+before_script:
+- python manage.py collectstatic --noinput
+script: coverage run manage.py test -v3
+after_success: coveralls
+notifications:
+  email: false
