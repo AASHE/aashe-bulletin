@@ -10,7 +10,7 @@ env:
   global:
   - DJANGO_SETTINGS_MODULE=aashe_bulletin.settings
   - DEBUG=True
-  - BULLETIN_DATABASE_URL=postgresql://postgres@localhost/travis_ci_test
+  - BULLETIN_DATABASE_URL=postgresql://postgres@localhost/bulletin
   - SECRET_KEY='hah'
   - MEDIA_URL='/media/'
   - CONSTANT_CONTACT_FROM_EMAIL='bulletin@aashe.org'
@@ -36,7 +36,7 @@ install:
 - pip install -r requirements.txt
 - pip install -r requirements_test.txt
 before_script:
-- python manage.py collectstatic --noinput
+- python manage.py collectstatic --noinput -v0
 script: coverage run manage.py test -v3
 after_success: coveralls
 notifications:
