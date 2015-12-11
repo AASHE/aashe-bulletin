@@ -34,6 +34,7 @@ env:
   - secure: "DfwcgfEkkZnbx1X+7VINjkOx5Lt0a7jQFTrDA8MNRKXCU9+Ef1/ZgpkMS1FFFZ+r8MQNSH19KhaVlWLermVWCvC35bCN65OzXhnQg0AfQLbph38zH0/9aku0SSq52ultv+g5BsfghY/vGxZ/zzlcHISW2UGROOq2nMElIsU3eKc="
 install:
 - pip install -r requirements.txt
+- pip install -r requirements_test.txt
 before_script:
 - python manage.py collectstatic --noinput
 script: coverage run manage.py test -v3
