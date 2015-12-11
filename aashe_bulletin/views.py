@@ -31,7 +31,7 @@ class LatestNewsFeedView(Feed):
         return reverse('latest-news-feed')
 
     def items(self):
-        return Story.objects.filter(approved=True).order_by('-pub_date')[:5]
+        return Story.objects.filter(approved=True).order_by('-pub_date')[:30]
 
     def item_title(self, item):
         return item.title
