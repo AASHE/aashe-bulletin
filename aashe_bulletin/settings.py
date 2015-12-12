@@ -246,3 +246,8 @@ def is_member(user):
 SEARCH_LOGIN_REQUIRED = True
 SEARCH_USER_PASSES_TEST = is_member
 SEARCH_USER_FAILS_TEST_URL = '/search-permission-denied/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
