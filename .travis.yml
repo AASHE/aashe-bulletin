@@ -41,4 +41,5 @@ before_script:
 script: coverage run manage.py test -v3
 after_success: coveralls
 notifications:
+  hipchat: 5534a6204d6caa1a45ac2444282aca@WebDevActivity
   email: false
