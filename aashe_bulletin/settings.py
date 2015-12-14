@@ -52,6 +52,8 @@ INSTALLED_APPS = (
 
     'haystack',
 
+    'aashe_bulletin',  # so aashe_bulletin/management/commands are available
+
     # AASHE Apps
     'aashe.aasheauth',
     'django_constant_contact',
