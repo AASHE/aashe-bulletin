@@ -177,7 +177,7 @@ right of publicity).
 """
 
 # MAX_STORY_TITLE_LENGTH = 90
-MAX_STORY_BLURB_LENGTH = 400
+MAX_STORY_BLURB_LENGTH = 800
 
 RAVEN_CONFIG = {
     'dsn': 'https://6f14dc148c26474f9d08c6de7c74f049:ad632c3061ce47e8b5c668aa25d2b449@app.getsentry.com/41366'
