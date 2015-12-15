@@ -43,9 +43,13 @@ urlpatterns = patterns(
     url(r'^flat-pages/',
         include('django.contrib.flatpages.urls')),
 
-    url(r'^rss/news/',
+    url(r'^rss/news/$',
         LatestNewsFeedView(),
         name='latest-news-feed'),
+
+    url(r'^rss/news/category/(?P<category>\w+)/$',
+        LatestNewsFeedView(),
+        name='latest-news-category-feed'),
 
     url(r'^',
         include('bulletin.urls',
