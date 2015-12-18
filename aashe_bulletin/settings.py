@@ -203,6 +203,10 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+if es.username:
+    HAYSTACK_CONNECTIONS['default']['KWARGS'] = {
+        'http_auth': es.username + ':' + es.password}
+
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 
