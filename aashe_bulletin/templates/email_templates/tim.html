@@ -163,7 +163,7 @@
                       <td colspan="2"
                           style="font-size: 16px; color: #303030; font-weight: normal; text-align: center; font-family: Arial, Helvetica, sans-serif; line-height: 25px; vertical-align: middle; padding: 5px 10px 0px;">
                         <i>
-                          <a href="{% url "bulletin:plugins:plugin-list" %}"
+                          <a href="http://{{ request.get_host }}{% url "bulletin:plugins:plugin-list" %}"
                              style="text-decoration: none">
                             Submit news and information
                             from your school</a>.

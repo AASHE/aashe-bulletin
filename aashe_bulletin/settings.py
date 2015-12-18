@@ -48,6 +48,8 @@ INSTALLED_APPS = (
 
     'haystack',
 
+    'aashe_bulletin',  # so aashe_bulletin/management/commands are available
+
     # AASHE Apps
     'aashe.aasheauth',
     'django_constant_contact',
@@ -172,7 +174,7 @@ right of publicity).
 """
 
 # MAX_STORY_TITLE_LENGTH = 90
-MAX_STORY_BLURB_LENGTH = 400
+MAX_STORY_BLURB_LENGTH = 800
 
 MESSAGE_TAGS = {message_constants.DEBUG: 'alert fade in alert-debug',
                 message_constants.INFO: 'alert fade in alert-info',
@@ -214,3 +216,8 @@ def is_member(user):
 SEARCH_LOGIN_REQUIRED = True
 SEARCH_USER_PASSES_TEST = is_member
 SEARCH_USER_FAILS_TEST_URL = '/search-permission-denied/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
