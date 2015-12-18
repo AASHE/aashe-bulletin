@@ -10,7 +10,7 @@ env:
   global:
   - DJANGO_SETTINGS_MODULE=aashe_bulletin.settings
   - DEBUG=True
-  - BULLETIN_DATABASE_URL=postgresql://postgres@localhost/bulletin
+  - DATABASE_URL=postgresql://postgres@localhost/bulletin
   - SECRET_KEY='hah'
   - MEDIA_URL='/media/'
   - CONSTANT_CONTACT_FROM_EMAIL='bulletin@aashe.org'
