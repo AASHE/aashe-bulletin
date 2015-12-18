@@ -1,213 +1,2690 @@
 /*!
  * Cube Portfolio - Responsive jQuery Grid Plugin
  *
- * version: 2.3.3 (16 June, 2015)
- * require: jQuery v1.7+
+ * version: 1.5.1 (29 September, 2014)
+ * requires jQuery v1.7 or later
  *
- * Copyright 2013-2015, Mihai Buricea (http://scriptpie.com/cubeportfolio/live-preview/)
- * Licensed under CodeCanyon License (http://codecanyon.net/licenses)
+ * Copyright (c) 2014, Mihai Buricea (http://scriptpie.com)
+ * Released under CodeCanyon License http://codecanyon.net/licenses
  *
  */
 
-(function($, window, document, undefined) {
+(function ($, window, document, undefined) {
+
     'use strict';
 
-    function CubePortfolio(obj, options, callback) {
-        /*jshint validthis: true */
-        var t = this,
-            initialCls = 'cbp',
-            children;
+    var namespace = 'cbp',
+        eventNamespace = '.' + namespace;
 
-        if ($.data(obj, 'cubeportfolio')) {
-            throw new Error('cubeportfolio is already initialized. Destroy it before initialize again!');
-        }
-
-        // attached this instance to obj
-        $.data(obj, 'cubeportfolio', t);
-
-        // extend options
-        t.options = $.extend({}, $.fn.cubeportfolio.options, options);
-
-        // store the state of the animation used for filters
-        t.isAnimating = true;
-
-        // default filter for plugin
-        t.defaultFilter = t.options.defaultFilter;
-
-        // registered events (observator & publisher pattern)
-        t.registeredEvents = [];
-
-        // skip events (observator & publisher pattern)
-        t.skipEvents = [];
-
-        // has wrapper
-        t.addedWrapp = false;
-
-        // register callback function
-        if ($.isFunction(callback)) {
-            t._registerEvent('initFinish', callback, true);
-        }
-
-        // js element
-        t.obj = obj;
-
-        // jquery element
-        t.$obj = $(obj);
-
-        // when there are no .cbp-item
-        children = t.$obj.children();
-
-        // if caption is active
-        if (t.options.caption) {
-            if (!CubePortfolio.Private.modernBrowser) {
-                t.options.caption = 'minimal';
+    // Utility
+    if (typeof Object.create !== 'function') {
+        Object.create = function (obj) {
+            function F() {
             }
 
-            // .cbp-caption-active is used only for css
-            // so it will not generate a big css from sass if a caption is set
-            initialCls += ' cbp-caption-active cbp-caption-' + t.options.caption;
-        }
-
-        t.$obj.addClass(initialCls);
-
-        if (children.length === 0 || children.first().hasClass('cbp-item')) {
-            t.wrapInner(t.obj, 'cbp-wrapper');
-            t.addedWrapp = true;
-        }
-
-        // jquery wrapper element
-        t.$ul = t.$obj.children().addClass('cbp-wrapper');
-
-        // wrap the $ul in a outside wrapper
-        t.wrapInner(t.obj, 'cbp-wrapper-outer');
-
-        t.wrapper = t.$obj.children('.cbp-wrapper-outer');
-
-        t.blocks = t.$ul.children('.cbp-item');
-
-        // wrap .cbp-item-wrap div inside .cbp-item
-        t.wrapInner(t.blocks, 'cbp-item-wrapper');
-
-        // store main container width
-        t.width = t.$obj.outerWidth();
-
-        // wait to load all images and then go further
-        t._load(t.$obj, t._display);
+            F.prototype = obj;
+            return new F();
+        };
     }
 
-    $.extend(CubePortfolio.prototype, {
+    // jquery new filter for images uncached
+    $.expr[':'].uncached = function (obj) {
+        // Ensure we are dealing with an `img` element with a valid `src` attribute.
+        if (!$(obj).is('img[src!=""]')) {
+            return false;
+        }
 
-        storeData: function(blocks) {
-            blocks.each(function(index, el) {
-                var block = $(el);
+        // Firefox's `complete` property will always be `true` even if the image has not been downloaded.
+        // Doing it this way works in Firefox.
+        var img = new Image();
+        img.src = obj.src;
+        return !img.complete;
+    };
 
-                block.data('cbp', {
-                    wrapper: block.children('.cbp-item-wrapper'),
+    var popup = {
 
-                    widthInitial: block.outerWidth(),
-                    heightInitial: block.outerHeight(),
-                    width: null,
-                    height: null,
+        /**
+         * init function for popup
+         * @param cubeportfolio = cubeportfolio instance
+         * @param type =  'lightbox' or 'singlePage'
+         */
+        init: function (cubeportfolio, type) {
 
-                    left: null,
-                    leftNew: null,
-                    top: null,
-                    topNew: null
-                });
-            });
-        },
-
-        // http://bit.ly/pure-js-wrap
-        wrapInner: function(items, classAttr) {
             var t = this,
-                item,
-                i,
-                div;
+                currentBlock;
 
-            classAttr = classAttr || '';
+            // remember cubeportfolio instance
+            t.cubeportfolio = cubeportfolio;
 
-            if (items.length && items.length < 1) {
-                return; // there are no .cbp-item
-            } else if (items.length === undefined) {
-                items = [items];
+            // remember if this instance is for lightbox or for singlePage
+            t.type = type;
+
+            // remember if the popup is open or not
+            t.isOpen = false;
+
+            t.options = t.cubeportfolio.options;
+
+            if (type === 'singlePageInline') {
+
+                t.matrice = [-1, -1];
+
+                t.height = 0;
+
+                // create markup, css and add events for SinglePageInline
+                t._createMarkupSinglePageInline();
+                return;
             }
 
-            for (i = items.length - 1; i >= 0; i--) {
-                item = items[i];
+            // create markup, css and add events for lightbox and singlePage
+            t._createMarkup();
 
-                div = document.createElement('div');
+            if (t.options.singlePageDeeplinking && type === 'singlePage') {
+                t.url = location.href;
 
-                div.setAttribute('class', classAttr);
-
-                while (item.childNodes.length) {
-                    div.appendChild(item.childNodes[0]);
+                if (t.url.slice(-1) === '#') {
+                    t.url = t.url.slice(0, -1);
                 }
 
-                item.appendChild(div);
+                currentBlock = t.cubeportfolio.blocksAvailable.find(t.options.singlePageDelegate).filter(function () {
+                    // we split the url in half and store the second entry. If this entry is equal with current element return true
+                    return (t.url.split('#cbp=')[1] === this.getAttribute('href'));
+                })[0];
+
+
+                if (currentBlock) {
+
+                    t.url = t.url.replace(/#cbp=(.+)/ig, '');
+
+                    t.openSinglePage(t.cubeportfolio.blocksAvailable.find(t.options.singlePageDelegate), currentBlock);
+                }
 
             }
+
+        },
+
+        /**
+         * Create markup, css and add events
+         */
+        _createMarkup: function () {
+
+            var t = this;
+
+            // wrap element
+            t.wrap = $('<div/>', {
+                'class': 'cbp-popup-wrap cbp-popup-' + t.type,
+                'data-action': (t.type === 'lightbox') ? 'close' : ''
+            }).on('click' + eventNamespace, function (e) {
+                if (t.stopEvents) {
+                    return;
+                }
+
+                var action = $(e.target).attr('data-action');
+
+                if (t[action]) {
+                    t[action]();
+                    e.preventDefault();
+                }
+            });
+
+            // content element
+            t.content = $('<div/>', {
+                'class': 'cbp-popup-content'
+            }).appendTo(t.wrap);
+
+            // append loading div
+            $('<div/>', {
+                'class': 'cbp-popup-loadingBox'
+            }).appendTo(t.wrap);
+
+            // add background only for ie8
+            if (t.cubeportfolio.browser === 'ie8') {
+                t.bg = $('<div/>', {
+                    'class': 'cbp-popup-ie8bg',
+                    'data-action': (t.type === 'lightbox') ? 'close' : ''
+                }).appendTo(t.wrap);
+            }
+
+            // create navigation wrap
+            t.navigationWrap = $('<div/>', {
+                'class': 'cbp-popup-navigation-wrap'
+            }).appendTo(t.wrap);
+
+            // create navigation block
+            t.navigation = $('<div/>', {
+                'class': 'cbp-popup-navigation'
+            }).appendTo(t.navigationWrap);
+
+            // close button
+            t.closeButton = $('<button/>', {
+                'class': 'cbp-popup-close',
+                'title': 'Close (Esc arrow key)',
+                'type': 'button',
+                'data-action': 'close'
+            }).appendTo(t.navigation);
+
+            // next button
+            t.nextButton = $('<button/>', {
+                'class': 'cbp-popup-next',
+                'title': 'Next (Right arrow key)',
+                'type': 'button',
+                'data-action': 'next'
+            }).appendTo(t.navigation);
+
+
+            // prev button
+            t.prevButton = $('<button/>', {
+                'class': 'cbp-popup-prev',
+                'title': 'Previous (Left arrow key)',
+                'type': 'button',
+                'data-action': 'prev'
+            }).appendTo(t.navigation);
+
+
+            if (t.type === 'singlePage') {
+
+                if (t.options.singlePageCounter) {
+                    // counter for singlePage
+                    t.counter = $(t.options.singlePageCounter).appendTo(t.navigation);
+                    t.counter.text('');
+                }
+
+                t.content.on('click' + eventNamespace, t.options.singlePageDelegate, function (e) {
+                    e.preventDefault();
+                    var i,
+                        len = t.dataArray.length,
+                        href = this.getAttribute('href');
+
+                    for (i = 0; i < len; i++) {
+
+                        if (t.dataArray[i].url === href) {
+                            break;
+                        }
+                    }
+
+                    t.singlePageJumpTo(i - t.current);
+
+                });
+
+            }
+
+            $(document).on('keydown' + eventNamespace, function (e) {
+
+                // if is not open => return
+                if (!t.isOpen) {
+                    return;
+                }
+
+                // if all events are stopped => return
+                if (t.stopEvents) {
+                    return;
+                }
+
+                if (e.keyCode === 37) { // prev key
+                    t.prev();
+                } else if (e.keyCode === 39) { // next key
+                    t.next();
+                } else if (e.keyCode === 27) { //esc key
+                    t.close();
+                }
+            });
+
+        },
+
+        _createMarkupSinglePageInline: function () {
+            var t = this;
+
+            // wrap element
+            t.wrap = $('<div/>', {
+                'class': 'cbp-popup-singlePageInline'
+            }).on('click' + eventNamespace, function (e) {
+                if (t.stopEvents) {
+                    return;
+                }
+
+                var action = $(e.target).attr('data-action');
+
+                if (action) {
+                    t[action]();
+                    e.preventDefault();
+                }
+            });
+
+            // content element
+            t.content = $('<div/>', {
+                'class': 'cbp-popup-content'
+            }).appendTo(t.wrap);
+
+            // append loading div
+            $('<div/>', {
+                'class': 'cbp-popup-loadingBox'
+            }).appendTo(t.wrap);
+
+            // create navigation block
+            t.navigation = $('<div/>', {
+                'class': 'cbp-popup-navigation'
+            }).appendTo(t.wrap);
+
+            // close button
+            t.closeButton = $('<button/>', {
+                'class': 'cbp-popup-close',
+                'title': 'Close (Esc arrow key)',
+                'type': 'button',
+                'data-action': 'close'
+            }).appendTo(t.navigation);
+
+        },
+
+        destroy: function () {
+
+            var t = this,
+                body = $('body');
+
+            // remove off key down
+            $(document).off('keydown' + eventNamespace);
+
+            // external lightbox and singlePageInline
+            body.off('click' + eventNamespace, t.options.lightboxDelegate);
+            body.off('click' + eventNamespace, t.options.singlePageDelegate);
+
+            t.content.off('click' + eventNamespace, t.options.singlePageDelegate);
+
+            t.cubeportfolio.$obj.off('click' + eventNamespace, t.options.singlePageInlineDelegate);
+            t.cubeportfolio.$obj.off('click' + eventNamespace, t.options.lightboxDelegate);
+            t.cubeportfolio.$obj.off('click' + eventNamespace, t.options.singlePageDelegate);
+
+            t.cubeportfolio.$obj.removeClass('cbp-popup-isOpening');
+
+            t.cubeportfolio.blocks.removeClass('cbp-singlePageInline-active');
+
+            t.wrap.remove();
+        },
+
+        openLightbox: function (blocks, currentBlock) {
+
+            var t = this,
+                i = 0,
+                currentBlockHref, tempHref = [],
+                element;
+
+            if (t.isOpen) {
+                return;
+            }
+
+            // check singlePageInline and close it
+            if (t.cubeportfolio.singlePageInline && t.cubeportfolio.singlePageInline.isOpen) {
+                t.cubeportfolio.singlePageInline.close();
+            }
+
+            // remember that the lightbox is open now
+            t.isOpen = true;
+
+            // remember to stop all events after the lightbox has been shown
+            t.stopEvents = false;
+
+            // array with elements
+            t.dataArray = [];
+
+            // reset current
+            t.current = null;
+
+            currentBlockHref = currentBlock.getAttribute('href');
+            if (currentBlockHref === null) {
+                throw new Error('HEI! Your clicked element doesn\'t have a href attribute.');
+            }
+
+            $.each(blocks, function (index, item) {
+                var href = item.getAttribute('href'),
+                    src = href, // default if element is image
+                    type = 'isImage'; // default if element is image
+
+                if ($.inArray(href, tempHref) === -1) {
+
+                    if (currentBlockHref === href) {
+                        t.current = i;
+                    } else if (!t.options.lightboxGallery) {
+                        return;
+                    }
+
+                    if (/youtube/i.test(href)) {
+
+                        // create new href
+                        src = '//www.youtube.com/embed/' + href.substring(href.lastIndexOf('v=') + 2) + '?autoplay=1';
+
+                        type = 'isYoutube';
+
+                    } else if (/vimeo/i.test(href)) {
+
+                        // create new href
+                        src = '//player.vimeo.com/video/' + href.substring(href.lastIndexOf('/') + 1) + '?autoplay=1';
+
+                        type = 'isVimeo';
+
+                    } else if (/ted\.com/i.test(href)) {
+
+                        // create new href
+                        src = 'http://embed.ted.com/talks/' + href.substring(href.lastIndexOf('/') + 1) + '.html';
+
+                        type = 'isTed';
+
+                    } else if (/(\.mp4)|(\.ogg)|(\.ogv)|(\.webm)/i.test(href)) {
+
+                        if (href.indexOf('|') !== -1) {
+                            // create new href
+                            src = href.split('|');
+                        } else {
+                            // create new href
+                            src = href.split('%7C');
+                        }
+
+                        type = 'isSelfHosted';
+
+                    }
+
+                    t.dataArray.push({
+                        src: src,
+                        title: item.getAttribute(t.options.lightboxTitleSrc),
+                        type: type
+                    });
+
+                    i++;
+                }
+
+                tempHref.push(href);
+            });
+
+
+            // total numbers of elements
+            t.counterTotal = t.dataArray.length;
+
+            if (t.counterTotal === 1) {
+                t.nextButton.hide();
+                t.prevButton.hide();
+                t.dataActionImg = '';
+            } else {
+                t.nextButton.show();
+                t.prevButton.show();
+                t.dataActionImg = 'data-action="next"';
+            }
+
+            // append to body
+            t.wrap.appendTo(document.body);
+
+            t.scrollTop = $(window).scrollTop();
+
+            $('html').css({
+                overflow: 'hidden',
+                paddingRight: window.innerWidth - $(document).width()
+            });
+
+            // show the wrapper (lightbox box)
+            t.wrap.show();
+
+            // get the current element
+            element = t.dataArray[t.current];
+
+            // call function if current element is image or video (iframe)
+            t[element.type](element);
+
+        },
+
+        openSinglePage: function (blocks, currentBlock) {
+
+            var t = this,
+                i = 0,
+                currentBlockHref, tempHref = [];
+
+            if (t.isOpen) {
+                return;
+            }
+
+            // check singlePageInline and close it
+            if (t.cubeportfolio.singlePageInline && t.cubeportfolio.singlePageInline.isOpen) {
+                t.cubeportfolio.singlePageInline.close();
+            }
+
+            // remember that the lightbox is open now
+            t.isOpen = true;
+
+            // remember to stop all events after the popup has been showing
+            t.stopEvents = false;
+
+            // array with elements
+            t.dataArray = [];
+
+            // reset current
+            t.current = null;
+
+            currentBlockHref = currentBlock.getAttribute('href');
+            if (currentBlockHref === null) {
+                throw new Error('HEI! Your clicked element doesn\'t have a href attribute.');
+            }
+
+
+            $.each(blocks, function (index, item) {
+                var href = item.getAttribute('href');
+
+                if ($.inArray(href, tempHref) === -1) {
+
+                    if (currentBlockHref === href) {
+                        t.current = i;
+                    }
+
+                    t.dataArray.push({
+                        url: href,
+                        element: item
+                    });
+
+                    i++;
+                }
+
+                tempHref.push(href);
+            });
+
+            // total numbers of elements
+            t.counterTotal = t.dataArray.length;
+
+            if (t.counterTotal === 1) {
+                t.nextButton.hide();
+                t.prevButton.hide();
+            } else {
+                t.nextButton.show();
+                t.prevButton.show();
+            }
+
+            // append to body
+            t.wrap.appendTo(document.body);
+
+            t.scrollTop = $(window).scrollTop();
+
+            $('html').css({
+                overflow: 'hidden',
+                paddingRight: window.innerWidth - $(document).width()
+            });
+
+            // go to top of the page (reset scroll)
+            t.wrap.scrollTop(0);
+
+            // register callback function
+            if ($.isFunction(t.options.singlePageCallback)) {
+                t.options.singlePageCallback.call(t, t.dataArray[t.current].url, t.dataArray[t.current].element);
+            }
+
+            // show the wrapper
+            t.wrap.show();
+
+            t.wrap.one(t.cubeportfolio.transitionEnd, function () {
+                var width;
+
+
+                // make the navigation sticky
+                if (t.options.singlePageStickyNavigation) {
+
+                    t.wrap.addClass('cbp-popup-singlePage-sticky');
+
+                    width = t.wrap[0].clientWidth;
+                    t.navigationWrap.width(width);
+                    //t.navigation.width(width);
+                }
+
+            });
+
+            if (t.cubeportfolio.browser === 'ie8' || t.cubeportfolio.browser === 'ie9') {
+
+                setTimeout(function () {
+                    t.wrap.addClass('cbp-popup-singlePage-sticky');
+                }, 1000);
+
+                // make the navigation sticky
+                if (t.options.singlePageStickyNavigation) {
+                    var width = t.wrap[0].clientWidth;
+
+                    t.navigationWrap.width(width);
+                    //t.navigation.width(width);
+
+                }
+            }
+
+            setTimeout(function () {
+                t.wrap.addClass('cbp-popup-singlePage-open');
+            }, 20);
+
+            // change link
+            if (t.options.singlePageDeeplinking) {
+                location.href = t.url + '#cbp=' + t.dataArray[t.current].url;
+            }
+
+        },
+
+
+        openSinglePageInline: function (blocks, currentBlock, fromOpen) {
+
+            var t = this,
+                i = 0,
+                start = 0,
+                end = 0,
+                currentBlockHref,
+                currentRow, rows,
+                tempCurrent,
+                cbpitem;
+
+            fromOpen = fromOpen || false;
+
+            t.storeBlocks = blocks;
+            t.storeCurrentBlock = currentBlock;
+
+            // check singlePageInline and close it
+            if (t.isOpen) {
+
+                tempCurrent = $(currentBlock).closest('.cbp-item').index('.cbp-item');
+
+                if (t.dataArray[t.current].url !== currentBlock.getAttribute('href') || t.current !== tempCurrent) {
+                    t.cubeportfolio.singlePageInline.close('open', {
+                        blocks: blocks,
+                        currentBlock: currentBlock,
+                        fromOpen: true
+                    });
+
+                } else {
+                    t.close();
+                }
+
+                return;
+            }
+
+            t.wrap.addClass('cbp-popup-loading');
+
+            // remember that the lightbox is open now
+            t.isOpen = true;
+
+            // remember to stop all events after the popup has been showing
+            t.stopEvents = false;
+
+            // array with elements
+            t.dataArray = [];
+
+            // reset current
+            t.current = null;
+
+            currentBlockHref = currentBlock.getAttribute('href');
+            if (currentBlockHref === null) {
+                throw new Error('HEI! Your clicked element doesn\'t have a href attribute.');
+            }
+
+            cbpitem = $(currentBlock).closest('.cbp-item')[0];
+
+            $.each(blocks, function (index, item) {
+
+                if (cbpitem === item) {
+                    t.current = index;
+                }
+
+            });
+
+            t.dataArray[t.current] = {
+                url: currentBlockHref,
+                element: currentBlock
+            };
+
+            $(t.dataArray[t.current].element).parents('.cbp-item').addClass('cbp-singlePageInline-active');
+
+            // total numbers of elements
+            t.counterTotal = blocks.length;
+
+            if (t.cubeportfolio.blocksClone) {
+
+                if (t.cubeportfolio.ulHidden === 'clone') {
+                    t.wrap.prependTo(t.cubeportfolio.$ul);
+                } else {
+                    t.wrap.prependTo(t.cubeportfolio.$ulClone);
+                }
+
+            } else {
+                // append
+                t.wrap.prependTo(t.cubeportfolio.$ul);
+            }
+
+            if (t.options.singlePageInlinePosition === 'top') {
+
+                start = 0;
+                end = t.cubeportfolio.cols - 1;
+
+            } else if (t.options.singlePageInlinePosition === 'bottom') {
+
+                start = t.counterTotal;
+                end = t.counterTotal;
+
+                t.lastColumn = true;
+
+                if (fromOpen) {
+                    if (t.lastColumn) {
+                        t.top = t.lastColumnHeight;
+                    }
+                } else {
+                    t.lastColumnHeight = t.cubeportfolio.height;
+                    t.top = t.lastColumnHeight;
+                }
+
+            } else if (t.options.singlePageInlinePosition === 'above') {
+
+                i = Math.floor(t.current / t.cubeportfolio.cols);
+
+                start = t.cubeportfolio.cols * i;
+                end = t.cubeportfolio.cols * (i + 1) - 1;
+
+            } else { //below
+
+                i = Math.floor(t.current / t.cubeportfolio.cols);
+
+                start = Math.min(t.cubeportfolio.cols * (i + 1), t.counterTotal);
+                end = Math.min(t.cubeportfolio.cols * (i + 2) - 1, t.counterTotal);
+
+                currentRow = Math.ceil((t.current + 1) / t.cubeportfolio.cols);
+                rows = Math.ceil(t.counterTotal / t.cubeportfolio.cols);
+
+                t.lastColumn = (currentRow === rows);
+
+                if (fromOpen) {
+                    if (t.lastColumn) {
+                        t.top = t.lastColumnHeight;
+                    }
+                } else {
+                    t.lastColumnHeight = t.cubeportfolio.height;
+                    t.top = t.lastColumnHeight;
+                }
+
+            }
+
+            t.matrice = [start, end];
+
+            // register callback function
+            if ($.isFunction(t.options.singlePageInlineCallback)) {
+                t.options.singlePageInlineCallback.call(t, t.dataArray[t.current].url, t.dataArray[t.current].element);
+            }
+
+        },
+
+        _resizeSinglePageInline: function (removeLoadingMask) {
+
+            var t = this,
+                customHeight;
+
+            removeLoadingMask = removeLoadingMask || false;
+
+            t.height = t.content.outerHeight(true);
+
+            t.cubeportfolio._layout();
+
+            // repositionate the blocks with the best transition available
+            t.cubeportfolio._processStyle(t.cubeportfolio.transition);
+
+            if (removeLoadingMask) {
+                t.wrap.removeClass('cbp-popup-loading');
+            }
+
+            t.cubeportfolio.$obj.addClass('cbp-popup-isOpening');
+
+            t.wrap.css({
+                height: t.height
+            });
+
+            t.wrap.css({
+                top: t.top
+            });
+
+            customHeight = (t.lastColumn) ? t.height : 0;
+
+            //resize main container height
+            t.cubeportfolio._resizeMainContainer(t.cubeportfolio.transition, customHeight);
+
+            if (t.options.singlePageInlineInFocus) {
+
+                t.scrollTop = $(window).scrollTop();
+
+                // scroll
+                $('body,html').animate({
+                    scrollTop: t.wrap.offset().top - 150
+                });
+            }
+
+        },
+
+
+        updateSinglePage: function (html) {
+
+            var t = this,
+                selectorSlider,
+                counterMarkup;
+
+            t.content.html(html);
+
+            t.wrap.addClass('cbp-popup-ready');
+
+            t.wrap.removeClass('cbp-popup-loading');
+
+            // update counter navigation
+            if (t.counter) {
+                counterMarkup = $(t._getCounterMarkup(t.options.singlePageCounter, t.current + 1, t.counterTotal));
+                t.counter.text(counterMarkup.text());
+            }
+
+            // instantiate slider if exists
+            selectorSlider = t.content.find('.cbp-slider');
+            if (selectorSlider) {
+                t.slider = Object.create(slider);
+                t.slider._init(t, selectorSlider);
+            } else {
+                t.slider = null;
+            }
+
+        },
+
+
+        updateSinglePageInline: function (html) {
+
+            var t = this,
+                selectorSlider;
+
+            t.content.html(html);
+
+            t._loadSinglePageInline();
+
+            // instantiate slider if exists
+            selectorSlider = t.content.find('.cbp-slider');
+            if (selectorSlider) {
+                t.slider = Object.create(slider);
+                t.slider._init(t, selectorSlider);
+            } else {
+                t.slider = null;
+            }
+
+        },
+
+
+        /**
+         * Wait to load all images
+         */
+        _loadSinglePageInline: function () {
+
+            var t = this,
+                imgs = [],
+                i, img, propertyValue, src,
+                matchUrl = /url\((['"]?)(.*?)\1\)/g;
+
+            // loading background image of plugin
+            propertyValue = t.wrap.children().css('backgroundImage');
+            if (propertyValue) {
+                var match;
+                while ((match = matchUrl.exec(propertyValue))) {
+                    imgs.push({
+                        src: match[2]
+                    });
+                }
+            }
+
+            // get all elements
+            t.wrap.find('*').each(function () {
+
+                var elem = $(this);
+
+                if (elem.is('img:uncached')) {
+                    imgs.push({
+                        src: elem.attr('src'),
+                        element: elem[0]
+                    });
+                }
+
+                // background image
+                propertyValue = elem.css('backgroundImage');
+                if (propertyValue) {
+                    var match;
+                    while ((match = matchUrl.exec(propertyValue))) {
+                        imgs.push({
+                            src: match[2],
+                            element: elem[0]
+                        });
+                    }
+                }
+            });
+
+            var imgsLength = imgs.length,
+                imgsLoaded = 0;
+
+            if (imgsLength === 0) {
+                t._resizeSinglePageInline(true);
+            }
+
+            var loadImage = function () {
+                imgsLoaded++;
+
+                if (imgsLoaded === imgsLength) {
+                    t._resizeSinglePageInline(true);
+                }
+            };
+
+            // load  the image and call _beforeDisplay method
+            for (i = 0; i < imgsLength; i++) {
+                img = new Image();
+                $(img).on('load' + eventNamespace + ' error' + eventNamespace, loadImage);
+                img.src = imgs[i].src;
+            }
+        },
+
+
+        isImage: function (el) {
+
+            var t = this,
+                img = new Image();
+
+            t.tooggleLoading(true);
+
+            if ($('<img src="' + el.src + '">').is('img:uncached')) {
+
+                $(img).on('load' + eventNamespace + ' error' + eventNamespace, function () {
+
+                    t.updateImagesMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
+
+                    t.tooggleLoading(false);
+
+                });
+                img.src = el.src;
+
+            } else {
+
+                t.updateImagesMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
+
+                t.tooggleLoading(false);
+            }
+
+
+        },
+
+        isVimeo: function (el) {
+
+            var t = this;
+
+            t.updateVideoMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
+
+        },
+
+        isYoutube: function (el) {
+
+            var t = this;
+
+            t.updateVideoMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
+
+        },
+
+        isTed: function (el) {
+
+            var t = this;
+
+            t.updateVideoMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
+
+        },
+
+        isSelfHosted: function (el) {
+
+            var t = this;
+
+            t.updateSelfHostedVideo(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
+
+        },
+
+        _getCounterMarkup: function (markup, current, total) {
+
+            var mapObj;
+
+            if (!markup.length) {
+                return '';
+            }
+
+            mapObj = {
+                current: current,
+                total: total
+            };
+
+            return markup.replace(/\{\{current}}|\{\{total}}/gi, function (matched) {
+                return mapObj[matched.slice(2, -2)];
+            });
+
+        },
+
+        updateSelfHostedVideo: function (src, title, counter) {
+
+            var t = this,
+                i;
+
+            t.wrap.addClass('cbp-popup-lightbox-isIframe');
+
+            var markup = '<div class="cbp-popup-lightbox-iframe">' +
+                '<video controls="controls" height="auto" style="width: 100%">';
+
+            for (i = 0; i < src.length; i++) {
+                if (/(\.mp4)/i.test(src[i])) {
+                    markup += '<source src="' + src[i] + '" type="video/mp4">';
+                } else if (/(\.ogg)|(\.ogv)/i.test(src[i])) {
+                    markup += '<source src="' + src[i] + '" type="video/ogg">';
+                } else if (/(\.webm)/i.test(src[i])) {
+                    markup += '<source src="' + src[i] + '" type="video/webm">';
+                }
+            }
+
+            markup += 'Your browser does not support the video tag.' +
+            '</video>' +
+            '<div class="cbp-popup-lightbox-bottom">' +
+            ((title) ? '<div class="cbp-popup-lightbox-title">' + title + '</div>' : '') +
+            counter +
+            '</div>' +
+            '</div>';
+
+            t.content.html(markup);
+
+            t.wrap.addClass('cbp-popup-ready');
+
+            t.preloadNearbyImages();
+
+        },
+
+        updateVideoMarkup: function (src, title, counter) {
+
+            var t = this;
+            t.wrap.addClass('cbp-popup-lightbox-isIframe');
+
+            var markup = '<div class="cbp-popup-lightbox-iframe">' +
+                '<iframe src="' + src + '" frameborder="0" allowfullscreen scrolling="no"></iframe>' +
+                '<div class="cbp-popup-lightbox-bottom">' +
+                ((title) ? '<div class="cbp-popup-lightbox-title">' + title + '</div>' : '') +
+                counter +
+                '</div>' +
+                '</div>';
+
+            t.content.html(markup);
+
+            t.wrap.addClass('cbp-popup-ready');
+
+            t.preloadNearbyImages();
+
+        },
+
+        updateImagesMarkup: function (src, title, counter) {
+
+            var t = this;
+
+            t.wrap.removeClass('cbp-popup-lightbox-isIframe');
+
+            var markup = '<div class="cbp-popup-lightbox-figure">' +
+                '<img src="' + src + '" class="cbp-popup-lightbox-img" ' + t.dataActionImg + ' />' +
+                '<div class="cbp-popup-lightbox-bottom">' +
+                ((title) ? '<div class="cbp-popup-lightbox-title">' + title + '</div>' : '') +
+                counter +
+                '</div>' +
+                '</div>';
+
+            t.content.html(markup);
+
+            t.wrap.addClass('cbp-popup-ready');
+
+            t.resizeImage();
+
+            t.preloadNearbyImages();
+
+        },
+
+        next: function () {
+
+            var t = this;
+
+            t[t.type + 'JumpTo'](1);
+
+        },
+
+        prev: function () {
+
+            var t = this;
+
+            t[t.type + 'JumpTo'](-1);
+
+        },
+
+        lightboxJumpTo: function (index) {
+
+            var t = this,
+                el;
+
+            t.current = t.getIndex(t.current + index);
+
+            // get the current element
+            el = t.dataArray[t.current];
+
+            // call function if current element is image or video (iframe)
+            t[el.type](el);
+
+        },
+
+
+        singlePageJumpTo: function (index) {
+
+            var t = this;
+
+            t.current = t.getIndex(t.current + index);
+
+            // register singlePageCallback function
+            if ($.isFunction(t.options.singlePageCallback)) {
+                t.resetWrap();
+
+                // go to top of the page (reset scroll)
+                t.wrap.scrollTop(0);
+
+                t.wrap.addClass('cbp-popup-loading');
+                t.options.singlePageCallback.call(t, t.dataArray[t.current].url, t.dataArray[t.current].element);
+
+                if (t.options.singlePageDeeplinking) {
+                    location.href = t.url + '#cbp=' + t.dataArray[t.current].url;
+                }
+            }
+        },
+
+        resetWrap: function () {
+
+            var t = this;
+
+            if (t.type === 'singlePage' && t.options.singlePageDeeplinking) {
+                location.href = t.url + '#';
+            }
+
+        },
+
+        getIndex: function (index) {
+
+            var t = this;
+
+            // go to interval [0, (+ or -)this.counterTotal.length - 1]
+            index = index % t.counterTotal;
+
+            // if index is less then 0 then go to interval (0, this.counterTotal - 1]
+            if (index < 0) {
+                index = t.counterTotal + index;
+            }
+
+            return index;
+
+        },
+
+        close: function (method, data) {
+
+            var t = this;
+
+            // now the popup is closed
+            t.isOpen = false;
+
+            if (t.type === 'singlePageInline') {
+
+                if (method === 'open') {
+
+                    t.wrap.addClass('cbp-popup-loading');
+
+                    $(t.dataArray[t.current].element).closest('.cbp-item').removeClass('cbp-singlePageInline-active');
+
+                    t.openSinglePageInline(data.blocks, data.currentBlock, data.fromOpen);
+
+                } else {
+
+                    t.matrice = [-1, -1];
+
+                    t.cubeportfolio._layout();
+
+                    // repositionate the blocks with the best transition available
+                    t.cubeportfolio._processStyle(t.cubeportfolio.transition);
+
+                    // resize main container height
+                    t.cubeportfolio._resizeMainContainer(t.cubeportfolio.transition);
+
+                    t.wrap.css({
+                        height: 0
+                    });
+
+                    $(t.dataArray[t.current].element).parents('.cbp-item').removeClass('cbp-singlePageInline-active');
+
+                    if (t.cubeportfolio.browser === 'ie8' || t.cubeportfolio.browser === 'ie9') {
+
+                        // reset content
+                        t.content.html('');
+
+                        // hide the wrap
+                        t.wrap.detach();
+
+                        t.cubeportfolio.$obj.removeClass('cbp-popup-isOpening');
+
+                        if (method === 'promise') {
+                            if ($.isFunction(data.callback)) {
+                                data.callback.call(t.cubeportfolio);
+                            }
+                        }
+
+                    } else {
+
+                        t.wrap.one(t.cubeportfolio.transitionEnd, function () {
+
+                            // reset content
+                            t.content.html('');
+
+                            // hide the wrap
+                            t.wrap.detach();
+
+                            t.cubeportfolio.$obj.removeClass('cbp-popup-isOpening');
+
+                            if (method === 'promise') {
+                                if ($.isFunction(data.callback)) {
+                                    data.callback.call(t.cubeportfolio);
+                                }
+                            }
+
+                        });
+
+                    }
+
+                    if (t.options.singlePageInlineInFocus) {
+                        $('body, html').animate({
+                            scrollTop: t.scrollTop
+                        });
+                    }
+                }
+
+            } else if (t.type === 'singlePage') {
+
+                t.resetWrap();
+
+                $(window).scrollTop(t.scrollTop);
+
+                // weird bug on mozilla. fixed with setTimeout
+                setTimeout(function () {
+                    t.stopScroll = true;
+
+                    t.navigationWrap.css({
+                        top: t.wrap.scrollTop()
+                    });
+
+                    t.wrap.removeClass('cbp-popup-singlePage-open cbp-popup-singlePage-sticky');
+
+                    if (t.cubeportfolio.browser === 'ie8' || t.cubeportfolio.browser === 'ie9') {
+                        // reset content
+                        t.content.html('');
+
+                        // hide the wrap
+                        t.wrap.detach();
+
+                        $('html').css({
+                            overflow: '',
+                            paddingRight: ''
+                        });
+
+                        t.navigationWrap.removeAttr('style');
+                    }
+
+                }, 0);
+
+                t.wrap.one(t.cubeportfolio.transitionEnd, function () {
+
+                    // reset content
+                    t.content.html('');
+
+                    // hide the wrap
+                    t.wrap.detach();
+
+                    $('html').css({
+                        overflow: '',
+                        paddingRight: ''
+                    });
+
+                    t.navigationWrap.removeAttr('style');
+
+                });
+
+            } else {
+
+                $('html').css({
+                    overflow: '',
+                    paddingRight: ''
+                });
+
+                $(window).scrollTop(t.scrollTop);
+
+                // reset content
+                t.content.html('');
+
+                // hide the wrap
+                t.wrap.detach();
+
+            }
+
+        },
+
+        tooggleLoading: function (state) {
+
+            var t = this;
+
+            t.stopEvents = state;
+            t.wrap[(state) ? 'addClass' : 'removeClass']('cbp-popup-loading');
+
+        },
+
+        resizeImage: function () {
+
+            // if lightbox is not open go out
+            if (!this.isOpen) {
+                return;
+            }
+
+            var height = $(window).height(),
+                img = $('.cbp-popup-content').find('img'),
+                padding = parseInt(img.css('margin-top'), 10) + parseInt(img.css('margin-bottom'), 10);
+
+            img.css('max-height', (height - padding) + 'px');
+
+        },
+
+        preloadNearbyImages: function () {
+
+            var arr = [],
+                img, t = this,
+                src;
+
+            arr.push(t.getIndex(t.current + 1));
+            arr.push(t.getIndex(t.current + 2));
+            arr.push(t.getIndex(t.current + 3));
+            arr.push(t.getIndex(t.current - 1));
+            arr.push(t.getIndex(t.current - 2));
+            arr.push(t.getIndex(t.current - 3));
+
+            for (var i = arr.length - 1; i >= 0; i--) {
+
+                if (t.dataArray[arr[i]].type === 'isImage') {
+
+                    src = t.dataArray[arr[i]].src;
+
+                    img = new Image();
+
+                    if ($('<img src="' + src + '">').is('img:uncached')) {
+                        img.src = src;
+                    }
+
+                }
+
+            }
+
+        }
+
+    };
+
+    var slider = {
+
+        _init: function (tt, obj) {
+
+            var t = this;
+
+            // current item active
+            t.current = 0;
+
+            // js element
+            t.obj = obj;
+
+            // jquery element
+            t.$obj = $(obj);
+
+            // create html markup and add css to plugin
+            t._createMarkup();
+
+            // add events
+            t._events();
+
+        },
+
+        _createMarkup: function () {
+
+            var t = this,
+                arrowWrap,
+                bulletWrap;
+
+            // get ul object
+            t.$ul = t.$obj.children('.cbp-slider-wrap');
+
+            // get items
+            t.$li = t.$ul.children('.cbp-slider-item');
+
+            // add class active on first child
+            t.$li.eq(0).addClass('cbp-slider-item-current');
+
+            // get number of items
+            t.$liLength = t.$li.length;
+
+            // navigation element
+            arrowWrap = $('<div/>', {
+                'class': 'cbp-slider-arrowWrap'
+            }).appendTo(t.$obj);
+
+            // next element
+            $('<div/>', {
+                'class': 'cbp-slider-arrowNext',
+                'data-action': 'nextItem'
+            }).appendTo(arrowWrap);
+
+            // prev element
+            $('<div/>', {
+                'class': 'cbp-slider-arrowPrev',
+                'data-action': 'prevItem'
+            }).appendTo(arrowWrap);
+
+            bulletWrap = $('<div/>', {
+                'class': 'cbp-slider-bulletWrap'
+            }).appendTo(t.$obj);
+
+            for (var i = 0; i < t.$liLength; i++) {
+
+                var firstItem = (i === 0) ? ' cbp-slider-bullet-current' : '';
+
+                $('<div/>', {
+                    'class': 'cbp-slider-bullet' + firstItem,
+                    'data-action': 'jumpToItem'
+                }).appendTo(bulletWrap);
+            }
+
+        },
+
+        _events: function () {
+
+            var t = this;
+
+            t.$obj.on('click' + eventNamespace, function (e) {
+                var action = $(e.target).attr('data-action');
+
+                if (t[action]) {
+                    t[action](e);
+                    e.preventDefault();
+                }
+            });
+
+        },
+
+        nextItem: function () {
+
+            this.jumpTo(1);
+
+        },
+
+        prevItem: function () {
+
+            this.jumpTo(-1);
+
+        },
+
+        jumpToItem: function (e) {
+
+            var target = $(e.target);
+
+            var index = target.index();
+
+            this.jumpTo(index - this.current);
+        },
+
+        jumpTo: function (index) {
+
+            var t = this,
+                item2,
+                item1 = this.$li.eq(this.current);
+
+            // update item2
+            this.current = this.getIndex(this.current + index);
+            item2 = this.$li.eq(this.current);
+            item2.addClass('cbp-slider-item-next');
+
+
+            item2.animate({
+                opacity: 1
+            }, function () {
+                item1.removeClass('cbp-slider-item-current');
+                item2.removeClass('cbp-slider-item-next')
+                    .addClass('cbp-slider-item-current')
+                    .removeAttr('style');
+
+                var bullets = $('.cbp-slider-bullet');
+                bullets.removeClass('cbp-slider-bullet-current');
+
+                bullets.eq(t.current).addClass('cbp-slider-bullet-current');
+            });
+
+        },
+
+        getIndex: function (index) {
+
+            // go to interval [0, (+ or -)this.counterTotal.length - 1]
+            index = index % this.$liLength;
+
+            // if index is less then 0 then go to interval (0, this.counterTotal - 1]
+            if (index < 0) {
+                index = this.$liLength + index;
+            }
+
+            return index;
+
+        }
+
+    };
+
+    var pluginObject = {
+
+        /**
+         * cubeportfolio initialization
+         *
+         */
+        _main: function (obj, options, callbackFunction) {
+            var t = this;
+
+            // reset style queue
+            t.styleQueue = [];
+
+            // store the state of the animation used for filters
+            t.isAnimating = false;
+
+            // default filter for plugin
+            t.defaultFilter = '*';
+
+            // registered events (observator & publisher pattern)
+            t.registeredEvents = [];
+
+            // register callback function
+            if ($.isFunction(callbackFunction)) {
+                t._registerEvent('initFinish', callbackFunction, true);
+            }
+
+            // extend options
+            t._extendOptions(options);
+
+            // js element
+            t.obj = obj;
+
+            // jquery element
+            t.$obj = $(obj);
+
+            // store main container width
+            t.width = t.$obj.width();
+
+            // add loading class and .cbp on container
+            t.$obj.addClass('cbp cbp-loading');
+
+            // jquery ul element
+            //noinspection JSValidateTypes
+            t.$ul = t.$obj.children();
+
+            // add class to ul
+            t.$ul.addClass('cbp-wrapper');
+
+            // hide the `ul` if lazyLoading or fadeIn options are enabled
+            if (t.options.displayType === 'lazyLoading' || t.options.displayType === 'fadeIn') {
+                t.$ul.css({
+                    opacity: 0
+                });
+            }
+
+            if (t.options.displayType === 'fadeInToTop') {
+                t.$ul.css({
+                    opacity: 0,
+                    marginTop: 30
+                });
+            }
+
+            // check support for modern browsers
+            t._browserInfo();
+
+            // create css and events
+            t._initCSSandEvents();
+
+            // prepare the blocks
+            t._prepareBlocks();
+
+            // is lazyLoading is enable wait to load all images and then show the main container. Otherwise show directly the main container
+            if (t.options.displayType === 'lazyLoading' || t.options.displayType === 'sequentially' || t.options.displayType === 'bottomToTop' || t.options.displayType === 'fadeInToTop') {
+                t._load();
+            } else {
+                t._beforeDisplay();
+            }
+
+        },
+
+        /**
+         * Extend default options and deal with the deprecated options
+         */
+        _extendOptions: function (options) {
+
+            var t = this;
+
+            // if lightboxCounter is not defined and lightboxShowCounter is false, put lightboxCounter to ''
+            /** @namespace options.lightboxShowCounter */
+            if (!options.hasOwnProperty('lightboxCounter') && options.lightboxShowCounter === false) {
+                options.lightboxCounter = '';
+            }
+
+            // if singlePageCounter is not defined and singlePageShowCounter is false, put singlePageCounter to ''
+            /** @namespace options.singlePageShowCounter */
+            if (!options.hasOwnProperty('singlePageCounter') && options.singlePageShowCounter === false) {
+                options.singlePageCounter = '';
+            }
+
+            t.options = $.extend({}, $.fn.cubeportfolio.options, options);
+        },
+
+
+        /**
+         * Get info about client browser
+         */
+        _browserInfo: function () {
+
+            var t = this,
+                appVersion = navigator.appVersion,
+                transition, animation;
+
+            if (appVersion.indexOf('MSIE 8.') !== -1) { // ie8
+                t.browser = 'ie8';
+            } else if (appVersion.indexOf('MSIE 9.') !== -1) { // ie9
+                t.browser = 'ie9';
+            } else if (appVersion.indexOf('MSIE 10.') !== -1) { // ie10
+                t.browser = 'ie10';
+            } else if (window.ActiveXObject || 'ActiveXObject' in window) { // ie11
+                t.browser = 'ie11';
+            } else if ((/android/gi).test(appVersion)) { // android
+                t.browser = 'android';
+            } else if ((/iphone|ipad|ipod/gi).test(appVersion)) { // ios
+                t.browser = 'ios';
+            } else if ((/chrome/gi).test(appVersion)) {
+                t.browser = 'chrome';
+            } else {
+                t.browser = '';
+            }
+
+            // add class to plugin for additional support
+            if (t.browser) {
+                t.$obj.addClass('cbp-' + t.browser);
+            }
+
+            // Check if css3 properties (transition and transform) are available
+            // what type of transition will be use: css or animate
+            transition = t._styleSupport('transition');
+            animation = t._styleSupport('animation');
+            t.transition = t.transitionByFilter = (transition) ? 'css' : 'animate';
+
+            if (t.transition === 'animate') {
+                return;
+            }
+
+            t.transitionEnd = {
+                WebkitTransition: 'webkitTransitionEnd',
+                MozTransition: 'transitionend',
+                OTransition: 'oTransitionEnd otransitionend',
+                transition: 'transitionend'
+            }[transition];
+
+            t.animationEnd = {
+                WebkitAnimation: 'webkitAnimationEnd',
+                MozAnimation: 'Animationend',
+                OAnimation: 'oAnimationEnd oanimationend',
+                animation: 'animationend'
+            }[animation];
+
+            t.supportCSSTransform = t._styleSupport('transform');
+
+            // check 3d transform support
+            if (t.supportCSSTransform) {
+                // add cssHooks to jquery css function
+                t._cssHooks();
+            }
+
+        },
+
+
+        /**
+         * Feature testing for css3
+         */
+        _styleSupport: function (prop) {
+
+            var vendorProp, supportedProp, i,
+            // capitalize first character of the prop to test vendor prefix
+                capProp = prop.charAt(0).toUpperCase() + prop.slice(1),
+                prefixes = ['Moz', 'Webkit', 'O', 'ms'],
+                div = document.createElement('div');
+
+            if (prop in div.style) {
+                // browser supports standard CSS property name
+                supportedProp = prop;
+            } else {
+                // otherwise test support for vendor-prefixed property names
+                for (i = prefixes.length - 1; i >= 0; i--) {
+                    vendorProp = prefixes[i] + capProp;
+                    if (vendorProp in div.style) {
+                        supportedProp = vendorProp;
+                        break;
+                    }
+                }
+            }
+            // avoid memory leak in IE
+            div = null;
+
+            return supportedProp;
+        },
+
+
+        /**
+         * Add hooks for jquery.css
+         */
+        _cssHooks: function () {
+
+            var t = this,
+                transformCSS3;
+
+            if (t._has3d()) { // 3d transform
+
+                transformCSS3 = {
+                    translate: function (x) {
+                        return 'translate3d(' + x[0] + 'px, ' + x[1] + 'px, 0) ';
+                    },
+                    scale: function (x) {
+                        return 'scale3d(' + x + ', ' + x + ', 1) ';
+                    },
+                    skew: function (x) {
+                        return 'skew(' + x[0] + 'deg, ' + x[1] + 'deg) ';
+                    }
+                };
+
+            } else { // 2d transform
+
+                transformCSS3 = {
+                    translate: function (x) {
+                        return 'translate(' + x[0] + 'px, ' + x[1] + 'px) ';
+                    },
+                    scale: function (x) {
+                        return 'scale(' + x + ') ';
+                    },
+                    skew: function (x) {
+                        return 'skew(' + x[0] + 'deg, ' + x[1] + 'deg) ';
+                    }
+                };
+
+            }
+
+            // function used for cssHokks
+            function setTransformFn(el, value, name) {
+                var $el = $(el),
+                    data = $el.data('transformFn') || {},
+                    newData = {},
+                    i,
+                    transObj = {},
+                    val,
+                    trans,
+                    scale,
+                    values,
+                    skew;
+
+                newData[name] = value;
+
+                $.extend(data, newData);
+
+                for (i in data) {
+                    if (data.hasOwnProperty(i)) {
+                        val = data[i];
+                        transObj[i] = transformCSS3[i](val);
+                    }
+                }
+
+                trans = transObj.translate || '';
+                scale = transObj.scale || '';
+                skew = transObj.skew || '';
+                values = trans + scale + skew;
+
+                // set data back in el
+                $el.data('transformFn', data);
+
+                el.style[t.supportCSSTransform] = values;
+            }
+
+            // scale
+            $.cssNumber.scale = true;
+
+            $.cssHooks.scale = {
+                set: function (elem, value) {
+
+                    if (typeof value === 'string') {
+                        value = parseFloat(value);
+                    }
+
+                    setTransformFn(elem, value, 'scale');
+
+                },
+                get: function (elem) {
+
+                    var transform = $.data(elem, 'transformFn');
+                    return (transform && transform.scale) ? transform.scale : 1;
+                }
+
+            };
+
+            $.fx.step.scale = function (fx) {
+                $.cssHooks.scale.set(fx.elem, fx.now + fx.unit);
+            };
+
+
+            // translate
+            $.cssNumber.translate = true;
+
+            $.cssHooks.translate = {
+                set: function (elem, value) {
+
+                    setTransformFn(elem, value, 'translate');
+
+                },
+
+                get: function (elem) {
+
+                    var transform = $.data(elem, 'transformFn');
+                    return (transform && transform.translate) ? transform.translate : [0, 0];
+
+                }
+            };
+
+            // skew
+            $.cssNumber.skew = true;
+
+            $.cssHooks.skew = {
+                set: function (elem, value) {
+
+                    setTransformFn(elem, value, 'skew');
+
+                },
+
+                get: function (elem) {
+
+                    var transform = $.data(elem, 'transformFn');
+                    return (transform && transform.skew) ? transform.skew : [0, 0];
+
+                }
+            };
+
+        },
+
+
+        /**
+         * Testing for CSS 3D Transforms Support
+         * https://gist.github.com/lorenzopolidori/3794226
+         */
+        _has3d: function () {
+            var i,
+                has3d,
+                el = document.createElement('p'),
+                transforms = {
+                    'webkitTransform': '-webkit-transform',
+                    'OTransform': '-o-transform',
+                    'msTransform': '-ms-transform',
+                    'MozTransform': '-moz-transform',
+                    'transform': 'transform'
+                };
+
+            // Add it to the body to get the computed style
+            document.body.insertBefore(el, null);
+
+            for (i in transforms) {
+                if (transforms.hasOwnProperty(i)) {
+                    if (el.style[i] !== undefined) {
+                        el.style[i] = 'translate3d(1px,1px,1px)';
+                        has3d = window.getComputedStyle(el).getPropertyValue(transforms[i]);
+                    }
+                }
+            }
+
+            document.body.removeChild(el);
+
+            return (has3d !== undefined && has3d.length > 0 && has3d !== 'none');
+        },
+
+
+        /**
+         * Prepare and store the blocks
+         */
+        _prepareBlocks: function () {
+
+            var t = this;
+
+            // cache the blocks
+            t.blocks = t.$ul.children('.cbp-item');
+
+            t.blocksAvailable = t.blocks;
+
+            t.blocks.wrapInner('<div class="cbp-item-wrapper"></div>');
+
+            // if caption is active
+            if (t.options.caption) {
+                t._captionInit();
+            }
+        },
+
+
+        /**
+         * Init function for all captions
+         */
+        _captionInit: function () {
+
+            var t = this;
+
+            t.$obj.addClass('cbp-caption-' + t.options.caption);
+
+            t['_' + t.options.caption + 'Caption']();
+
         },
 
 
         /**
          * Destroy function for all captions
          */
-        _captionDestroy: function() {
+        _captionDestroy: function () {
+
             var t = this;
-            t.$obj.removeClass('cbp-caption-active cbp-caption-' + t.options.caption);
+
+            t.$obj.removeClass('cbp-caption-' + t.options.caption);
+
+            t['_' + t.options.caption + 'CaptionDestroy']();
+
+        },
+
+
+        _noneCaption: function () {
+        },
+
+        _noneCaptionDestroy: function () {
         },
 
 
         /**
-         * Add resize event when browser width changes
+         * Push Top hover effect
          */
-        resizeEvent: function() {
+        _pushTopCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        hover = me.find('.cbp-caption-activeWrap');
+
+                    normal.animate({
+                        bottom: '100%'
+                    }, 'fast');
+                    hover.animate({
+                        bottom: 0
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        hover = me.find('.cbp-caption-activeWrap');
+
+                    normal.animate({
+                        bottom: 0
+                    }, 'fast');
+                    hover.animate({
+                        bottom: '-100%'
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Push Top hover effect destroy
+         */
+        _pushTopCaptionDestroy: function () {
+
             var t = this,
-                timeout, gridWidth;
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-defaultWrap').removeAttr('style');
+                caption.find('.cbp-caption-activeWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Push Down hover effect
+         */
+        _pushDownCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        hover = me.find('.cbp-caption-activeWrap');
+
+                    normal.animate({
+                        bottom: '-100%'
+                    }, 'fast');
+                    hover.animate({
+                        bottom: 0
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        hover = me.find('.cbp-caption-activeWrap');
+
+                    normal.animate({
+                        bottom: 0
+                    }, 'fast');
+                    hover.animate({
+                        bottom: '100%'
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Push Down hover effect destroy
+         */
+        _pushDownCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-defaultWrap').removeAttr('style');
+                caption.find('.cbp-caption-activeWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Reveal Bottom hover effect
+         */
+        _revealBottomCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap');
+
+                    normal.animate({
+                        bottom: '100%'
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap');
+
+                    normal.animate({
+                        bottom: 0
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Reveal Bottom hover effect destroy
+         */
+        _revealBottomCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-defaultWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Reveal Top hover effect
+         */
+        _revealTopCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap');
+
+                    normal.animate({
+                        bottom: '-100%'
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap');
+
+                    normal.animate({
+                        bottom: 0
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Reveal Top hover effect destroy
+         */
+        _revealTopCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-defaultWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Overlay Bottom Reveal hover effect
+         */
+        _overlayBottomRevealCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        height = me.find('.cbp-caption-activeWrap').height();
+
+                    normal.animate({
+                        bottom: height
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap');
+
+                    normal.animate({
+                        bottom: 0
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Overlay Bottom Reveal hover effect destroy
+         */
+        _overlayBottomRevealCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-defaultWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Overlay Bottom Push hover effect
+         */
+        _overlayBottomPushCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        hover = me.find('.cbp-caption-activeWrap'),
+                        height = hover.height();
+
+                    normal.animate({
+                        bottom: height
+                    }, 'fast');
+                    hover.animate({
+                        bottom: 0
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        hover = me.find('.cbp-caption-activeWrap'),
+                        height = hover.height();
+
+                    normal.animate({
+                        bottom: 0
+                    }, 'fast');
+                    hover.animate({
+                        bottom: -height
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Push Up hover effect destroy
+         */
+        _overlayBottomPushCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-defaultWrap').removeAttr('style');
+                caption.find('.cbp-caption-activeWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Overlay Bottom hover effect
+         */
+        _overlayBottomCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    $(this).find('.cbp-caption-activeWrap').animate({
+                        bottom: 0
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var hover = $(this).find('.cbp-caption-activeWrap');
+                    hover.animate({
+                        bottom: -hover.height()
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+        /**
+         * Overlay Bottom hover effect destroy
+         */
+        _overlayBottomCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-activeWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Move Right hover effect
+         */
+        _moveRightCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    $(this).find('.cbp-caption-activeWrap').animate({
+                        left: 0
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var hover = $(this).find('.cbp-caption-activeWrap');
+                    hover.animate({
+                        left: -hover.width()
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+        /**
+         * Move Right hover effect destroy
+         */
+        _moveRightCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-activeWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Reveal Left hover effect
+         */
+        _revealLeftCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    $(this).find('.cbp-caption-activeWrap').animate({
+                        left: 0
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var hover = $(this).find('.cbp-caption-activeWrap');
+                    hover.animate({
+                        left: hover.width()
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Reveal Left hover effect destroy
+         */
+        _revealLeftCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-activeWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Minimal hover effect
+         */
+        _minimalCaption: function () {
+        },
+
+
+        /**
+         * Minimal hover effect destroy
+         */
+        _minimalCaptionDestroy: function () {
+        },
+
+
+        /**
+         * Fade hover effect
+         */
+        _fadeInCaption: function () {
+
+            var t = this,
+                opacity;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                opacity = (t.browser === 'ie9') ? 1 : 0.8;
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    $(this).find('.cbp-caption-activeWrap').animate({
+                        opacity: opacity
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    $(this).find('.cbp-caption-activeWrap').animate({
+                        opacity: 0
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Fade hover effect destroy
+         */
+        _fadeInCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-activeWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Move Left hover effect
+         */
+        _overlayRightAlongCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        hover = me.find('.cbp-caption-activeWrap');
+
+                    normal.animate({
+                        left: hover.width() / 2
+                    }, 'fast');
+                    hover.animate({
+                        left: 0
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        hover = me.find('.cbp-caption-activeWrap');
+
+                    normal.animate({
+                        left: 0
+                    }, 'fast');
+                    hover.animate({
+                        left: -hover.width()
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Move Left hover effect destroy
+         */
+        _overlayRightAlongCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-defaultWrap').removeAttr('style');
+                caption.find('.cbp-caption-activeWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Overlay Bottom Along hover effect
+         */
+        _overlayBottomAlongCaption: function () {
+
+            var t = this;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        hover = me.find('.cbp-caption-activeWrap');
+
+                    normal.animate({
+                        bottom: hover.height() / 2
+                    }, 'fast');
+                    hover.animate({
+                        bottom: 0
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    var me = $(this),
+                        normal = me.find('.cbp-caption-defaultWrap'),
+                        hover = me.find('.cbp-caption-activeWrap');
+
+                    normal.animate({
+                        bottom: 0
+                    }, 'fast');
+                    hover.animate({
+                        bottom: -hover.height()
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Overlay Bottom Along hover effect destroy
+         */
+        _overlayBottomAlongCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-defaultWrap').removeAttr('style');
+                caption.find('.cbp-caption-activeWrap').removeAttr('style');
+            }
+
+
+        },
+
+
+        /**
+         * Zoom hover effect
+         */
+        _zoomCaption: function () {
+
+            var t = this,
+                opacity;
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                opacity = (t.browser === 'ie9') ? 1 : 0.8;
+
+                $('.cbp-caption').on('mouseenter' + eventNamespace, function () {
+
+                    $(this).find('.cbp-caption-activeWrap').animate({
+                        opacity: opacity
+                    }, 'fast');
+
+                }).on('mouseleave' + eventNamespace, function () {
+
+                    $(this).find('.cbp-caption-activeWrap').animate({
+                        opacity: 0
+                    }, 'fast');
+
+                });
+
+            }
+
+        },
+
+
+        /**
+         * Zoom hover effect destroy
+         */
+        _zoomCaptionDestroy: function () {
+
+            var t = this,
+                caption = $('.cbp-caption');
+
+            // is legacy browser
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                caption.off('mouseenter' + eventNamespace + ' mouseleave' + eventNamespace);
+                caption.find('.cbp-caption-activeWrap').removeAttr('style');
+            }
+
+        },
+
+
+        /**
+         * Init main components for plugin
+         */
+        _initCSSandEvents: function () {
+
+            var t = this,
+                n, width, currentWidth, windowWidth;
 
             // resize
-            $(window).on('resize.cbp', function() {
-                clearTimeout(timeout);
+            $(window).on('resize' + eventNamespace, function () {
 
-                timeout = setTimeout(function() {
+                if (n) {
+                    clearTimeout(n);
+                }
 
-                    if (window.innerHeight == screen.height) {
-                        // this is fulll screen mode. don't need to trigger a resize
-                        return;
-                    }
+                n = setTimeout(function () {
 
-                    if (t.options.gridAdjustment === 'alignCenter') {
-                        t.obj.style.maxWidth = '';
-                    }
+                    if (t.browser === 'ie8') {
+                        windowWidth = $(window).width();
 
-                    gridWidth = t.$obj.outerWidth();
-
-                    if (t.width !== gridWidth) {
-
-                        // update the current width
-                        t.width = gridWidth;
-
-                        t._gridAdjust();
-
-                        // reposition the blocks
-                        t._layout();
-
-                        // repositionate the blocks with the best transition available
-                        t.positionateItems();
-
-                        // resize main container height
-                        t._resizeMainContainer();
-
-                        if (t.options.layoutMode === 'slider') {
-                            t._updateSlider();
+                        if (currentWidth === undefined || currentWidth !== windowWidth) {
+                            currentWidth = windowWidth;
+                        } else {
+                            return;
                         }
 
-                        t._triggerEvent('resizeGrid');
                     }
 
-                    t._triggerEvent('resizeWindow');
+                    t.$obj.removeClass('cbp-no-transition cbp-appendItems-loading');
 
-                }, 80);
+                    // make responsive
+                    if (t.options.gridAdjustment === 'responsive') {
+                        t._responsiveLayout();
+                    }
+
+                    // reposition the blocks
+                    t._layout();
+
+                    // repositionate the blocks with the best transition available
+                    t._processStyle(t.transition);
+
+                    // resize main container height
+                    t._resizeMainContainer(t.transition);
+
+                    if (t.lightbox) {
+                        t.lightbox.resizeImage();
+                    }
+
+                    if (t.singlePage) {
+
+                        if (t.singlePage.options.singlePageStickyNavigation) {
+
+                            width = t.singlePage.wrap[0].clientWidth;
+
+                            if (width > 0) {
+                                t.singlePage.navigationWrap.width(width);
+
+                                // set navigation width='window width' to center the buttons
+                                t.singlePage.navigation.width(width);
+                            }
+
+                        }
+                    }
+
+                    if (t.singlePageInline && t.singlePageInline.isOpen) {
+                        // @todo must add support for this features in the future
+                        t.singlePageInline.close(); // workaround
+                    }
+
+                }, 50);
             });
 
         },
@@ -216,40 +2693,109 @@
         /**
          * Wait to load all images
          */
-        _load: function(obj, callback, args) {
+        _load: function () {
+
             var t = this,
-                imgs,
-                imgsLength,
-                imgsLoaded = 0;
+                imgs = [],
+                i, img, propertyValue, src,
+                matchUrl = /url\((['"]?)(.*?)\1\)/g;
 
-            args = args || [];
-
-            imgs = obj.find('img:uncached').map(function() {
-                return this.src;
-            });
-
-            imgsLength = imgs.length;
-
-            if (imgsLength === 0) {
-                callback.apply(t, args);
+            // loading background image of plugin
+            propertyValue = t.$obj.children().css('backgroundImage');
+            if (propertyValue) {
+                var match;
+                while ((match = matchUrl.exec(propertyValue))) {
+                    imgs.push({
+                        src: match[2]
+                    });
+                }
             }
 
-            $.each(imgs, function(i, src) {
-                var img = new Image();
+            // get all elements
+            t.$obj.find('*').each(function () {
 
-                $(img).one('load.cbp error.cbp', function() {
-                    $(this).off('load.cbp error.cbp');
+                var elem = $(this);
 
-                    imgsLoaded++;
-                    if (imgsLoaded === imgsLength) {
-                        callback.apply(t, args);
-                        return false;
+                if (elem.is('img:uncached')) {
+                    imgs.push({
+                        src: elem.attr('src'),
+                        element: elem[0]
+                    });
+                }
+
+                // background image
+                propertyValue = elem.css('backgroundImage');
+                if (propertyValue) {
+                    var match;
+                    while ((match = matchUrl.exec(propertyValue))) {
+                        imgs.push({
+                            src: match[2],
+                            element: elem[0]
+                        });
                     }
-
-                });
-
-                img.src = src;
+                }
             });
+
+            var imgsLength = imgs.length,
+                imgsLoaded = 0;
+
+            if (imgsLength === 0) {
+                t._beforeDisplay();
+            }
+
+            var loadImage = function () {
+                imgsLoaded++;
+
+                if (imgsLoaded === imgsLength) {
+                    t._beforeDisplay();
+                    return false;
+                }
+            };
+
+            // load  the image and call _beforeDisplay method
+            for (i = 0; i < imgsLength; i++) {
+                img = new Image();
+                $(img).on('load' + eventNamespace + ' error' + eventNamespace, loadImage);
+                img.src = imgs[i].src;
+            }
+        },
+
+
+        /**
+         * Before display make some work
+         */
+        _beforeDisplay: function () {
+
+            var t = this;
+
+            if (t.options.animationType) {
+                // if filter need some initialization to be done before displaying the plugin
+                if (t['_' + t.options.animationType + 'Init']) {
+
+                    t['_' + t.options.animationType + 'Init']();
+
+                }
+
+                // add filter class to plugin
+                t.$obj.addClass('cbp-animation-' + t.options.animationType);
+
+                // set column width one time
+                t.localColumnWidth = t.blocks.eq(0).outerWidth() + t.options.gapVertical;
+
+                // set default filter if is present in url
+                t._filterFromUrl();
+
+                if (t.options.defaultFilter === '' || t.options.defaultFilter === '*') {
+                    t._display();
+                } else {
+
+                    t.filter(t.options.defaultFilter, function () {
+                        t._display();
+                    }, t);
+
+                }
+
+            }
 
         },
 
@@ -257,139 +2803,274 @@
         /**
          * Check if filters is present in url
          */
-        _filterFromUrl: function() {
+        _filterFromUrl: function () {
+
             var t = this,
                 match = /#cbpf=(.*?)([#|?&]|$)/gi.exec(location.href);
 
             if (match !== null) {
-                t.defaultFilter = match[1];
+                t.options.defaultFilter = match[1];
             }
+
         },
 
 
         /**
          * Show the plugin
          */
-        _display: function() {
-            var t = this;
+        _display: function () {
 
-            // store to data some values of t.blocks
-            t.storeData(t.blocks);
-
-            if (t.options.layoutMode === 'grid') {
-                // set default filter if is present in url
-                t._filterFromUrl();
-            }
-
-            if (t.defaultFilter !== '*') {
-                t.blocksOn = t.blocks.filter(t.defaultFilter);
-                t.blocks.not(t.defaultFilter).addClass('cbp-item-off');
-            } else {
-                t.blocksOn = t.blocks;
-            }
-
-            // plugins
-            t._plugins = $.map(CubePortfolio.Plugins, function(pluginName) {
-                return pluginName(t);
-            });
-
-            t._triggerEvent('initStartRead');
-            t._triggerEvent('initStartWrite');
-
-            t.localColumnWidth = t.options.gapVertical;
-
-            if (t.blocks.length) {
-                t.localColumnWidth += t.blocks.first().data('cbp').widthInitial;
-            }
-
-            t.getColumnsType = ($.isArray(t.options.mediaQueries)) ? '_getColumnsBreakpoints' : '_getColumnsAuto';
-
-            t._gridAdjust();
-
-            // create mark-up for layout mode
-            t['_' + t.options.layoutMode + 'Markup']();
-
-            // make layout
-            t._layout();
-
-            // positionate the blocks
-            t.positionateItems();
-
-            // resize main container height
-            t._resizeMainContainer();
-
-            t._triggerEvent('initEndRead');
-            t._triggerEvent('initEndWrite');
-
-            // plugin is ready to show and interact
-            t.$obj.addClass('cbp-ready');
-
-            t._registerEvent('delayFrame', t.delayFrame);
-
-            //  the reason is to skip this event when you want from a plugin
-            t._triggerEvent('delayFrame');
-
-        },
-
-        positionateItems: function() {
             var t = this,
-                data;
-
-            t.blocksOn.each(function(index, el) {
-                data = $(el).data('cbp');
-
-                data.left = data.leftNew;
-                data.top = data.topNew;
-
-                el.style.left = data.left + 'px';
-                el.style.top = data.top + 'px';
-            });
-        },
-
-        delayFrame: function() {
-            var t = this;
-
-            requestAnimationFrame(function() {
-                t.resizeEvent();
-
-                t._triggerEvent('initFinish');
-
-                // animating is now false
-                t.isAnimating = false;
-
-                // trigger public event initComplete
-                t.$obj.trigger('initComplete.cbp');
-            });
-
-        },
-
-        _gridAdjust: function() {
-            var t = this;
+                body = $(document.body),
+                i, item;
 
             // if responsive
             if (t.options.gridAdjustment === 'responsive') {
                 t._responsiveLayout();
-            } else {
-                t.blocks.each(function(index, el) {
-                    var data = $(el).data('cbp');
+            }
 
-                    data.width = data.widthInitial;
-                    data.height = data.heightInitial;
+            // make layout
+            t._layout();
+
+            // need css for positionate the blocks
+            t._processStyle('css');
+
+            // resize main container height
+            t._resizeMainContainer('css');
+
+
+            // show the plugin
+            if (t.options.displayType === 'lazyLoading' || t.options.displayType === 'fadeIn') {
+                t.$ul.animate({
+                    opacity: 1
+                }, t.options.displayTypeSpeed);
+            }
+
+            if (t.options.displayType === 'fadeInToTop') {
+                t.$ul.animate({
+                    opacity: 1,
+                    marginTop: 0
+                }, t.options.displayTypeSpeed, function () {
+                    t.$ul.css({
+                        marginTop: 0
+                    });
+                    t.$ulClone.css({
+                        marginTop: 0
+                    });
                 });
             }
+
+            if (t.options.displayType === 'sequentially') {
+                i = 0;
+                t.blocks.css('opacity', 0);
+
+                (function displayItems() {
+                    item = t.blocksAvailable.eq(i++);
+
+                    if (item.length) {
+                        item.animate({
+                            opacity: 1
+                        });
+                        setTimeout(displayItems, t.options.displayTypeSpeed);
+                    }
+                })();
+            }
+
+            if (t.options.displayType === 'bottomToTop') {
+                i = 0;
+                t.blocks.css({
+                    'opacity': 0,
+                    marginTop: 80
+                });
+
+                (function displayItems() {
+                    item = t.blocksAvailable.eq(i++);
+
+                    if (item.length) {
+                        item.animate({
+                            opacity: 1,
+                            marginTop: 0
+                        }, 400);
+                        setTimeout(displayItems, t.options.displayTypeSpeed);
+                    } else {
+                        t.blocks.css({
+                            marginTop: 0
+                        });
+                        if (t.blocksClone) {
+                            t.blocksClone.css({
+                                marginTop: 0
+                            });
+                        }
+                    }
+                })();
+            }
+
+            // show main container
+            setTimeout(function () {
+
+                // remove loading class
+                t.$obj.removeClass('cbp-loading');
+
+                t._triggerEvent('initFinish');
+
+                // trigger public event initComplete
+                t.$obj.trigger('initComplete');
+
+                // the plugin is ready to show
+                t.$obj.addClass('cbp-ready');
+
+            }, 0);
+
+            // default value for lightbox
+            t.lightbox = null;
+
+            // LIGHTBOX
+            if (t.$obj.find(t.options.lightboxDelegate)) {
+
+                t.lightbox = Object.create(popup);
+
+                t.lightbox.init(t, 'lightbox');
+
+                t.$obj.on('click' + eventNamespace, t.options.lightboxDelegate, function (e) {
+                    e.preventDefault();
+
+                    t.lightbox.openLightbox(t.blocksAvailable.find(t.options.lightboxDelegate), this);
+                });
+
+            }
+
+            if (body.data('cbpLightboxIsOn') != true) {
+
+                body.on('click' + eventNamespace, t.options.lightboxDelegate, function(e) {
+                    e.preventDefault();
+
+                    var self = $(this),
+                        dataCbpLightbox = self.data('cbpLightbox');
+
+                    if (self.closest($('.cbp')).length) {
+                        return;
+                    }
+
+                    if (dataCbpLightbox) {
+                        t.lightbox.openLightbox($(t.options.lightboxDelegate).filter('[data-cbp-lightbox=' + dataCbpLightbox + ']'), this);
+                    } else {
+                        t.lightbox.openLightbox(self, this);
+                    }
+
+                });
+
+                body.data('cbpLightboxIsOn', true);
+            }
+
+            // default value for singlePage
+            t.singlePage = null;
+
+            // SINGLEPAGE
+            if (t.$obj.find(t.options.singlePageDelegate)) {
+
+                t.singlePage = Object.create(popup);
+
+                t.singlePage.init(t, 'singlePage');
+
+                t.$obj.on('click' + eventNamespace, t.options.singlePageDelegate, function (e) {
+                    e.preventDefault();
+
+                    t.singlePage.openSinglePage(t.blocksAvailable.find(t.options.singlePageDelegate), this);
+                });
+
+            }
+
+            if (body.data('cbpSinglePageIsOn') != true) {
+
+                body.on('click' + eventNamespace, t.options.singlePageDelegate, function(e) {
+                    e.preventDefault();
+
+                    var self = $(this),
+                        dataCbpSinglePage = self.data('cbpSinglepage');
+
+                    if (self.closest($('.cbp')).length) {
+                        return;
+                    }
+
+                    if (dataCbpSinglePage) {
+                        t.singlePage.openSinglePage($(t.options.singlePageDelegate).filter('[data-cbp-singlePage=' + dataCbpSinglePage + ']'), this);
+                    } else {
+                        t.singlePage.openSinglePage(self, this);
+                    }
+
+
+                });
+
+                body.data('cbpSinglePageIsOn', true);
+            }
+
+            // default value for singlePageInline
+            t.singlePageInline = null;
+
+            // SINGLEPAGEINLINE
+            if (t.$obj.find(t.options.singlePageInlineDelegate)) {
+
+                t.singlePageInline = Object.create(popup);
+
+                t.singlePageInline.init(t, 'singlePageInline');
+
+                t.$obj.on('click' + eventNamespace, t.options.singlePageInlineDelegate, function (e) {
+                    e.preventDefault();
+
+                    t.singlePageInline.openSinglePageInline(t.blocksAvailable, this);
+                });
+
+            }
         },
+
 
         /**
          * Build the layout
          */
-        _layout: function() {
+        _layout: function () {
+
             var t = this;
 
-            t['_' + t.options.layoutMode + 'LayoutReset']();
+            // reset layout
+            t._layoutReset();
 
-            t['_' + t.options.layoutMode + 'Layout']();
+            t.blocksAvailable.each(function (index, el) {
 
-            t.$obj.removeClass(function(index, css) {
+                var $me = $(el),
+                    colNr = Math.ceil($me.outerWidth() / t.localColumnWidth),
+                    singlePageInlineGap = 0;
+
+                colNr = Math.min(colNr, t.cols);
+
+                if (t.singlePageInline && (index >= t.singlePageInline.matrice[0] && index <= t.singlePageInline.matrice[1])) {
+                    singlePageInlineGap = t.singlePageInline.height;
+                }
+
+                if (colNr === 1) {
+
+                    t._placeBlocks($me, t.colVert, singlePageInlineGap);
+
+                } else {
+
+                    var count = t.cols + 1 - colNr,
+                        groupVert = [],
+                        groupColVert,
+                        i;
+
+                    for (i = 0; i < count; i++) {
+
+                        groupColVert = t.colVert.slice(i, i + colNr);
+                        groupVert[i] = Math.max.apply(Math, groupColVert);
+
+                    }
+
+                    t._placeBlocks($me, groupVert, singlePageInlineGap);
+
+                }
+
+            });
+
+            t.$obj.removeClass(function (index, css) {
                 return (css.match(/\bcbp-cols-\d+/gi) || []).join(' ');
             });
 
@@ -397,579 +3078,20 @@
 
         },
 
-        // create mark
-        _sliderMarkup: function() {
-            var t = this;
-
-            t.sliderStopEvents = false;
-
-            t.sliderActive = 0;
-
-            t._registerEvent('updateSliderPosition', function() {
-                t.$obj.addClass('cbp-mode-slider');
-            }, true);
-
-            t.nav = $('<div/>', {
-                'class': 'cbp-nav'
-            });
-
-            t.nav.on('click.cbp', '[data-slider-action]', function(e) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                e.stopPropagation();
-
-                if (t.sliderStopEvents) {
-                    return;
-                }
-
-                var el = $(this),
-                    action = el.attr('data-slider-action');
-
-                if (t['_' + action + 'Slider']) {
-                    t['_' + action + 'Slider'](el);
-                }
-
-            });
-
-            if (t.options.showNavigation) {
-                t.controls = $('<div/>', {
-                    'class': 'cbp-nav-controls'
-                });
-
-                t.navPrev = $('<div/>', {
-                    'class': 'cbp-nav-prev',
-                    'data-slider-action': 'prev'
-                }).appendTo(t.controls);
-
-                t.navNext = $('<div/>', {
-                    'class': 'cbp-nav-next',
-                    'data-slider-action': 'next'
-                }).appendTo(t.controls);
-
-
-                t.controls.appendTo(t.nav);
-            }
-
-            if (t.options.showPagination) {
-                t.navPagination = $('<div/>', {
-                    'class': 'cbp-nav-pagination'
-                }).appendTo(t.nav);
-            }
-
-            if (t.controls || t.navPagination) {
-                t.nav.appendTo(t.$obj);
-            }
-
-            t._updateSliderPagination();
-
-            if (t.options.auto) {
-                if (t.options.autoPauseOnHover) {
-                    t.mouseIsEntered = false;
-                    t.$obj.on('mouseenter.cbp', function(e) {
-                        t.mouseIsEntered = true;
-                        t._stopSliderAuto();
-                    }).on('mouseleave.cbp', function(e) {
-                        t.mouseIsEntered = false;
-                        t._startSliderAuto();
-                    });
-                }
-
-                t._startSliderAuto();
-            }
-
-            if (t.options.drag && CubePortfolio.Private.modernBrowser) {
-                t._dragSlider();
-            }
-
-        },
-
-        _updateSlider: function() {
-            var t = this;
-
-            t._updateSliderPosition();
-
-            t._updateSliderPagination();
-
-        },
-
-        _updateSliderPagination: function() {
-            var t = this,
-                pages,
-                i;
-
-            if (t.options.showPagination) {
-
-                // get number of pages
-                pages = Math.ceil(t.blocksOn.length / t.cols);
-                t.navPagination.empty();
-
-                for (i = pages - 1; i >= 0; i--) {
-                    $('<div/>', {
-                        'class': 'cbp-nav-pagination-item',
-                        'data-slider-action': 'jumpTo'
-                    }).appendTo(t.navPagination);
-                }
-
-                t.navPaginationItems = t.navPagination.children();
-            }
-
-            // enable disable the nav
-            t._enableDisableNavSlider();
-        },
-
-        _destroySlider: function() {
-            var t = this;
-
-            if (t.options.layoutMode !== 'slider') {
-                return;
-            }
-
-            t.$obj.off('click.cbp');
-
-            t.$obj.removeClass('cbp-mode-slider');
-
-            if (t.options.showNavigation) {
-                t.nav.remove();
-            }
-
-            if (t.navPagination) {
-                t.navPagination.remove();
-            }
-
-        },
-
-        _nextSlider: function(el) {
-            var t = this;
-
-            if (t._isEndSlider()) {
-                if (t.isRewindNav()) {
-                    t.sliderActive = 0;
-                } else {
-                    return;
-                }
-            } else {
-                if (t.options.scrollByPage) {
-                    t.sliderActive = Math.min(t.sliderActive + t.cols, t.blocksOn.length - t.cols);
-                } else {
-                    t.sliderActive += 1;
-                }
-            }
-
-            t._goToSlider();
-        },
-
-        _prevSlider: function(el) {
-            var t = this;
-
-            if (t._isStartSlider()) {
-                if (t.isRewindNav()) {
-                    t.sliderActive = t.blocksOn.length - t.cols;
-                } else {
-                    return;
-                }
-            } else {
-                if (t.options.scrollByPage) {
-                    t.sliderActive = Math.max(0, t.sliderActive - t.cols);
-                } else {
-                    t.sliderActive -= 1;
-                }
-            }
-
-            t._goToSlider();
-        },
-
-        _jumpToSlider: function(el) {
-            var t = this,
-                index = Math.min(el.index() * t.cols, t.blocksOn.length - t.cols);
-
-            if (index === t.sliderActive) {
-                return;
-            }
-
-            t.sliderActive = index;
-
-            t._goToSlider();
-        },
-
-        _jumpDragToSlider: function(pos) {
-            var t = this,
-                jumpWidth,
-                offset,
-                condition,
-                index,
-                dragLeft = (pos > 0) ? true : false;
-
-            if (t.options.scrollByPage) {
-                jumpWidth = t.cols * t.localColumnWidth;
-                offset = t.cols;
-            } else {
-                jumpWidth = t.localColumnWidth;
-                offset = 1;
-            }
-
-            pos = Math.abs(pos);
-            index = Math.floor(pos / jumpWidth) * offset;
-            if (pos % jumpWidth > 20) {
-                index += offset;
-            }
-
-            if (dragLeft) { // drag to left
-                t.sliderActive = Math.min(t.sliderActive + index, t.blocksOn.length - t.cols);
-            } else { // drag to right
-                t.sliderActive = Math.max(0, t.sliderActive - index);
-            }
-
-            t._goToSlider();
-        },
-
-        _isStartSlider: function() {
-            return this.sliderActive === 0;
-        },
-
-        _isEndSlider: function() {
-            var t = this;
-            return (t.sliderActive + t.cols) > t.blocksOn.length - 1;
-        },
-
-        _goToSlider: function() {
-            var t = this;
-
-            // enable disable the nav
-            t._enableDisableNavSlider();
-
-            t._updateSliderPosition();
-
-        },
-
-        _startSliderAuto: function() {
-            var t = this;
-
-            if (t.isDrag) {
-                t._stopSliderAuto();
-                return;
-            }
-
-            t.timeout = setTimeout(function() {
-
-                // go to next slide
-                t._nextSlider();
-
-                // start auto
-                t._startSliderAuto();
-
-            }, t.options.autoTimeout);
-        },
-
-        _stopSliderAuto: function() {
-            clearTimeout(this.timeout);
-        },
-
-        _enableDisableNavSlider: function() {
-            var t = this,
-                page,
-                method;
-
-            if (!t.isRewindNav()) {
-                method = (t._isStartSlider()) ? 'addClass' : 'removeClass';
-                t.navPrev[method]('cbp-nav-stop');
-
-                method = (t._isEndSlider()) ? 'addClass' : 'removeClass';
-                t.navNext[method]('cbp-nav-stop');
-            }
-
-            if (t.options.showPagination) {
-
-                if (t.options.scrollByPage) {
-                    page = Math.ceil(t.sliderActive / t.cols);
-                } else {
-                    if (t._isEndSlider()) {
-                        page = t.navPaginationItems.length - 1;
-                    } else {
-                        page = Math.floor(t.sliderActive / t.cols);
-                    }
-                }
-
-                // add class active on pagination's items
-                t.navPaginationItems.removeClass('cbp-nav-pagination-active')
-                    .eq(page)
-                    .addClass('cbp-nav-pagination-active');
-            }
-
-        },
 
         /**
-         * If slider loop is enabled don't add classes to `next` and `prev` buttons
+         * Reset the layout
          */
-        isRewindNav: function() {
-            var t = this;
+        _layoutReset: function () {
 
-            if (!t.options.showNavigation) {
-                return true;
-            }
-
-            if (t.blocksOn.length <= t.cols) {
-                return false;
-            }
-
-            if (t.options.rewindNav) {
-                return true;
-            }
-
-            return false;
-        },
-
-        sliderItemsLength: function() {
-            return this.blocksOn.length <= this.cols;
-        },
-
-
-        /**
-         * Arrange the items in a slider layout
-         */
-        _sliderLayout: function() {
-            var t = this;
-
-            t.blocksOn.each(function(index, el) {
-                var data = $(el).data('cbp');
-
-                // update the values with the new ones
-                data.leftNew = Math.round(t.localColumnWidth * index);
-                data.topNew = 0;
-
-                t.colVert.push(data.height + t.options.gapHorizontal);
-            });
-
-            t.sliderColVert = t.colVert.slice(t.sliderActive, t.sliderActive + t.cols);
-
-            t.ulWidth = t.localColumnWidth * t.blocksOn.length - t.options.gapVertical;
-            t.$ul.width(t.ulWidth);
-
-        },
-
-        _updateSliderPosition: function() {
-            var t = this,
-                value = -t.sliderActive * t.localColumnWidth;
-
-            t._triggerEvent('updateSliderPosition');
-
-            if (CubePortfolio.Private.modernBrowser) {
-                t.$ul[0].style[CubePortfolio.Private.transform] = 'translate3d(' + value + 'px, 0px, 0)';
-            } else {
-                t.$ul[0].style.left = value + 'px';
-            }
-
-            t.sliderColVert = t.colVert.slice(t.sliderActive, t.sliderActive + t.cols);
-
-            t._resizeMainContainer();
-
-        },
-
-        _dragSlider: function() {
-            var t = this,
-                $document = $(document),
-                posInitial,
-                pos,
-                target,
-                ulPosition,
-                ulMaxWidth,
-                isAnimating = false,
-                events = {},
-                isTouch = false,
-                touchStartEvent,
-                isHover = false;
-
-            t.isDrag = false;
-
-            if (('ontouchstart' in window) ||
-                (navigator.maxTouchPoints > 0) ||
-                (navigator.msMaxTouchPoints > 0)) {
-
-                events = {
-                    start: 'touchstart.cbp',
-                    move: 'touchmove.cbp',
-                    end: 'touchend.cbp'
-                };
-
-                isTouch = true;
-            } else {
-                events = {
-                    start: 'mousedown.cbp',
-                    move: 'mousemove.cbp',
-                    end: 'mouseup.cbp'
-                };
-            }
-
-            function dragStart(e) {
-                if (t.sliderItemsLength()) {
-                    return;
-                }
-
-                if (!isTouch) {
-                    e.preventDefault();
-                } else {
-                    touchStartEvent = e;
-                }
-
-                if (t.options.auto) {
-                    t._stopSliderAuto();
-                }
-
-                if (isAnimating) {
-                    $(target).one('click.cbp', function() {
-                        return false;
-                    });
-                    return;
-                }
-
-                target = $(e.target);
-                posInitial = pointerEventToXY(e).x;
-                pos = 0;
-                ulPosition = -t.sliderActive * t.localColumnWidth;
-                ulMaxWidth = t.localColumnWidth * (t.blocksOn.length - t.cols);
-
-                $document.on(events.move, dragMove);
-                $document.on(events.end, dragEnd);
-
-                t.$obj.addClass('cbp-mode-slider-dragStart');
-            }
-
-            function dragEnd(e) {
-                t.$obj.removeClass('cbp-mode-slider-dragStart');
-
-                // put the state to animate
-                isAnimating = true;
-
-                if (pos !== 0) {
-                    target.one('click.cbp', function() {
-                        return false;
-                    });
-
-                    t._jumpDragToSlider(pos);
-
-                    t.$ul.one(CubePortfolio.Private.transitionend, afterDragEnd);
-                } else {
-                    afterDragEnd.call(t);
-                }
-
-                $document.off(events.move);
-                $document.off(events.end);
-            }
-
-            function dragMove(e) {
-                pos = posInitial - pointerEventToXY(e).x;
-
-                if (pos > 8 || pos < -8) {
-                    e.preventDefault();
-                }
-
-                t.isDrag = true;
-
-                var value = ulPosition - pos;
-
-                if (pos < 0 && pos < ulPosition) { // to right
-                    value = (ulPosition - pos) / 5;
-                } else if (pos > 0 && (ulPosition - pos) < -ulMaxWidth) { // to left
-                    value = -ulMaxWidth + (ulMaxWidth + ulPosition - pos) / 5;
-                }
-
-                if (CubePortfolio.Private.modernBrowser) {
-                    t.$ul[0].style[CubePortfolio.Private.transform] = 'translate3d(' + value + 'px, 0px, 0)';
-                } else {
-                    t.$ul[0].style.left = value + 'px';
-                }
-
-            }
-
-            function afterDragEnd() {
-                isAnimating = false;
-                t.isDrag = false;
-
-                if (t.options.auto) {
-
-                    if (t.mouseIsEntered) {
-                        return;
-                    }
-
-                    t._startSliderAuto();
-
-                }
-            }
-
-            function pointerEventToXY(e) {
-
-                if (e.originalEvent !== undefined && e.originalEvent.touches !== undefined) {
-                    e = e.originalEvent.touches[0];
-                }
-
-                return {
-                    x: e.pageX,
-                    y: e.pageY
-                };
-            }
-
-            t.$ul.on(events.start, dragStart);
-
-        },
-
-
-        /**
-         * Reset the slider layout
-         */
-        _sliderLayoutReset: function() {
-            var t = this;
-            t.colVert = [];
-        },
-
-        // create mark
-        _gridMarkup: function() {
-
-        },
-
-        /**
-         * Arrange the items in a grid layout
-         */
-        _gridLayout: function() {
-            var t = this;
-
-            t.blocksOn.each(function(index, el) {
-                var minVert = Math.min.apply(Math, t.colVert),
-                    column = 0,
-                    data = $(el).data('cbp'),
-                    setHeight,
-                    colsLen,
-                    i,
-                    len;
-
-                for (i = 0, len = t.colVert.length; i < len; i++) {
-                    if (t.colVert[i] === minVert) {
-                        column = i;
-                        break;
-                    }
-                }
-
-                // update the values with the new ones
-                data.leftNew = Math.round(t.localColumnWidth * column);
-                data.topNew = Math.round(minVert);
-
-                setHeight = minVert + data.height + t.options.gapHorizontal;
-                colsLen = t.cols + 1 - len;
-
-                for (i = 0; i < colsLen; i++) {
-                    t.colVert[column + i] = setHeight;
-                }
-            });
-
-        },
-
-
-        /**
-         * Reset the grid layout
-         */
-        _gridLayoutReset: function() {
             var c, t = this;
 
             // @options gridAdjustment = alignCenter
             if (t.options.gridAdjustment === 'alignCenter') {
+
+                t.$obj.attr('style', '');
+
+                t.width = t.$obj.width();
 
                 // calculate numbers of columns
                 t.cols = Math.max(Math.floor((t.width + t.options.gapVertical) / t.localColumnWidth), 1);
@@ -979,26 +3101,32 @@
 
             } else {
 
+                t.width = t.$obj.width();
+
                 // calculate numbers of columns
                 t.cols = Math.max(Math.floor((t.width + t.options.gapVertical) / t.localColumnWidth), 1);
 
             }
 
+
             t.colVert = [];
+
             c = t.cols;
 
             while (c--) {
                 t.colVert.push(0);
             }
+
         },
+
 
         /**
          * Make this plugin responsive
          */
-        _responsiveLayout: function() {
+        _responsiveLayout: function () {
+
             var t = this,
-                widthWithoutGap,
-                itemWidth;
+                procent, widthWithoutGap;
 
             if (!t.columnWidthCache) {
                 t.columnWidthCache = t.localColumnWidth;
@@ -1006,194 +3134,1798 @@
                 t.localColumnWidth = t.columnWidthCache;
             }
 
+            // get grid width plus the gap
+            t.width = t.$obj.outerWidth() + t.options.gapVertical;
+
             // calculate numbers of cols
-            t.cols = t[t.getColumnsType]();
+            t.cols = Math.max(Math.round(t.width / t.localColumnWidth), 1);
 
             // calculate the with of items without the gaps between them
-            widthWithoutGap = t.width - t.options.gapVertical * (t.cols - 1);
+            widthWithoutGap = t.width - t.options.gapVertical * t.cols;
 
-            // calculate column with based on widthWithoutGap plus the gap
+            // caluclate column with based on widthWithoutGap plus the gap
             t.localColumnWidth = parseInt(widthWithoutGap / t.cols, 10) + t.options.gapVertical;
 
-            itemWidth = (t.localColumnWidth - t.options.gapVertical);
+            procent = t.localColumnWidth / t.columnWidthCache;
 
-            t.blocks.each(function(index, item) {
-                item.style.width = itemWidth + 'px';
+            t.blocks.each(function () {
 
-                $(item).data('cbp').width = itemWidth;
-            });
+                var me = $(this),
+                    data = $.data(this, 'cbp-wxh');
 
-            t.blocks.each(function(index, el) {
-                var item = $(el);
-
-                item.data('cbp').height = item.outerHeight();
-            });
-
-        },
-
-
-        /**
-         * Get numbers of columns when t.options.mediaQueries is not an array
-         */
-        _getColumnsAuto: function() {
-            var t = this;
-            return Math.max(Math.round(t.width / t.localColumnWidth), 1);
-        },
-
-        /**
-         * Get numbers of columns where t.options.mediaQueries is an array
-         */
-        _getColumnsBreakpoints: function() {
-            var t = this,
-                gridWidth = t.width - t.options.gapVertical,
-                cols;
-
-            $.each(t.options.mediaQueries, function(index, val) {
-                if (gridWidth >= val.width) {
-                    cols = val.cols;
-                    return false;
+                if (!data) {
+                    data = $.data(this, 'cbp-wxh', {
+                        width: me.outerWidth(),
+                        height: me.outerHeight()
+                    });
                 }
+
+
+                me.css('width', t.localColumnWidth - t.options.gapVertical);
+                me.css('height', Math.floor(data.height * procent));
+
             });
 
-            if (cols === undefined) {
-                cols = t.options.mediaQueries[t.options.mediaQueries.length - 1].cols;
+            if (t.blocksClone) {
+
+                t.blocksClone.each(function () {
+
+                    var me = $(this),
+                        data = $.data(this, 'cbp-wxh');
+
+                    if (!data) {
+                        data = $.data(this, 'cbp-wxh', {
+                            width: me.outerWidth(),
+                            height: me.outerHeight()
+                        });
+                    }
+
+                    me.css('width', t.localColumnWidth - t.options.gapVertical);
+                    me.css('height', Math.floor(data.height * procent));
+
+                });
+
             }
 
-            return cols;
         },
 
 
         /**
          * Resize main container vertically
          */
-        _resizeMainContainer: function() {
-            var t = this,
-                cols = t.sliderColVert || t.colVert,
-                height;
+        _resizeMainContainer: function (transition, customHeight) {
+
+            var t = this;
+
+            customHeight = customHeight || 0;
 
             // set container height for `overflow: hidden` to be applied
-            height = Math.max(Math.max.apply(Math, cols) - t.options.gapHorizontal, 0);
+            t.height = Math.max.apply(Math, t.colVert) + customHeight;
 
-            if (height === t.height) {
-                return;
+            t.$obj[transition]({
+                height: t.height - t.options.gapHorizontal
+            }, 400);
+
+        },
+
+
+        /**
+         * Process style queue
+         */
+        _processStyle: function (transition) {
+
+            var t = this;
+
+            for (var i = t.styleQueue.length - 1; i >= 0; i--) {
+
+                t.styleQueue[i].$el[transition](t.styleQueue[i].style);
             }
 
-            t.obj.style.height = height + 'px';
+            t.styleQueue = [];
 
-            // if _resizeMainContainer is called for the first time skip this event trigger
-            if (t.height !== undefined) {
-                if (CubePortfolio.Private.modernBrowser) {
-                    t.$obj.one(CubePortfolio.Private.transitionend, function() {
-                        t.$obj.trigger('pluginResize.cbp');
-                    });
-                } else {
-                    t.$obj.trigger('pluginResize.cbp');
+        },
+
+
+        /**
+         * Place the blocks in the correct order
+         */
+        _placeBlocks: function ($block, vert, singlePageInlineGap) {
+
+            var t = this,
+                minVert = Math.min.apply(Math, vert),
+                coll = 0,
+                x, y, setHeight, colsLen, i, len;
+
+
+            for (i = 0, len = vert.length; i < len; i++) {
+                if (vert[i] === minVert) {
+                    coll = i;
+                    break;
                 }
             }
 
-            t.height = height;
+            if (t.singlePageInline && singlePageInlineGap !== 0) {
+                t.singlePageInline.top = minVert;
+            }
+
+            minVert += singlePageInlineGap;
+
+            // position the block
+            x = Math.round(t.localColumnWidth * coll);
+            y = Math.round(minVert);
+
+            // add block to queue
+            t.styleQueue.push({
+                $el: $block,
+                style: (t.supportCSSTransform) ? t._withCSS3(x, y) : t._withCSS2(x, y)
+            });
+
+            setHeight = minVert + $block.outerHeight() + t.options.gapHorizontal;
+            colsLen = t.cols + 1 - len;
+
+            for (i = 0; i < colsLen; i++) {
+                t.colVert[coll + i] = setHeight;
+            }
+
         },
 
-        _filter: function(filterName) {
+
+        /**
+         * Use position absolute with left and top
+         */
+        _withCSS2: function (x, y) {
+            return {
+                left: x,
+                top: y
+            };
+        },
+
+
+        /**
+         * Use css3 translate function
+         */
+        _withCSS3: function (x, y) {
+            return {
+                translate: [x, y]
+            };
+        },
+
+
+        /*  -----------------------------------------------------
+         FILTERS
+         ----------------------------------------------------- */
+
+        /**
+         * Duplicate the blocks in a new `ul`
+         */
+        _duplicateContent: function (cssObj) {
+
             var t = this;
 
-            // blocks that are visible before applying the filter
-            t.blocksOnInitial = t.blocksOn;
+            t.$ulClone = t.$ul.clone();
 
-            // blocks visible after applying the filter
-            t.blocksOn = t.blocks.filter(filterName);
+            t.blocksClone = t.$ulClone.children();
 
-            // blocks off after applying the filter
-            t.blocksOff = t.blocks.not(filterName);
+            t.$ulClone.css(cssObj);
+
+            t.ulHidden = 'clone';
+
+            t.$obj.append(t.$ulClone);
+
+        },
+
+
+        /**
+         * FadeOut filter
+         */
+        _fadeOutFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this;
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // get visible elements that will pe hidden
+                on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden class
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+
+            t.blocksAvailable = t.blocks.filter(filter);
+
+            if (on2offBlocks.length) {
+
+                t.styleQueue.push({
+                    $el: on2offBlocks,
+                    style: {
+                        opacity: 0
+                    }
+                });
+
+            }
+
+            if (off2onBlocks.length) {
+
+                t.styleQueue.push({
+                    $el: off2onBlocks,
+                    style: {
+                        opacity: 1
+                    }
+                });
+
+            }
 
             // call layout
             t._layout();
 
-            // filter call layout
-            t.filterLayout(filterName);
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+            // filter had finished his job
+            setTimeout(function () {
+                t._filterFinish();
+            }, 400);
+
         },
 
 
         /**
-         *  Default filter layout if nothing overrides
+         * Quicksand filter
          */
-        filterLayout: function(filterName) {
+        _quicksandFilter: function (on2offBlocks, off2onBlocks, filter) {
+
             var t = this;
 
-            t.blocksOff.addClass('cbp-item-off');
+            if (filter !== '*') {
 
-            t.blocksOn.removeClass('cbp-item-off')
-                .each(function(index, el) {
-                    var data = $(el).data('cbp');
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
 
-                    data.left = data.leftNew;
-                    data.top = data.topNew;
+                // get visible elements that will pe hidden
+                on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
 
-                    el.style.left = data.left + 'px';
-                    el.style.top = data.top + 'px';
+            }
+
+            // remove hidden class
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.blocksAvailable = t.blocks.filter(filter);
+
+            if (on2offBlocks.length) {
+
+                t.styleQueue.push({
+                    $el: on2offBlocks,
+                    style: {
+                        scale: 0.01,
+                        opacity: 0
+                    }
                 });
 
-            // resize main container height
-            t._resizeMainContainer();
+            }
 
-            t.filterFinish();
+            if (off2onBlocks.length) {
+
+                t.styleQueue.push({
+                    $el: off2onBlocks,
+                    style: {
+                        scale: 1,
+                        opacity: 1
+                    }
+                });
+
+            }
+
+            // call layout
+            t._layout();
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+            setTimeout(function () {
+                t._filterFinish();
+            }, 400);
+
         },
 
+
+        /**
+         * flipOut filter
+         */
+        _flipOutFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this;
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // get visible elements that will pe hidden
+                on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden class
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.blocksAvailable = t.blocks.filter(filter);
+
+            if (on2offBlocks.length) {
+
+                if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                    t.styleQueue.push({
+                        $el: on2offBlocks,
+                        style: {
+                            opacity: 0
+                        }
+                    });
+
+                } else {
+                    on2offBlocks.find('.cbp-item-wrapper').removeClass('cbp-animation-flipOut-in').addClass('cbp-animation-flipOut-out');
+                }
+
+            }
+
+            if (off2onBlocks.length) {
+
+                if (t.browser === 'ie8' || t.browser === 'ie9') {
+                    t.styleQueue.push({
+                        $el: off2onBlocks,
+                        style: {
+                            opacity: 1
+                        }
+                    });
+                } else {
+                    off2onBlocks.find('.cbp-item-wrapper').removeClass('cbp-animation-flipOut-out').addClass('cbp-animation-flipOut-in');
+                }
+            }
+
+            // call layout
+            t._layout();
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+            setTimeout(function () {
+                t._filterFinish();
+            }, 400);
+
+        },
+
+
+        /**
+         * flipBottom filter
+         */
+        _flipBottomFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this;
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // get visible elements that will pe hidden
+                on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden class
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.blocksAvailable = t.blocks.filter(filter);
+
+            if (on2offBlocks.length) {
+
+                if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                    t.styleQueue.push({
+                        $el: on2offBlocks,
+                        style: {
+                            opacity: 0
+                        }
+                    });
+
+                } else {
+                    on2offBlocks.find('.cbp-item-wrapper').removeClass('cbp-animation-flipBottom-in').addClass('cbp-animation-flipBottom-out');
+                }
+
+            }
+
+            if (off2onBlocks.length) {
+
+                if (t.browser === 'ie8' || t.browser === 'ie9') {
+                    t.styleQueue.push({
+                        $el: off2onBlocks,
+                        style: {
+                            opacity: 1
+                        }
+                    });
+                } else {
+                    off2onBlocks.find('.cbp-item-wrapper').removeClass('cbp-animation-flipBottom-out').addClass('cbp-animation-flipBottom-in');
+                }
+
+            }
+
+            // call layout
+            t._layout();
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+            setTimeout(function () {
+                t._filterFinish();
+            }, 400);
+
+        },
+
+
+        /**
+         * scaleSides filter
+         */
+        _scaleSidesFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this;
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // get visible elements that will pe hidden
+                on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden class
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.blocksAvailable = t.blocks.filter(filter);
+
+            if (on2offBlocks.length) {
+
+                if (t.browser === 'ie8' || t.browser === 'ie9') {
+
+                    t.styleQueue.push({
+                        $el: on2offBlocks,
+                        style: {
+                            opacity: 0
+                        }
+                    });
+
+                } else {
+                    on2offBlocks.find('.cbp-item-wrapper').removeClass('cbp-animation-scaleSides-in').addClass('cbp-animation-scaleSides-out');
+                }
+
+            }
+
+            if (off2onBlocks.length) {
+
+                if (t.browser === 'ie8' || t.browser === 'ie9') {
+                    t.styleQueue.push({
+                        $el: off2onBlocks,
+                        style: {
+                            opacity: 1
+                        }
+                    });
+                } else {
+                    off2onBlocks.find('.cbp-item-wrapper').removeClass('cbp-animation-scaleSides-out').addClass('cbp-animation-scaleSides-in');
+                }
+
+            }
+
+            // call layout
+            t._layout();
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+            setTimeout(function () {
+                t._filterFinish();
+            }, 400);
+
+        },
+
+
+        /**
+         * skew filter
+         */
+        _skewFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this;
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // get visible elements that will pe hidden
+                on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden class
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.blocksAvailable = t.blocks.filter(filter);
+
+            if (on2offBlocks.length) {
+
+                t.styleQueue.push({
+                    $el: on2offBlocks,
+                    style: {
+                        skew: [50, 0],
+                        scale: 0.01,
+                        opacity: 0
+                    }
+                });
+
+            }
+
+            if (off2onBlocks.length) {
+
+                t.styleQueue.push({
+                    $el: off2onBlocks,
+                    style: {
+                        skew: [0, 0],
+                        scale: 1,
+                        opacity: 1
+                    }
+                });
+
+            }
+
+            // call layout
+            t._layout();
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+            setTimeout(function () {
+                t._filterFinish();
+            }, 400);
+
+        },
+
+
+        /**
+         *  Slide Up Sequentially custom init
+         */
+        _sequentiallyInit: function () {
+
+            this.transitionByFilter = 'css';
+
+        },
+
+
+        /**
+         * Slide Up Sequentially filter
+         */
+        _sequentiallyFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this,
+                oldBlocksAvailable = t.blocksAvailable;
+
+            t.blocksAvailable = t.blocks.filter(filter);
+
+            t.$obj.addClass('cbp-no-transition');
+
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                oldBlocksAvailable[t.transition]({
+                    top: '-=30',
+                    opacity: 0
+                }, 300);
+            } else {
+                oldBlocksAvailable[t.transition]({
+                    top: -30,
+                    opacity: 0
+                });
+            }
+
+            setTimeout(function () {
+
+                if (filter !== '*') {
+
+                    // get elements that are hidden and will be visible
+                    off2onBlocks = off2onBlocks.filter(filter);
+
+                    // get visible elements that will pe hidden
+                    on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+                }
+
+                // remove hidden class
+                off2onBlocks.removeClass('cbp-item-hidden');
+
+                if (on2offBlocks.length) {
+
+                    on2offBlocks.css({
+                        'display': 'none'
+                    });
+
+                    //t.styleQueue.push({ $el: on2offBlocks, style: { opacity: 0 } });
+
+                }
+
+                if (off2onBlocks.length) {
+
+                    off2onBlocks.css('display', 'block');
+
+                    //t.styleQueue.push({ $el: off2onBlocks, style: { opacity: 1 } });
+
+                }
+
+                // call layout
+                t._layout();
+
+                // trigger style queue and the animations
+                t._processStyle(t.transitionByFilter);
+
+                // resize main container height
+                t._resizeMainContainer(t.transition);
+
+                // ie8 & ie9 trick
+                if (t.browser === 'ie8' || t.browser === 'ie9') {
+                    t.blocksAvailable.css('top', '-=30');
+                }
+
+                var i = 0,
+                    item;
+                (function displayItems() {
+                    item = t.blocksAvailable.eq(i++);
+
+                    if (item.length) {
+
+                        if (t.browser === 'ie8' || t.browser === 'ie9') {
+                            item[t.transition]({
+                                top: '+=30',
+                                opacity: 1
+                            });
+                        } else {
+                            item[t.transition]({
+                                top: 0,
+                                opacity: 1
+                            });
+                        }
+
+                        setTimeout(displayItems, 130);
+                    } else {
+                        setTimeout(function () {
+                            t._filterFinish();
+                        }, 600);
+                    }
+
+                })();
+
+            }, 600);
+
+        },
+
+
+        /**
+         *  Fade Out Top custom init
+         */
+        _fadeOutTopInit: function () {
+
+            this.transitionByFilter = 'css';
+
+        },
+
+
+        /**
+         * Slide Up filter
+         */
+        _fadeOutTopFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this;
+
+            t.blocksAvailable = t.blocks.filter(filter);
+
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                t.$ul[t.transition]({
+                    top: -30,
+                    opacity: 0
+                }, 350);
+            } else {
+                t.$ul[t.transition]({
+                    top: -30,
+                    opacity: 0
+                });
+            }
+
+            t.$obj.addClass('cbp-no-transition');
+
+            setTimeout(function () {
+
+                if (filter !== '*') {
+
+                    // get elements that are hidden and will be visible
+                    off2onBlocks = off2onBlocks.filter(filter);
+
+                    // get visible elements that will pe hidden
+                    on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+                }
+
+                // remove hidden class
+                off2onBlocks.removeClass('cbp-item-hidden');
+
+                if (on2offBlocks.length) {
+
+                    on2offBlocks.css('opacity', 0);
+
+                    //t.styleQueue.push({ $el: on2offBlocks, style: { opacity: 0 } });
+
+                }
+
+                if (off2onBlocks.length) {
+
+                    off2onBlocks.css('opacity', 1);
+
+                    //t.styleQueue.push({ $el: off2onBlocks, style: { opacity: 1 } });
+
+                }
+
+                // call layout
+                t._layout();
+
+                // trigger style queue and the animations
+                t._processStyle(t.transitionByFilter);
+
+                // resize main container height
+                t._resizeMainContainer(t.transition);
+
+
+                if (t.browser === 'ie8' || t.browser === 'ie9') {
+                    t.$ul[t.transition]({
+                        top: 0,
+                        opacity: 1
+                    }, 350);
+                } else {
+                    t.$ul[t.transition]({
+                        top: 0,
+                        opacity: 1
+                    });
+                }
+
+                setTimeout(function () {
+                    t._filterFinish();
+                }, 400);
+
+            }, 400);
+
+
+        },
+
+
+        /**
+         *  Box Shadow custom init
+         */
+        _boxShadowInit: function () {
+
+            var t = this;
+
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                t.options.animationType = 'fadeOut';
+            } else {
+                t.blocksAvailable.append('<div class="cbp-animation-boxShadowMask"></div>');
+            }
+
+        },
+
+
+        /**
+         * boxShadow filter
+         */
+        _boxShadowFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this;
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // get visible elements that will pe hidden
+                on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden class
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            var boxShadowMask = t.blocks.find('.cbp-animation-boxShadowMask');
+
+            boxShadowMask.addClass('cbp-animation-boxShadowShow');
+
+            boxShadowMask.removeClass('cbp-animation-boxShadowActive cbp-animation-boxShadowInactive');
+
+            t.blocksAvailable = t.blocks.filter(filter);
+
+            var toAnimate = {};
+
+            if (on2offBlocks.length) {
+
+                on2offBlocks.find('.cbp-animation-boxShadowMask').addClass('cbp-animation-boxShadowActive');
+                t.styleQueue.push({
+                    $el: on2offBlocks,
+                    style: {
+                        opacity: 0
+                    }
+                });
+
+                toAnimate = on2offBlocks.last();
+
+            }
+
+            if (off2onBlocks.length) {
+
+                off2onBlocks.find('.cbp-animation-boxShadowMask').addClass('cbp-animation-boxShadowInactive');
+                t.styleQueue.push({
+                    $el: off2onBlocks,
+                    style: {
+                        opacity: 1
+                    }
+                });
+
+                toAnimate = off2onBlocks.last();
+
+            }
+
+            // call layout
+            t._layout();
+
+            if (toAnimate.length) {
+                toAnimate.one(t.transitionEnd, function () {
+                    boxShadowMask.removeClass('cbp-animation-boxShadowShow');
+                    t._filterFinish();
+                });
+            } else {
+                boxShadowMask.removeClass('cbp-animation-boxShadowShow');
+                t._filterFinish();
+            }
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+        },
+
+
+        /**
+         *  Mover left custom init
+         */
+        _bounceLeftInit: function () {
+
+            var t = this;
+
+            t._duplicateContent({
+                left: '-100%',
+                opacity: 0
+            });
+
+            t.transitionByFilter = 'css';
+
+            t.$ul.addClass('cbp-wrapper-front');
+
+        },
+
+
+        /**
+         *  Mover left custom filter type
+         */
+        _bounceLeftFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this,
+                ul, ulChildren, ulTohide;
+
+            t.$obj.addClass('cbp-no-transition');
+
+            if (t.ulHidden === 'clone') {
+
+                t.ulHidden = 'first';
+
+                ul = t.$ulClone;
+                ulTohide = t.$ul;
+                ulChildren = t.blocksClone;
+
+            } else {
+
+                t.ulHidden = 'clone';
+
+                ul = t.$ul;
+                ulTohide = t.$ulClone;
+
+                ulChildren = t.blocks;
+
+            }
+
+            // get elements that are hidden and will be visible
+            off2onBlocks = ulChildren.filter('.cbp-item-hidden');
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // set visible elements that will pe hidden
+                ulChildren.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden cbp-item
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.blocksAvailable = ulChildren.filter(filter);
+
+            // call layout
+            t._layout();
+
+            ulTohide[t.transition]({
+                left: '-100%',
+                opacity: 0
+            }).removeClass('cbp-wrapper-front').addClass('cbp-wrapper-back');
+
+            ul[t.transition]({
+                left: 0,
+                opacity: 1
+            }).addClass('cbp-wrapper-front').removeClass('cbp-wrapper-back');
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+            setTimeout(function () {
+                t._filterFinish();
+            }, 400);
+
+        },
+
+
+        /**
+         *  Bounce Top init
+         */
+        _bounceTopInit: function () {
+
+            var t = this;
+
+            t._duplicateContent({
+                top: '-100%',
+                opacity: 0
+            });
+
+            t.transitionByFilter = 'css';
+
+            t.$ul.addClass('cbp-wrapper-front');
+
+        },
+
+
+        /**
+         *  Bounce Top filter type
+         */
+        _bounceTopFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this,
+                ul, ulChildren, ulTohide;
+
+            t.$obj.addClass('cbp-no-transition');
+
+            if (t.ulHidden === 'clone') {
+
+                t.ulHidden = 'first';
+
+                ul = t.$ulClone;
+                ulTohide = t.$ul;
+                ulChildren = t.blocksClone;
+
+            } else {
+
+                t.ulHidden = 'clone';
+
+                ul = t.$ul;
+                ulTohide = t.$ulClone;
+
+                ulChildren = t.blocks;
+
+            }
+
+            // get elements that are hidden and will be visible
+            off2onBlocks = ulChildren.filter('.cbp-item-hidden');
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // set visible elements that will pe hidden
+                ulChildren.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden cbp-item
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.blocksAvailable = ulChildren.filter(filter);
+
+            // call layout
+            t._layout();
+
+            ulTohide[t.transition]({
+                top: '-100%',
+                opacity: 0
+            }).removeClass('cbp-wrapper-front').addClass('cbp-wrapper-back');
+
+            ul[t.transition]({
+                top: 0,
+                opacity: 1
+            }).addClass('cbp-wrapper-front').removeClass('cbp-wrapper-back');
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+            setTimeout(function () {
+                t._filterFinish();
+            }, 400);
+
+        },
+
+
+        /**
+         *  Bounce Bottom init
+         */
+        _bounceBottomInit: function () {
+
+            var t = this;
+
+            t._duplicateContent({
+                top: '100%',
+                opacity: 0
+            });
+
+            t.transitionByFilter = 'css';
+
+        },
+
+
+        /**
+         *  Bounce Bottom filter type
+         */
+        _bounceBottomFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this,
+                ul, ulChildren, ulTohide;
+
+            t.$obj.addClass('cbp-no-transition');
+
+            if (t.ulHidden === 'clone') {
+
+                t.ulHidden = 'first';
+
+                ul = t.$ulClone;
+                ulTohide = t.$ul;
+                ulChildren = t.blocksClone;
+
+            } else {
+
+                t.ulHidden = 'clone';
+
+                ul = t.$ul;
+                ulTohide = t.$ulClone;
+
+                ulChildren = t.blocks;
+
+            }
+
+            // get elements that are hidden and will be visible
+            off2onBlocks = ulChildren.filter('.cbp-item-hidden');
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // set visible elements that will pe hidden
+                ulChildren.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden cbp-item
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.blocksAvailable = ulChildren.filter(filter);
+
+            // call layout
+            t._layout();
+
+            ulTohide[t.transition]({
+                top: '100%',
+                opacity: 0
+            }).removeClass('cbp-wrapper-front').addClass('cbp-wrapper-back');
+
+            ul[t.transition]({
+                top: 0,
+                opacity: 1
+            }).addClass('cbp-wrapper-front').removeClass('cbp-wrapper-back');
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+            setTimeout(function () {
+                t._filterFinish();
+            }, 400);
+        },
+
+
+        /**
+         *  Move Left init
+         */
+        _moveLeftInit: function () {
+
+            var t = this;
+
+            t._duplicateContent({
+                left: '100%',
+                opacity: 0
+            });
+
+            t.$ulClone.addClass('no-trans');
+
+            t.transitionByFilter = 'css';
+
+        },
+
+
+        /**
+         *  Move Left filter type
+         */
+        _moveLeftFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this,
+                ul, ulChildren, ulTohide;
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // get visible elements that will pe hidden
+                //on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden class
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.$obj.addClass('cbp-no-transition');
+
+            if (t.ulHidden === 'clone') {
+
+                t.ulHidden = 'first';
+
+                ul = t.$ulClone;
+                ulTohide = t.$ul;
+                ulChildren = t.blocksClone;
+
+            } else {
+
+                t.ulHidden = 'clone';
+
+                ul = t.$ul;
+                ulTohide = t.$ulClone;
+
+                ulChildren = t.blocks;
+
+            }
+
+            ulChildren.css('opacity', 0);
+
+            ulChildren.addClass('cbp-item-hidden');
+
+            t.blocksAvailable = ulChildren.filter(filter);
+
+            t.blocksAvailable.css('opacity', 1);
+            t.blocksAvailable.removeClass('cbp-item-hidden');
+
+            // call layout
+            t._layout();
+
+            ulTohide[t.transition]({
+                left: '-100%',
+                opacity: 0
+            });
+
+            ul.removeClass('no-trans');
+
+            if (t.transition === 'css') {
+
+                ul[t.transition]({
+                    left: 0,
+                    opacity: 1
+                });
+
+
+                ulTohide.one(t.transitionEnd, function () {
+
+                    ulTohide.addClass('no-trans').css({
+                        left: '100%',
+                        opacity: 0
+                    });
+
+                    t._filterFinish();
+
+                });
+
+            } else {
+
+                ul[t.transition]({
+                    left: 0,
+                    opacity: 1
+                }, function () {
+
+                    ulTohide.addClass('no-trans').css({
+                        left: '100%',
+                        opacity: 0
+                    });
+
+                    t._filterFinish();
+
+                });
+            }
+
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height
+            t._resizeMainContainer(t.transition);
+
+        },
+
+
+        /**
+         *  Slide Left init
+         */
+        _slideLeftInit: function () {
+
+            var t = this;
+
+            t._duplicateContent({});
+
+            t.$ul.addClass('cbp-wrapper-front');
+
+            t.$ulClone.css('opacity', 0);
+
+            t.transitionByFilter = 'css';
+
+        },
+
+
+        /**
+         *  Slide Left filter type
+         */
+        _slideLeftFilter: function (on2offBlocks, off2onBlocks, filter) {
+
+            var t = this,
+                ulChildren, slideOut, slideIn, toAnimate;
+
+            // reset from appendItems
+            t.blocks.show();
+            t.blocksClone.show();
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // get visible elements that will pe hidden
+                //on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden class
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.$obj.addClass('cbp-no-transition');
+
+            t.blocks.find('.cbp-item-wrapper').removeClass('cbp-animation-slideLeft-out cbp-animation-slideLeft-in');
+            t.blocksClone.find('.cbp-item-wrapper').removeClass('cbp-animation-slideLeft-out cbp-animation-slideLeft-in');
+
+            t.$ul.css({
+                'opacity': 1
+            });
+            t.$ulClone.css({
+                'opacity': 1
+            });
+
+            if (t.ulHidden === 'clone') {
+
+                t.ulHidden = 'first';
+
+                slideOut = t.blocks;
+                slideIn = t.blocksClone;
+
+                ulChildren = t.blocksClone;
+
+                t.$ul.removeClass('cbp-wrapper-front');
+                t.$ulClone.addClass('cbp-wrapper-front');
+
+            } else {
+
+                t.ulHidden = 'clone';
+
+                slideOut = t.blocksClone;
+                slideIn = t.blocks;
+
+                ulChildren = t.blocks;
+
+                t.$ul.addClass('cbp-wrapper-front');
+                t.$ulClone.removeClass('cbp-wrapper-front');
+
+            }
+
+            ulChildren.css('opacity', 0);
+
+            ulChildren.addClass('cbp-item-hidden');
+
+            t.blocksAvailable = ulChildren.filter(filter);
+
+            t.blocksAvailable.css({
+                'opacity': 1
+            });
+            t.blocksAvailable.removeClass('cbp-item-hidden');
+
+            // call layout
+            t._layout();
+
+            if (t.transition === 'css') {
+
+                slideOut.find('.cbp-item-wrapper').addClass('cbp-animation-slideLeft-out');
+
+                slideIn.find('.cbp-item-wrapper').addClass('cbp-animation-slideLeft-in');
+
+                toAnimate = slideOut.find('.cbp-item-wrapper').last();
+
+                if (toAnimate.length) {
+                    toAnimate.one(t.animationEnd, function () {
+                        t._filterFinish();
+                    });
+                } else {
+                    t._filterFinish();
+                }
+
+            } else {
+
+                slideOut.find('.cbp-item-wrapper').animate({
+                        left: '-100%'
+                    },
+                    400, function () {
+                        t._filterFinish();
+                    });
+
+                slideIn.find('.cbp-item-wrapper').css('left', '100%');
+
+                slideIn.find('.cbp-item-wrapper').animate({
+                        left: 0
+                    },
+                    400
+                );
+
+            }
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height (firefox <=25 bug)
+            t._resizeMainContainer('animate');
+
+        },
+
+
+        /**
+         *  Slide Delay init
+         */
+        _slideDelayInit: function () {
+            this._wrapperFilterInit();
+        },
+
+
+        /**
+         *  Slide Delay filter type
+         */
+        _slideDelayFilter: function (on2offBlocks, off2onBlocks, filter) {
+            this._wrapperFilter(on2offBlocks, off2onBlocks, filter, 'slideDelay', true);
+        },
+
+
+        /**
+         *  3d Flip init
+         */
+        _3dflipInit: function () {
+            this._wrapperFilterInit();
+        },
+
+
+        /**
+         *  3d Flip filter type
+         */
+        _3dflipFilter: function (on2offBlocks, off2onBlocks, filter) {
+            this._wrapperFilter(on2offBlocks, off2onBlocks, filter, '3dflip', true);
+        },
+
+
+        /**
+         *  Rotate Sides init
+         */
+        _rotateSidesInit: function () {
+            this._wrapperFilterInit();
+        },
+
+
+        /**
+         *  Rotate Sides filter type
+         */
+        _rotateSidesFilter: function (on2offBlocks, off2onBlocks, filter) {
+            this._wrapperFilter(on2offBlocks, off2onBlocks, filter, 'rotateSides', true);
+        },
+
+
+        /**
+         *  Flip Out Delay init
+         */
+        _flipOutDelayInit: function () {
+            this._wrapperFilterInit();
+        },
+
+
+        /**
+         *  Flip Out Delay filter type
+         */
+        _flipOutDelayFilter: function (on2offBlocks, off2onBlocks, filter) {
+            this._wrapperFilter(on2offBlocks, off2onBlocks, filter, 'flipOutDelay', false);
+        },
+
+
+        /**
+         *  Fold Left init
+         */
+        _foldLeftInit: function () {
+            this._wrapperFilterInit();
+        },
+
+
+        /**
+         *  Fold Left filter type
+         */
+        _foldLeftFilter: function (on2offBlocks, off2onBlocks, filter) {
+            this._wrapperFilter(on2offBlocks, off2onBlocks, filter, 'foldLeft', true);
+        },
+
+
+        /**
+         *  Unfold init
+         */
+        _unfoldInit: function () {
+            this._wrapperFilterInit();
+        },
+
+
+        /**
+         *  Unfold filter type
+         */
+        _unfoldFilter: function (on2offBlocks, off2onBlocks, filter) {
+            this._wrapperFilter(on2offBlocks, off2onBlocks, filter, 'unfold', true);
+        },
+
+
+        /**
+         *  Scale Down init
+         */
+        _scaleDownInit: function () {
+            this._wrapperFilterInit();
+        },
+
+
+        /**
+         *  Scale Down filter type
+         */
+        _scaleDownFilter: function (on2offBlocks, off2onBlocks, filter) {
+            this._wrapperFilter(on2offBlocks, off2onBlocks, filter, 'scaleDown', true);
+        },
+
+
+        /**
+         *  Front Row init
+         */
+        _frontRowInit: function () {
+            this._wrapperFilterInit();
+        },
+
+
+        /**
+         *  Front Row filter type
+         */
+        _frontRowFilter: function (on2offBlocks, off2onBlocks, filter) {
+            this._wrapperFilter(on2offBlocks, off2onBlocks, filter, 'frontRow', true);
+        },
+
+
+        /**
+         *  Rotate Room init
+         */
+        _rotateRoomInit: function () {
+            this._wrapperFilterInit();
+        },
+
+
+        /**
+         *  Rotate Room filter type
+         */
+        _rotateRoomFilter: function (on2offBlocks, off2onBlocks, filter) {
+            this._wrapperFilter(on2offBlocks, off2onBlocks, filter, 'rotateRoom', true);
+        },
+
+
+        /**
+         *  Wrapper Filter Init
+         */
+        _wrapperFilterInit: function () {
+
+            var t = this;
+
+            t._duplicateContent({});
+
+            t.$ul.addClass('cbp-wrapper-front');
+
+            t.$ulClone.css('opacity', 0);
+
+            t.transitionByFilter = 'css';
+
+        },
+
+
+        /**
+         *  Wrapper Filter
+         */
+        _wrapperFilter: function (on2offBlocks, off2onBlocks, filter, name, fadeOut) {
+
+            var t = this,
+                ulChildren, slideOut, slideIn, toAnimate;
+
+            // reset from appendItems
+            t.blocks.show();
+            t.blocksClone.show();
+
+            if (filter !== '*') {
+
+                // get elements that are hidden and will be visible
+                off2onBlocks = off2onBlocks.filter(filter);
+
+                // get visible elements that will pe hidden
+                //on2offBlocks = t.blocks.not('.cbp-item-hidden').not(filter).addClass('cbp-item-hidden');
+
+            }
+
+            // remove hidden class
+            off2onBlocks.removeClass('cbp-item-hidden');
+
+            t.$obj.addClass('cbp-no-transition');
+
+            t.blocks.find('.cbp-item-wrapper').removeClass('cbp-animation-' + name + '-out cbp-animation-' + name + '-in cbp-animation-' + name + '-fadeOut').css('style', '');
+            t.blocksClone.find('.cbp-item-wrapper').removeClass('cbp-animation-' + name + '-out cbp-animation-' + name + '-in cbp-animation-' + name + '-fadeOut').css('style', '');
+
+            t.$ul.css({
+                'opacity': 1
+            });
+            t.$ulClone.css({
+                'opacity': 1
+            });
+
+            if (t.ulHidden === 'clone') {
+
+                t.ulHidden = 'first';
+
+                //slideOut = t.blocks;
+                //slideIn = t.blocksClone;
+
+                ulChildren = t.blocksClone;
+
+                t.$ul.removeClass('cbp-wrapper-front');
+                t.$ulClone.addClass('cbp-wrapper-front');
+
+            } else {
+
+                t.ulHidden = 'clone';
+
+                //slideOut = t.blocksClone;
+                //slideIn = t.blocks;
+
+                ulChildren = t.blocks;
+
+                t.$ul.addClass('cbp-wrapper-front');
+                t.$ulClone.removeClass('cbp-wrapper-front');
+
+            }
+
+            slideOut = t.blocksAvailable;
+
+            ulChildren.css('opacity', 0);
+
+            ulChildren.addClass('cbp-item-hidden');
+
+            t.blocksAvailable = ulChildren.filter(filter);
+
+            t.blocksAvailable.css({
+                'opacity': 1
+            });
+            t.blocksAvailable.removeClass('cbp-item-hidden');
+
+            slideIn = t.blocksAvailable;
+
+            // call layout
+            t._layout();
+
+            if (t.transition === 'css') {
+                var iii = 0,
+                    kkk = 0;
+
+                slideIn.each(function (index, el) {
+                    $(el).find('.cbp-item-wrapper').addClass('cbp-animation-' + name + '-in').css('animation-delay', (kkk / 20) + 's');
+                    kkk++;
+
+                });
+
+
+                slideOut.each(function (index, el) {
+
+                    if (kkk <= iii && fadeOut) {
+                        $(el).find('.cbp-item-wrapper').addClass('cbp-animation-' + name + '-fadeOut');
+                    } else {
+                        $(el).find('.cbp-item-wrapper').addClass('cbp-animation-' + name + '-out').css('animation-delay', (iii / 20) + 's');
+                    }
+
+                    iii++;
+
+                });
+
+                toAnimate = slideOut.find('.cbp-item-wrapper').first();
+
+                if (toAnimate.length) {
+                    toAnimate.one(t.animationEnd, function () {
+                        t._filterFinish();
+
+                        // ie10, ie11 bug
+                        if (t.browser === 'ie10' || t.browser === 'ie11') {
+                            setTimeout(function () {
+                                $('.cbp-item-wrapper').removeClass('cbp-animation-' + name + '-in');
+                            }, 300);
+                        }
+                    });
+                } else {
+                    t._filterFinish();
+
+                    // ie10, ie11 bug
+                    if (t.browser === 'ie10' || t.browser === 'ie11') {
+                        setTimeout(function () {
+                            $('.cbp-item-wrapper').removeClass('cbp-animation-' + name + '-in');
+                        }, 300);
+                    }
+                }
+
+            } else {
+
+                slideOut.find('.cbp-item-wrapper').animate({
+                        left: '-100%'
+                    },
+                    400, function () {
+                        t._filterFinish();
+                    });
+
+                slideIn.find('.cbp-item-wrapper').css('left', '100%');
+
+                slideIn.find('.cbp-item-wrapper').animate({
+                        left: 0
+                    },
+                    400
+                );
+
+            }
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height (firefox <=25 bug)
+            t._resizeMainContainer('animate');
+
+        },
 
         /**
          *  Trigger when a filter is finished
          */
-        filterFinish: function() {
+        _filterFinish: function () {
+
             var t = this;
 
             t.isAnimating = false;
 
-            t.$obj.trigger('filterComplete.cbp');
             t._triggerEvent('filterFinish');
+
+            t.$obj.trigger('filterComplete');
         },
 
 
         /**
          *  Register event
          */
-        _registerEvent: function(name, callbackFunction, oneTime) {
+        _registerEvent: function (name, callbackFunction, oneTime) {
+
             var t = this;
 
             if (!t.registeredEvents[name]) {
+
                 t.registeredEvents[name] = [];
+
+                t.registeredEvents.push(name);
             }
 
             t.registeredEvents[name].push({
                 func: callbackFunction,
                 oneTime: oneTime || false
             });
+
+
         },
 
 
         /**
          *  Trigger event
          */
-        _triggerEvent: function(name, param) {
-            var t = this,
-                i, len;
+        _triggerEvent: function (name) {
 
-            if (t.skipEvents[name]) {
-                delete t.skipEvents[name];
-                return;
-            }
+            var t = this;
 
             if (t.registeredEvents[name]) {
-                for (i = 0, len = t.registeredEvents[name].length; i < len; i++) {
+                for (var i = t.registeredEvents[name].length - 1; i >= 0; i--) {
 
-                    t.registeredEvents[name][i].func.call(t, param);
+                    t.registeredEvents[name][i].func.call(t);
 
                     if (t.registeredEvents[name][i].oneTime) {
+
                         t.registeredEvents[name].splice(i, 1);
-                        // function splice change the t.registeredEvents[name] array
-                        // if event is one time you must set the i to the same value
-                        // next time and set the length lower
-                        i--;
-                        len--;
                     }
 
                 }
@@ -1202,223 +4934,429 @@
         },
 
 
-        /**
-         *  Delay trigger event
+        /*  -----------------------------------------------------
+         PUBLIC METHODS
+         ----------------------------------------------------- */
+
+        /*
+         * Initializate the plugin
          */
-        _skipNextEvent: function(name) {
-            var t = this;
-            t.skipEvents[name] = true;
-        },
+        init: function (options, callbackFunction) {
 
-        _addItems: function(els, callback) {
-            var t = this,
-                items = $(els)
-                .filter('.cbp-item')
-                .addClass('cbp-loading-fadeIn')
-                .css('top', '1000%')
-                .wrapInner('<div class="cbp-item-wrapper"></div>');
+            var t = $.data(this, 'cubeportfolio');
 
-            if (!items.length) {
-                t.isAnimating = false;
-
-                if ($.isFunction(callback)) {
-                    callback.call(t);
-                }
-                return;
+            if (t) {
+                throw new Error('cubeportfolio is already initialized. Please destroy it before initialize again!');
             }
 
-            t._load(items, function() {
+            // create new object attached to this element
+            t = $.data(this, 'cubeportfolio', Object.create(pluginObject));
 
-                t.$obj.addClass('cbp-addItems');
+            // call private _main method
+            t._main(this, options, callbackFunction);
 
-                items.appendTo(t.$ul);
+        },
 
-                // cache the new items to t.blocks
-                $.merge(t.blocks, items);
 
-                // push to data some values of items
-                t.storeData(items);
+        /*
+         * Destroy the plugin
+         */
+        destroy: function (callbackFunction) {
 
-                if (t.defaultFilter !== '*') {
-                    t.blocksOn = t.blocks.filter(t.defaultFilter);
-                    t.blocks.not(t.defaultFilter).addClass('cbp-item-off');
-                } else {
-                    t.blocksOn = t.blocks;
-                }
+            var t = $.data(this, 'cubeportfolio');
+            if (!t) {
+                throw new Error('cubeportfolio is not initialized. Please initialize before calling destroy method!');
+            }
 
-                items.on(CubePortfolio.Private.animationend, function() {
-                    t.$obj.find('.cbp-loading-fadeIn').removeClass('cbp-loading-fadeIn');
-                    t.$obj.removeClass('cbp-addItems');
-                });
+            // register callback function
+            if ($.isFunction(callbackFunction)) {
+                t._registerEvent('destroyFinish', callbackFunction, true);
+            }
 
-                t._triggerEvent('addItemsToDOM', items);
+            // remove data
+            $.removeData(this, 'cubeportfolio');
 
-                t._gridAdjust();
+            // remove data from blocks
+            $.each(t.blocks, function () {
 
-                t._layout();
+                $.removeData(this, 'transformFn');
 
-                t.positionateItems();
-
-                // resize main container height
-                t._resizeMainContainer();
-
-                if (t.options.layoutMode === 'slider') {
-                    t._updateSlider();
-                }
-
-                // if show count was actived, call show count function again
-                if (t.elems) {
-                    CubePortfolio.Public.showCounter.call(t.obj, t.elems);
-                }
-
-                if (CubePortfolio.Private.modernBrowser) {
-                    items.last().one(CubePortfolio.Private.animationend, function() {
-                        t.isAnimating = false;
-
-                        if ($.isFunction(callback)) {
-                            callback.call(t);
-                        }
-                    });
-                } else {
-                    t.isAnimating = false;
-
-                    if ($.isFunction(callback)) {
-                        callback.call(t);
-                    }
-                }
-
+                $.removeData(this, 'cbp-wxh');
 
             });
 
-        }
+            // remove loading class and .cbp on container
+            t.$obj.removeClass('cbp cbp-loading cbp-ready cbp-no-transition');
 
-    });
+            // remove class from ul
+            t.$ul.removeClass('cbp-wrapper-front cbp-wrapper-back cbp-wrapper no-trans').removeAttr('style');
+
+            // remove attr style
+            t.$obj.removeAttr('style');
+            if (t.$ulClone) {
+                t.$ulClone.remove();
+            }
+
+            // remove class from plugin for additional support
+            if (t.browser) {
+                t.$obj.removeClass('cbp-' + t.browser);
+            }
+
+            // remove off resize event
+            $(window).off('resize' + eventNamespace);
+
+            // destroy lightbox if enabled
+            if (t.lightbox) {
+                t.lightbox.destroy();
+            }
+
+            // destroy singlePage if enabled
+            if (t.singlePage) {
+                t.singlePage.destroy();
+            }
+
+            // destroy singlePage inline if enabled
+            if (t.singlePageInline) {
+                t.singlePageInline.destroy();
+            }
+
+            // reset blocks
+            t.blocks.removeClass('cbp-item-hidden').removeAttr('style');
+
+            t.blocks.find('.cbp-item-wrapper').children().unwrap();
+
+            if (t.options.caption) {
+                t._captionDestroy();
+            }
+
+            if (t.options.animationType) {
+                if (t.options.animationType === 'boxShadow') {
+                    $('.cbp-animation-boxShadowMask').remove();
+                }
+
+                // remove filter class from plugin
+                t.$obj.removeClass('cbp-animation-' + t.options.animationType);
+
+            }
+
+            t._triggerEvent('destroyFinish');
+
+        },
+
+
+        /*
+         * Filter the plugin by filterName
+         */
+        filter: function (filterName, callbackFunction, context) {
+
+            var t = context || $.data(this, 'cubeportfolio'),
+                off2onBlocks, on2offBlocks, url;
+
+            if (!t) {
+                throw new Error('cubeportfolio is not initialized. Please initialize before calling filter method!');
+            }
+
+            filterName = (filterName === '*' || filterName === '') ? '*' : filterName;
+
+            if (t.isAnimating || t.defaultFilter === filterName) {
+                return;
+            }
+
+            if (t.browser === 'ie8' || t.browser === 'ie9') {
+                t.$obj.removeClass('cbp-no-transition cbp-appendItems-loading');
+            } else {
+                t.obj.classList.remove('cbp-no-transition');
+                t.obj.classList.remove('cbp-appendItems-loading');
+            }
+
+            t.defaultFilter = filterName;
+
+            t.isAnimating = true;
+
+            // register callback function
+            if ($.isFunction(callbackFunction)) {
+                t._registerEvent('filterFinish', callbackFunction, true);
+            }
+
+            // get elements that are hidden and will be visible
+            off2onBlocks = t.blocks.filter('.cbp-item-hidden');
+
+            // visible elements that will pe hidden
+            on2offBlocks = [];
+
+            if (t.singlePageInline && t.singlePageInline.isOpen) {
+                t.singlePageInline.close('promise', {
+                    callback: function () {
+                        t['_' + t.options.animationType + 'Filter'](on2offBlocks, off2onBlocks, filterName);
+                    }
+                });
+            } else {
+                t['_' + t.options.animationType + 'Filter'](on2offBlocks, off2onBlocks, filterName);
+            }
+
+            if (t.options.filterDeeplinking) {
+
+                url = location.href.replace(/#cbpf=(.*?)([#|?&]|$)/gi, '');
+
+                location.href = url + '#cbpf=' + filterName;
+
+                if (t.singlePage && t.singlePage.url) {
+                    t.singlePage.url = location.href;
+                }
+
+            }
+
+        },
+
+
+        /*
+         * Show counter for filters
+         */
+        showCounter: function (elems, callbackFunction) {
+
+            var t = $.data(this, 'cubeportfolio');
+
+            if (!t) {
+                throw new Error('cubeportfolio is not initialized. Please initialize before calling showCounter method!');
+            }
+
+            t.elems = elems;
+
+            $.each(elems, function () {
+
+                var me = $(this),
+                    filterName = me.data('filter'),
+                    count;
+
+                filterName = (filterName === '*' || filterName === '') ? '*' : filterName;
+
+                count = t.blocks.filter(filterName).length;
+
+                me.find('.cbp-filter-counter').text(count);
+
+            });
+
+            // register callback function
+            if ($.isFunction(callbackFunction)) {
+                callbackFunction.call(t);
+            }
+
+        },
+
+
+        /*
+         * ApendItems elements
+         */
+        appendItems: function (items, callbackFunction) {
+
+            var me = this,
+                t = $.data(me, 'cubeportfolio');
+
+            if (!t) {
+                throw new Error('cubeportfolio is not initialized. Please initialize before calling appendItems method!');
+            }
+
+            if (t.singlePageInline && t.singlePageInline.isOpen) {
+                t.singlePageInline.close('promise', {
+                    callback: function () {
+                        pluginObject._addItems.call(me, items, callbackFunction);
+                    }
+                });
+            } else {
+                pluginObject._addItems.call(me, items, callbackFunction);
+            }
+
+
+        },
+
+        _addItems: function (items, callbackFunction) {
+
+            var t = $.data(this, 'cubeportfolio'),
+                defaultFilter, children, cloneItems, fewItems;
+
+            // register callback function
+            if ($.isFunction(callbackFunction)) {
+                t._registerEvent('appendItemsFinish', callbackFunction, true);
+            }
+
+            t.$obj.addClass('cbp-no-transition cbp-appendItems-loading');
+
+            items = $(items).css('opacity', 0);
+
+            items.filter('.cbp-item').wrapInner('<div class="cbp-item-wrapper"></div>');
+
+            fewItems = items.filter(t.defaultFilter);
+
+            if (t.ulHidden) {
+
+                if (t.ulHidden === 'first') { // the second
+
+                    items.appendTo(t.$ulClone);
+                    t.blocksClone = t.$ulClone.children();
+                    children = t.blocksClone;
+
+
+                    // modify the ul
+                    cloneItems = items.clone();
+                    cloneItems.appendTo(t.$ul);
+                    t.blocks = t.$ul.children();
+
+                } else { // the first
+
+                    items.appendTo(t.$ul);
+                    t.blocks = t.$ul.children();
+                    children = t.blocks;
+
+                    // modify the ulClone
+                    cloneItems = items.clone();
+                    cloneItems.appendTo(t.$ulClone);
+                    t.blocksClone = t.$ulClone.children();
+
+                }
+
+            } else {
+
+                items.appendTo(t.$ul);
+
+                // cache the blocks
+                t.blocks = t.$ul.children();
+                children = t.blocks;
+
+            }
+
+            // if custom hover effect is active
+            if (t.options.caption) {
+                // destroy hover effects
+                t._captionDestroy();
+
+                // init hover effects
+                t._captionInit();
+            }
+
+            defaultFilter = t.defaultFilter;
+
+            t.blocksAvailable = children.filter(defaultFilter);
+
+            children.not('.cbp-item-hidden').not(defaultFilter).addClass('cbp-item-hidden');
+
+            //make responsive
+            if (t.options.gridAdjustment === 'responsive') {
+                t._responsiveLayout();
+            }
+
+            // call layout
+            t._layout();
+
+            // trigger style queue and the animations
+            t._processStyle(t.transitionByFilter);
+
+            // resize main container height (firefox <=25 bug)
+            t._resizeMainContainer('animate');
+
+            var hiddenItem = items.filter('.cbp-item-hidden');
+            switch (t.options.animationType) {
+                case 'flipOut':
+                    hiddenItem.find('.cbp-item-wrapper')
+                        .addClass('cbp-animation-flipOut-out');
+                    break;
+
+                case 'scaleSides':
+                    hiddenItem.find('.cbp-item-wrapper')
+                        .addClass('cbp-animation-scaleSides-out');
+                    break;
+
+                case 'flipBottom':
+                    hiddenItem.find('.cbp-item-wrapper')
+                        .addClass('cbp-animation-flipBottom-out');
+                    break;
+            }
+
+            fewItems.animate({
+                opacity: 1
+            }, 800, function () {
+
+                switch (t.options.animationType) {
+
+                    case 'bounceLeft':
+                    case 'bounceTop':
+                    case 'bounceBottom':
+                        t.blocks.css('opacity', 1);
+                        t.blocksClone.css('opacity', 1);
+                        break;
+
+                    case 'flipOut':
+                    case 'scaleSides':
+                    case 'flipBottom':
+                        hiddenItem.css('opacity', 1);
+                        break;
+                }
+            });
+
+            // if show count whas actived, call show count function again
+            if (t.elems) {
+                pluginObject.showCounter.call(this, t.elems);
+            }
+
+            setTimeout(function () {
+                t._triggerEvent('appendItemsFinish');
+            }, 900);
+
+        }
+    };
 
 
     /**
      * jQuery plugin initializer
      */
-    $.fn.cubeportfolio = function(method, options, callback) {
+    $.fn.cubeportfolio = function (method) {
 
-        return this.each(function() {
+        var args = arguments;
 
-            if (typeof method === 'object' || !method) {
-                return CubePortfolio.Public.init.call(this, method, callback);
-            } else if (CubePortfolio.Public[method]) {
-                return CubePortfolio.Public[method].call(this, options, callback);
+        return this.each(function () {
+
+            // public method calling
+            if (pluginObject[method]) {
+
+                return pluginObject[method].apply(this, Array.prototype.slice.call(args, 1));
+
+            } else if (typeof method === 'object' || !method) {
+
+                return pluginObject.init.apply(this, args);
+
+            } else {
+
+                throw new Error('Method ' + method + ' does not exist on jQuery.cubeportfolio.js');
             }
 
-            throw new Error('Method ' + method + ' does not exist on jquery.cubeportfolio.js');
 
         });
 
     };
 
+
     // Plugin default options
     $.fn.cubeportfolio.options = {
-        /**
-         *  Is used to define the wrapper for filters
-         *  Values: strings that represent the elements in the document (DOM selector).
-         */
-        filters: '',
-
-        /**
-         *  Is used to define the wrapper for loadMore
-         *  Values: strings that represent the elements in the document (DOM selector).
-         */
-        loadMore: '',
-
-        /**
-         *  How the loadMore functionality should behave. Load on click on the button or
-         *  automatically when you scroll the page
-         *  Values: - click
-         *          - auto
-         */
-        loadMoreAction: 'click',
-
-        /**
-         *  Layout Mode for this instance
-         *  Values: 'grid' or 'slider'
-         */
-        layoutMode: 'grid',
-
-        /**
-         *  Mouse and touch drag support
-         *  Option available only for `layoutMode: 'slider'`
-         *  Values: true or false
-         */
-        drag: true,
-
-        /**
-         *  Autoplay the slider
-         *  Option available only for `layoutMode: 'slider'`
-         *  Values: true or false
-         */
-        auto: false,
-
-        /**
-         *  Autoplay interval timeout. Time is set in milisecconds
-         *  1000 milliseconds equals 1 second.
-         *  Option available only for `layoutMode: 'slider'`
-         *  Values: only integers (ex: 1000, 2000, 5000)
-         */
-        autoTimeout: 5000,
-
-        /**
-         *  Stops autoplay when user hover the slider
-         *  Option available only for `layoutMode: 'slider'`
-         *  Values: true or false
-         */
-        autoPauseOnHover: true,
-
-        /**
-         *  Show `next` and `prev` buttons for slider
-         *  Option available only for `layoutMode: 'slider'`
-         *  Values: true or false
-         */
-        showNavigation: true,
-
-        /**
-         *  Show pagination for slider
-         *  Option available only for `layoutMode: 'slider'`
-         *  Values: true or false
-         */
-        showPagination: true,
-
-        /**
-         *  Enable slide to first item (last item)
-         *  Option available only for `layoutMode: 'slider'`
-         *  Values: true or false
-         */
-        rewindNav: true,
-
-        /**
-         *  Scroll by page and not by item. This option affect next/prev buttons and drag support
-         *  Option available only for `layoutMode: 'slider'`
-         *  Values: true or false
-         */
-        scrollByPage: false,
 
         /**
          *  Default filter for plugin
-         *  Option available only for `layoutMode: 'grid'`
          *  Values: strings that represent the filter name(ex: *, .logo, .web-design, .design)
          */
         defaultFilter: '*',
 
+
         /**
          *  Enable / disable the deeplinking feature when you click on filters
-         *  Option available only for `layoutMode: 'grid'`
          *  Values: true or false
          */
         filterDeeplinking: false,
 
+
         /**
          *  Defines which animation to use for items that will be shown or hidden after a filter has been activated.
-         *  Option available only for `layoutMode: 'grid'`
-         *  The plugin use the best browser features available (css3 transitions and transform, GPU acceleration).
+         *  The plugin use the best browser features when available (css3 transition and transform, GPU acceleration) and fallback to simple animations (javascript animations) for legacy browsers.
          *  Values: - fadeOut
          *          - quicksand
+         *          - boxShadow
          *          - bounceLeft
          *          - bounceTop
          *          - bounceBottom
@@ -1447,25 +5385,7 @@
          *          - alignCenter (align the grid on center of the page)
          *          - responsive (use a fluid grid to resize the grid)
          */
-        gridAdjustment: 'responsive',
-
-        /**
-         * Define `media queries` for columns layout.
-         * Format: [{width: a, cols: d}, {width: b, cols: e}, {width: c, cols: f}],
-         * where a, b, c are the grid width and d, e, f are the columns displayed.
-         * e.g. [{width: 1100, cols: 4}, {width: 800, cols: 3}, {width: 480, cols: 2}] means
-         * if (gridWidth >= 1100) => show 4 columns,
-         * if (gridWidth >= 800 && gridWidth < 1100) => show 3 columns,
-         * if (gridWidth >= 480 && gridWidth < 800) => show 2 columns,
-         * if (gridWidth < 480) => show 2 columns
-         * Keep in mind that a > b > c
-         * This option is available only when `gridAdjustment: 'responsive'`
-         * Values:  - array of objects of format: [{width: a, cols: d}, {width: b, cols: e}]
-         *          - you can define as many objects as you want
-         *          - if this option is `false` Cube Portfolio will adjust the items
-         *            width automatically (default option for backward compatibility)
-         */
-        mediaQueries: false,
+        gridAdjustment: 'default',
 
         /**
          *  Horizontal gap between items
@@ -1481,7 +5401,6 @@
 
         /**
          *  Caption - the overlay that is shown when you put the mouse over an item
-         *  NOTE: If you don't want to have captions set this option to an empty string ( caption: '')
          *  Values: - pushTop
          *          - pushDown
          *          - revealBottom
@@ -1496,19 +5415,19 @@
          *          - minimal
          *          - fadeIn
          *          - zoom
-         *          - opacity
          */
         caption: 'pushTop',
 
         /**
          *  The plugin will display his content based on the following values.
          *  Values: - default (the content will be displayed as soon as possible)
+         *          - fadeIn (the content will be displayed with a fadeIn effect)
          *          - lazyLoading (the plugin will fully preload the images before displaying the items with a fadeIn effect)
          *          - fadeInToTop (the plugin will fully preload the images before displaying the items with a fadeIn effect from bottom to top)
          *          - sequentially (the plugin will fully preload the images before displaying the items with a sequentially effect)
          *          - bottomToTop (the plugin will fully preload the images before displaying the items with an animation from bottom to top)
          */
-        displayType: 'lazyLoading',
+        displayType: 'default',
 
         /**
          *  Defines the speed of displaying the items (when `displayType == default` this option will have no effect)
@@ -1564,13 +5483,6 @@
          */
         singlePageCounter: '<div class="cbp-popup-singlePage-counter">{{current}} of {{total}}</div>',
 
-        /**
-         *  Defines which animation to use when singlePage appear
-         *  Values: - left
-         *          - fade
-         *          - right
-         */
-        singlePageAnimation: 'left',
 
         /**
          *  Use this callback to update singlePage content.
@@ -1579,8 +5491,10 @@
          *  @param element = the item clicked
          *  Values: function
          */
-        singlePageCallback: function(url, element) {
+        singlePageCallback: function (url, element) {
+
             // to update singlePage content use the following method: this.updateSinglePage(yourContent)
+
         },
 
         /**
@@ -1611,2978 +5525,12 @@
          *  @param element = the item clicked
          *  Values: function
          */
-        singlePageInlineCallback: function(url, element) {
+        singlePageInlineCallback: function (url, element) {
+
             // to update singlePage Inline content use the following method: this.updateSinglePageInline(yourContent)
+
         }
 
-    };
-
-    CubePortfolio.Plugins = {};
-    $.fn.cubeportfolio.Constructor = CubePortfolio;
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function Filters(parent) {
-        var t = this;
-
-        t.parent = parent;
-
-        t.filters = $(parent.options.filters);
-
-        t.wrap = $();
-
-        t.registerFilter();
-
-    }
-
-    Filters.prototype.registerFilter = function() {
-        var t = this,
-            parent = t.parent,
-            filtersCallback;
-
-        t.filters.each(function(index, el) {
-            var filter = $(el),
-                wrap;
-
-            if (filter.hasClass('cbp-l-filters-dropdown')) {
-                wrap = filter.find('.cbp-l-filters-dropdownWrap');
-
-                wrap.on({
-                    'mouseover.cbp': function() {
-                        wrap.addClass('cbp-l-filters-dropdownWrap-open');
-                    },
-                    'mouseleave.cbp': function() {
-                        wrap.removeClass('cbp-l-filters-dropdownWrap-open');
-                    }
-                });
-
-                filtersCallback = function(me) {
-                    wrap.find('.cbp-filter-item').removeClass('cbp-filter-item-active');
-                    wrap.find('.cbp-l-filters-dropdownHeader').text(me.text());
-                    me.addClass('cbp-filter-item-active');
-                    wrap.trigger('mouseleave.cbp');
-                };
-
-                t.wrap.add(wrap);
-
-            } else {
-                filtersCallback = function(me) {
-                    me.addClass('cbp-filter-item-active').siblings().removeClass('cbp-filter-item-active');
-                };
-            }
-
-            filtersCallback(
-                filter
-                .find('.cbp-filter-item')
-                .filter('[data-filter="' + parent.defaultFilter + '"]')
-            );
-
-            filter.on('click.cbp', '.cbp-filter-item', function() {
-                var me = $(this);
-
-                if (me.hasClass('cbp-filter-item-active')) {
-                    return;
-                }
-
-                // get cubeportfolio data and check if is still animating (reposition) the items.
-                if (!parent.isAnimating) {
-                    filtersCallback.call(null, me);
-                }
-
-                // filter the items
-                parent.$obj.cubeportfolio('filter', me.data('filter'));
-            });
-
-            // activate counter for filters
-            parent.$obj.cubeportfolio('showCounter', filter.find('.cbp-filter-item'), function() {
-                // read from url and change filter active
-                var match = /#cbpf=(.*?)([#|?&]|$)/gi.exec(location.href),
-                    item;
-                if (match !== null) {
-                    item = filter.find('.cbp-filter-item').filter('[data-filter="' + match[1] + '"]');
-                    if (item.length) {
-                        filtersCallback.call(null, item);
-                    }
-                }
-            });
-        });
-    };
-
-    Filters.prototype.destroy = function() {
-        var t = this;
-
-        t.filters.off('.cbp');
-        if (t.wrap) {
-            t.wrap.off('.cbp');
-        }
-    };
-
-    CubePortfolio.Plugins.Filters = function(parent) {
-
-        if (parent.options.filters === '') {
-            return null;
-        }
-
-        return new Filters(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function LoadMore(parent) {
-        var t = this;
-
-        t.parent = parent;
-
-        t.loadMore = $(parent.options.loadMore).find('.cbp-l-loadMore-link');
-
-        // load click or auto action
-        if (parent.options.loadMoreAction.length) {
-            t[parent.options.loadMoreAction]();
-        }
-
-    }
-
-    LoadMore.prototype.click = function() {
-        var t = this,
-            numberOfClicks = 0;
-
-        t.loadMore.on('click.cbp', function(e) {
-            var item = $(this);
-
-            e.preventDefault();
-
-            if (item.hasClass('cbp-l-loadMore-stop')) {
-                return;
-            }
-
-            // set loading status
-            item.addClass('cbp-l-loadMore-loading');
-
-            numberOfClicks++;
-
-            // perform ajax request
-            $.ajax({
-                url: t.loadMore.attr('href'),
-                type: 'GET',
-                dataType: 'HTML'
-            }).done(function(result) {
-                var items, itemsNext;
-
-                // find current container
-                items = $(result).filter(function() {
-                    return $(this).is('div' + '.cbp-loadMore-block' + numberOfClicks);
-                });
-
-                t.parent.$obj.cubeportfolio('appendItems', items.html(), function() {
-
-                    // put the original message back
-                    item.removeClass('cbp-l-loadMore-loading');
-
-                    // check if we have more works
-                    itemsNext = $(result).filter(function() {
-                        return $(this).is('div' + '.cbp-loadMore-block' + (numberOfClicks + 1));
-                    });
-
-                    if (itemsNext.length === 0) {
-                        item.addClass('cbp-l-loadMore-stop');
-                    }
-                });
-
-            }).fail(function() {
-                // error
-            });
-
-        });
-    };
-
-
-    LoadMore.prototype.auto = function() {
-        var t = this;
-
-        t.parent.$obj.on('initComplete.cbp', function() {
-            Object.create({
-                init: function() {
-                    var self = this;
-
-                    // the job inactive
-                    self.isActive = false;
-
-                    self.numberOfClicks = 0;
-
-                    // set loading status
-                    t.loadMore.addClass('cbp-l-loadMore-loading');
-
-                    // cache window selector
-                    self.window = $(window);
-
-                    // add events for scroll
-                    self.addEvents();
-
-                    // trigger method on init
-                    self.getNewItems();
-                },
-
-                addEvents: function() {
-                    var self = this,
-                        timeout;
-
-                    t.loadMore.on('click.cbp', function(e) {
-                        e.preventDefault();
-                    });
-
-                    self.window.on('scroll.loadMoreObject', function() {
-
-                        clearTimeout(timeout);
-
-                        timeout = setTimeout(function() {
-                            if (!t.parent.isAnimating) {
-                                // get new items on scroll
-                                self.getNewItems();
-                            }
-                        }, 80);
-
-                    });
-
-                    // when the filter is completed
-                    t.parent.$obj.on('filterComplete.cbp', function() {
-                        self.getNewItems();
-                    });
-                },
-
-                getNewItems: function() {
-                    var self = this,
-                        topLoadMore, topWindow;
-
-                    if (self.isActive || t.loadMore.hasClass('cbp-l-loadMore-stop')) {
-                        return;
-                    }
-
-                    topLoadMore = t.loadMore.offset().top;
-                    topWindow = self.window.scrollTop() + self.window.height();
-
-                    if (topLoadMore > topWindow) {
-                        return;
-                    }
-
-                    // this job is now busy
-                    self.isActive = true;
-
-                    // increment number of clicks
-                    self.numberOfClicks++;
-
-                    // perform ajax request
-                    $.ajax({
-                            url: t.loadMore.attr('href'),
-                            type: 'GET',
-                            dataType: 'HTML',
-                            cache: true
-                        })
-                        .done(function(result) {
-                            var items, itemsNext;
-
-                            // find current container
-                            items = $(result).filter(function() {
-                                return $(this).is('div' + '.cbp-loadMore-block' + self.numberOfClicks);
-                            });
-
-                            t.parent.$obj.cubeportfolio('appendItems', items.html(), function() {
-                                // check if we have more works
-                                itemsNext = $(result).filter(function() {
-                                    return $(this).is('div' + '.cbp-loadMore-block' + (self.numberOfClicks + 1));
-                                });
-
-                                if (itemsNext.length === 0) {
-                                    t.loadMore.addClass('cbp-l-loadMore-stop');
-
-                                    // remove events
-                                    self.window.off('scroll.loadMoreObject');
-                                    t.parent.$obj.off('filterComplete.cbp');
-                                } else {
-                                    // make the job inactive
-                                    self.isActive = false;
-
-                                    self.window.trigger('scroll.loadMoreObject');
-                                }
-                            });
-                        })
-                        .fail(function() {
-                            // make the job inactive
-                            self.isActive = false;
-                        });
-                }
-            }).init();
-        });
-
-    };
-
-
-    LoadMore.prototype.destroy = function() {
-        var t = this;
-
-        t.loadMore.off('.cbp');
-
-        $(window).off('scroll.loadMoreObject');
-    };
-
-    CubePortfolio.Plugins.LoadMore = function(parent) {
-
-        if (parent.options.loadMore === '') {
-            return null;
-        }
-
-        return new LoadMore(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    var popup = {
-
-        /**
-         * init function for popup
-         * @param cubeportfolio = cubeportfolio instance
-         * @param type =  'lightbox' or 'singlePage'
-         */
-        init: function(cubeportfolio, type) {
-            var t = this,
-                currentBlock;
-
-            // remember cubeportfolio instance
-            t.cubeportfolio = cubeportfolio;
-
-            // remember if this instance is for lightbox or for singlePage
-            t.type = type;
-
-            // remember if the popup is open or not
-            t.isOpen = false;
-
-            t.options = t.cubeportfolio.options;
-
-            if (type === 'lightbox') {
-                t.cubeportfolio._registerEvent('resizeWindow', function() {
-                    t.resizeImage();
-                });
-            }
-
-            if (type === 'singlePageInline') {
-
-                t.startInline = -1;
-
-                t.height = 0;
-
-                // create markup, css and add events for SinglePageInline
-                t._createMarkupSinglePageInline();
-
-                t.cubeportfolio._registerEvent('resizeGrid', function() {
-                    if (t.isOpen) {
-                        // @todo must add support for this features in the future
-                        t.close(); // workaround
-                    }
-                });
-
-                return;
-            }
-
-            // create markup, css and add events for lightbox and singlePage
-            t._createMarkup();
-
-            if (type === 'singlePage') {
-
-                t.cubeportfolio._registerEvent('resizeWindow', function() {
-                    if (t.options.singlePageStickyNavigation) {
-
-                        var width = t.wrap[0].clientWidth;
-
-                        if (width > 0) {
-                            t.navigationWrap.width(width);
-
-                            // set navigation width='window width' to center the divs
-                            t.navigation.width(width);
-                        }
-
-                    }
-                });
-
-                if (t.options.singlePageDeeplinking) {
-                    t.url = location.href;
-
-                    if (t.url.slice(-1) === '#') {
-                        t.url = t.url.slice(0, -1);
-                    }
-
-                    var links = t.url.split('#cbp=');
-                    var url = links.shift(); // remove first item
-
-                    $.each(links, function(index, link) {
-
-                        t.cubeportfolio.blocksOn.each(function(index1, el) {
-                            var singlePage = $(el).find(t.options.singlePageDelegate + '[href="' + link + '"]');
-
-                            if (singlePage.length) {
-                                currentBlock = singlePage;
-                                return false;
-                            }
-
-                        });
-
-                        if (currentBlock) {
-                            return false;
-                        }
-
-                    });
-
-                    if (currentBlock) {
-
-                        t.url = url;
-
-                        var self = currentBlock,
-                            gallery = self.attr('data-cbp-singlePage'),
-                            blocks = [];
-
-                        if (gallery) {
-                            blocks = self.closest($('.cbp-item')).find('[data-cbp-singlePage="' + gallery + '"]');
-                        } else {
-                            t.cubeportfolio.blocksOn.each(function(index, el) {
-                                var item = $(el);
-
-                                if (item.not('.cbp-item-off')) {
-                                    item.find(t.options.singlePageDelegate).each(function(index2, el2) {
-                                        if (!$(el2).attr('data-cbp-singlePage')) {
-                                            blocks.push(el2);
-                                        }
-                                    });
-                                }
-                            });
-                        }
-
-                        t.openSinglePage(blocks, currentBlock[0]);
-
-                    } else if (links.length) { // @todo - hack to load items from loadMore
-                        var fakeLink = document.createElement('a');
-                        fakeLink.setAttribute('href', links[0]);
-                        t.openSinglePage([fakeLink], fakeLink);
-                    }
-
-                }
-            }
-
-        },
-
-        /**
-         * Create markup, css and add events
-         */
-        _createMarkup: function() {
-            var t = this,
-                animationCls = '';
-
-            if (t.type === 'singlePage') {
-                if (t.options.singlePageAnimation !== 'left') {
-                    animationCls = ' cbp-popup-singlePage-' + t.options.singlePageAnimation;
-                }
-            }
-
-            // wrap element
-            t.wrap = $('<div/>', {
-                'class': 'cbp-popup-wrap cbp-popup-' + t.type + animationCls,
-                'data-action': (t.type === 'lightbox') ? 'close' : ''
-            }).on('click.cbp', function(e) {
-                if (t.stopEvents) {
-                    return;
-                }
-
-                var action = $(e.target).attr('data-action');
-
-                if (t[action]) {
-                    t[action]();
-                    e.preventDefault();
-                }
-            });
-
-            // content element
-            t.content = $('<div/>', {
-                'class': 'cbp-popup-content'
-            }).appendTo(t.wrap);
-
-            // append loading div
-            $('<div/>', {
-                'class': 'cbp-popup-loadingBox'
-            }).appendTo(t.wrap);
-
-            // add background only for ie8
-            if (CubePortfolio.Private.browser === 'ie8') {
-                t.bg = $('<div/>', {
-                    'class': 'cbp-popup-ie8bg',
-                    'data-action': (t.type === 'lightbox') ? 'close' : ''
-                }).appendTo(t.wrap);
-            }
-
-            // create navigation wrap
-            t.navigationWrap = $('<div/>', {
-                'class': 'cbp-popup-navigation-wrap'
-            }).appendTo(t.wrap);
-
-            // create navigation block
-            t.navigation = $('<div/>', {
-                'class': 'cbp-popup-navigation'
-            }).appendTo(t.navigationWrap);
-
-            // close
-            t.closeButton = $('<div/>', {
-                'class': 'cbp-popup-close',
-                'title': 'Close (Esc arrow key)',
-                'data-action': 'close'
-            }).appendTo(t.navigation);
-
-            // next
-            t.nextButton = $('<div/>', {
-                'class': 'cbp-popup-next',
-                'title': 'Next (Right arrow key)',
-                'data-action': 'next'
-            }).appendTo(t.navigation);
-
-
-            // prev
-            t.prevButton = $('<div/>', {
-                'class': 'cbp-popup-prev',
-                'title': 'Previous (Left arrow key)',
-                'data-action': 'prev'
-            }).appendTo(t.navigation);
-
-
-            if (t.type === 'singlePage') {
-
-                if (t.options.singlePageCounter) {
-                    // counter for singlePage
-                    t.counter = $(t.options.singlePageCounter).appendTo(t.navigation);
-                    t.counter.text('');
-                }
-
-                t.content.on('click.cbp', t.options.singlePageDelegate, function(e) {
-                    e.preventDefault();
-                    var i,
-                        len = t.dataArray.length,
-                        href = this.getAttribute('href');
-
-                    for (i = 0; i < len; i++) {
-
-                        if (t.dataArray[i].url === href) {
-                            break;
-                        }
-                    }
-
-                    t.singlePageJumpTo(i - t.current);
-
-                });
-
-                // if there are some events than overrides the default scroll behaviour don't go to them
-                t.wrap.on('mousewheel.cbp' + ' DOMMouseScroll.cbp', function(e) {
-                    e.stopImmediatePropagation();
-                });
-
-            }
-
-            $(document).on('keydown.cbp', function(e) {
-
-                // if is not open => return
-                if (!t.isOpen) {
-                    return;
-                }
-
-                // if all events are stopped => return
-                if (t.stopEvents) {
-                    return;
-                }
-
-                if (e.keyCode === 37) { // prev key
-                    t.prev();
-                } else if (e.keyCode === 39) { // next key
-                    t.next();
-                } else if (e.keyCode === 27) { //esc key
-                    t.close();
-                }
-            });
-
-        },
-
-        _createMarkupSinglePageInline: function() {
-            var t = this;
-
-            // wrap element
-            t.wrap = $('<div/>', {
-                'class': 'cbp-popup-singlePageInline'
-            }).on('click.cbp', function(e) {
-                if (t.stopEvents) {
-                    return;
-                }
-
-                var action = $(e.target).attr('data-action');
-
-                if (action && t[action]) {
-                    t[action]();
-                    e.preventDefault();
-                }
-            });
-
-            // content element
-            t.content = $('<div/>', {
-                'class': 'cbp-popup-content'
-            }).appendTo(t.wrap);
-
-            // append loading div
-            // $('<div/>', {
-            //     'class': 'cbp-popup-loadingBox'
-            // }).appendTo(t.wrap);
-
-            // create navigation block
-            t.navigation = $('<div/>', {
-                'class': 'cbp-popup-navigation'
-            }).appendTo(t.wrap);
-
-            // close
-            t.closeButton = $('<div/>', {
-                'class': 'cbp-popup-close',
-                'title': 'Close (Esc arrow key)',
-                'data-action': 'close'
-            }).appendTo(t.navigation);
-
-        },
-
-        destroy: function() {
-            var t = this,
-                body = $('body');
-
-            // remove off key down
-            $(document).off('keydown.cbp');
-
-            // external lightbox and singlePageInline
-            body.off('click.cbp', t.options.lightboxDelegate);
-            body.off('click.cbp', t.options.singlePageDelegate);
-
-            t.content.off('click.cbp', t.options.singlePageDelegate);
-
-            t.cubeportfolio.$obj.off('click.cbp', t.options.singlePageInlineDelegate);
-            t.cubeportfolio.$obj.off('click.cbp', t.options.lightboxDelegate);
-            t.cubeportfolio.$obj.off('click.cbp', t.options.singlePageDelegate);
-
-            t.cubeportfolio.$obj.removeClass('cbp-popup-isOpening');
-
-            t.cubeportfolio.$obj.find('.cbp-item').removeClass('cbp-singlePageInline-active');
-
-            t.wrap.remove();
-        },
-
-        openLightbox: function(blocks, currentBlock) {
-            var t = this,
-                i = 0,
-                currentBlockHref, tempHref = [],
-                element;
-
-            if (t.isOpen) {
-                return;
-            }
-
-            // remember that the lightbox is open now
-            t.isOpen = true;
-
-            // remember to stop all events after the lightbox has been shown
-            t.stopEvents = false;
-
-            // array with elements
-            t.dataArray = [];
-
-            // reset current
-            t.current = null;
-
-            currentBlockHref = currentBlock.getAttribute('href');
-            if (currentBlockHref === null) {
-                throw new Error('HEI! Your clicked element doesn\'t have a href attribute.');
-            }
-
-            $.each(blocks, function(index, item) {
-                var href = item.getAttribute('href'),
-                    src = href, // default if element is image
-                    type = 'isImage', // default if element is image
-                    videoLink;
-
-                if ($.inArray(href, tempHref) === -1) {
-
-                    if (currentBlockHref === href) {
-                        t.current = i;
-                    } else if (!t.options.lightboxGallery) {
-                        return;
-                    }
-
-                    if (/youtube/i.test(href)) {
-
-                        videoLink = href.substring(href.lastIndexOf('v=') + 2);
-
-                        if (!(/autoplay=/i.test(videoLink))) {
-                            videoLink += '&autoplay=1';
-                        }
-
-                        videoLink = videoLink.replace(/\?|&/, '?');
-
-                        // create new href
-                        src = '//www.youtube.com/embed/' + videoLink;
-
-                        type = 'isYoutube';
-
-                    } else if (/vimeo/i.test(href)) {
-
-                        videoLink = href.substring(href.lastIndexOf('/') + 1);
-
-                        if (!(/autoplay=/i.test(videoLink))) {
-                            videoLink += '&autoplay=1';
-                        }
-
-                        videoLink = videoLink.replace(/\?|&/, '?');
-
-                        // create new href
-                        src = '//player.vimeo.com/video/' + videoLink;
-
-                        type = 'isVimeo';
-
-                    } else if (/ted\.com/i.test(href)) {
-
-                        // create new href
-                        src = 'http://embed.ted.com/talks/' + href.substring(href.lastIndexOf('/') + 1) + '.html';
-
-                        type = 'isTed';
-
-                    } else if (/soundcloud\.com/i.test(href)) {
-
-                        // create new href
-                        src = href;
-
-                        type = 'isSoundCloud';
-
-                    } else if (/(\.mp4)|(\.ogg)|(\.ogv)|(\.webm)/i.test(href)) {
-
-                        if (href.indexOf('|') !== -1) {
-                            // create new href
-                            src = href.split('|');
-                        } else {
-                            // create new href
-                            src = href.split('%7C');
-                        }
-
-                        type = 'isSelfHostedVideo';
-
-                    } else if (/\.mp3$/i.test(href)) {
-                        src = href;
-                        type = 'isSelfHostedAudio';
-                    }
-
-                    t.dataArray.push({
-                        src: src,
-                        title: item.getAttribute(t.options.lightboxTitleSrc),
-                        type: type
-                    });
-
-                    i++;
-                }
-
-                tempHref.push(href);
-            });
-
-
-            // total numbers of elements
-            t.counterTotal = t.dataArray.length;
-
-            if (t.counterTotal === 1) {
-                t.nextButton.hide();
-                t.prevButton.hide();
-                t.dataActionImg = '';
-            } else {
-                t.nextButton.show();
-                t.prevButton.show();
-                t.dataActionImg = 'data-action="next"';
-            }
-
-            // append to body
-            t.wrap.appendTo(document.body);
-
-            t.scrollTop = $(window).scrollTop();
-
-            t.originalStyle = $('html').attr('style');
-
-            $('html').css({
-                overflow: 'hidden',
-                paddingRight: window.innerWidth - $(document).width()
-            });
-
-            // show the wrapper (lightbox box)
-            t.wrap.show();
-
-            // get the current element
-            element = t.dataArray[t.current];
-
-            // call function if current element is image or video (iframe)
-            t[element.type](element);
-
-        },
-
-        openSinglePage: function(blocks, currentBlock) {
-            var t = this,
-                i = 0,
-                currentBlockHref, tempHref = [];
-
-            if (t.isOpen) {
-                return;
-            }
-
-            // check singlePageInline and close it
-            if (t.cubeportfolio.singlePageInline && t.cubeportfolio.singlePageInline.isOpen) {
-                t.cubeportfolio.singlePageInline.close();
-            }
-
-            // remember that the lightbox is open now
-            t.isOpen = true;
-
-            // remember to stop all events after the popup has been showing
-            t.stopEvents = false;
-
-            // array with elements
-            t.dataArray = [];
-
-            // reset current
-            t.current = null;
-
-            currentBlockHref = currentBlock.getAttribute('href');
-            if (currentBlockHref === null) {
-                throw new Error('HEI! Your clicked element doesn\'t have a href attribute.');
-            }
-
-
-            $.each(blocks, function(index, item) {
-                var href = item.getAttribute('href');
-
-                if ($.inArray(href, tempHref) === -1) {
-
-                    if (currentBlockHref === href) {
-                        t.current = i;
-                    }
-
-                    t.dataArray.push({
-                        url: href,
-                        element: item
-                    });
-
-                    i++;
-                }
-
-                tempHref.push(href);
-            });
-
-            // total numbers of elements
-            t.counterTotal = t.dataArray.length;
-
-            if (t.counterTotal === 1) {
-                t.nextButton.hide();
-                t.prevButton.hide();
-            } else {
-                t.nextButton.show();
-                t.prevButton.show();
-            }
-
-            // append to body
-            t.wrap.appendTo(document.body);
-
-            t.scrollTop = $(window).scrollTop();
-
-            $('html').css({
-                overflow: 'hidden',
-                paddingRight: window.innerWidth - $(document).width()
-            });
-
-            // go to top of the page (reset scroll)
-            t.wrap.scrollTop(0);
-
-            // show the wrapper
-            t.wrap.show();
-
-            // finish the open animation
-            t.finishOpen = 2;
-
-            // if transitionend is not fulfilled
-            t.navigationMobile = $();
-            t.wrap.one(CubePortfolio.Private.transitionend, function() {
-                var width;
-
-                // make the navigation sticky
-                if (t.options.singlePageStickyNavigation) {
-
-                    t.wrap.addClass('cbp-popup-singlePage-sticky');
-
-                    width = t.wrap[0].clientWidth;
-                    t.navigationWrap.width(width);
-
-                    if (CubePortfolio.Private.browser === 'android' || CubePortfolio.Private.browser === 'ios') {
-                        // wrap element
-                        t.navigationMobile = $('<div/>', {
-                            'class': 'cbp-popup-singlePage cbp-popup-singlePage-sticky',
-                            'id': t.wrap.attr('id')
-                        }).on('click.cbp', function(e) {
-                            if (t.stopEvents) {
-                                return;
-                            }
-
-                            var action = $(e.target).attr('data-action');
-
-                            if (t[action]) {
-                                t[action]();
-                                e.preventDefault();
-                            }
-                        });
-
-                        t.navigationMobile.appendTo(document.body).append(t.navigationWrap);
-                    }
-
-                }
-
-                t.finishOpen--;
-                if (t.finishOpen <= 0) {
-                    t.updateSinglePageIsOpen.call(t);
-                }
-
-            });
-
-            if (CubePortfolio.Private.browser === 'ie8' || CubePortfolio.Private.browser === 'ie9') {
-
-                // make the navigation sticky
-                if (t.options.singlePageStickyNavigation) {
-                    var width = t.wrap[0].clientWidth;
-
-                    t.navigationWrap.width(width);
-
-                    setTimeout(function() {
-                        t.wrap.addClass('cbp-popup-singlePage-sticky');
-                    }, 1000);
-
-                }
-
-                t.finishOpen--;
-            }
-
-            t.wrap.addClass('cbp-popup-loading');
-
-            // force reflow and then add class
-            t.wrap.offset();
-            t.wrap.addClass('cbp-popup-singlePage-open');
-
-            // change link
-            if (t.options.singlePageDeeplinking) {
-                // ignore old #cbp from href
-                t.url = t.url.split('#cbp=')[0];
-                location.href = t.url + '#cbp=' + t.dataArray[t.current].url;
-            }
-
-            // run callback function
-            if ($.isFunction(t.options.singlePageCallback)) {
-                t.options.singlePageCallback.call(t, t.dataArray[t.current].url, t.dataArray[t.current].element);
-            }
-
-        },
-
-
-        openSinglePageInline: function(blocks, currentBlock, fromOpen) {
-            var t = this,
-                start = 0,
-                currentBlockHref,
-                tempCurrent,
-                cbpitem,
-                parentElement;
-
-            fromOpen = fromOpen || false;
-
-            t.fromOpen = fromOpen;
-
-            t.storeBlocks = blocks;
-            t.storeCurrentBlock = currentBlock;
-
-            // check singlePageInline and close it
-            if (t.isOpen) {
-
-                tempCurrent = $(currentBlock).closest('.cbp-item').index();
-
-                if ((t.dataArray[t.current].url !== currentBlock.getAttribute('href')) || (t.current !== tempCurrent)) {
-                    t.cubeportfolio.singlePageInline.close('open', {
-                        blocks: blocks,
-                        currentBlock: currentBlock,
-                        fromOpen: true
-                    });
-
-                } else {
-                    t.close();
-                }
-
-                return;
-            }
-
-            // remember that the lightbox is open now
-            t.isOpen = true;
-
-            // remember to stop all events after the popup has been showing
-            t.stopEvents = false;
-
-            // array with elements
-            t.dataArray = [];
-
-            // reset current
-            t.current = null;
-
-            currentBlockHref = currentBlock.getAttribute('href');
-            if (currentBlockHref === null) {
-                throw new Error('HEI! Your clicked element doesn\'t have a href attribute.');
-            }
-
-            cbpitem = $(currentBlock).closest('.cbp-item')[0];
-
-            blocks.each(function(index, el) {
-                if (cbpitem === el) {
-                    t.current = index;
-                }
-            });
-
-            t.dataArray[t.current] = {
-                url: currentBlockHref,
-                element: currentBlock
-            };
-
-            parentElement = $(t.dataArray[t.current].element).parents('.cbp-item').addClass('cbp-singlePageInline-active');
-
-            // total numbers of elements
-            t.counterTotal = blocks.length;
-
-            t.wrap.insertBefore(t.cubeportfolio.wrapper);
-
-            if (t.options.singlePageInlinePosition === 'top') {
-                t.startInline = 0;
-                t.top = 0;
-
-                t.firstRow = true;
-                t.lastRow = false;
-            } else if (t.options.singlePageInlinePosition === 'bottom') {
-                t.startInline = t.counterTotal;
-                t.top = t.cubeportfolio.height;
-
-                t.firstRow = false;
-                t.lastRow = true;
-            } else if (t.options.singlePageInlinePosition === 'above') {
-                t.startInline = t.cubeportfolio.cols * Math.floor(t.current / t.cubeportfolio.cols);
-                t.top = $(blocks[t.current]).data('cbp').top;
-
-                if (t.startInline === 0) {
-                    t.firstRow = true;
-                } else {
-                    t.top -= t.options.gapHorizontal;
-                    t.firstRow = false;
-                }
-
-                t.lastRow = false;
-            } else { // below
-                t.top = $(blocks[t.current]).data('cbp').top + $(blocks[t.current]).data('cbp').height;
-                t.startInline = Math.min(t.cubeportfolio.cols *
-                    (Math.floor(t.current / t.cubeportfolio.cols) + 1),
-                    t.counterTotal);
-
-                t.firstRow = false;
-                t.lastRow = (t.startInline === t.counterTotal) ? true : false;
-            }
-
-            t.wrap[0].style.height = t.wrap.outerHeight(true) + 'px';
-
-            // debouncer for inline content
-            t.deferredInline = $.Deferred();
-
-            if (t.options.singlePageInlineInFocus) {
-
-                t.scrollTop = $(window).scrollTop();
-
-                var goToScroll = t.cubeportfolio.$obj.offset().top + t.top - 100;
-
-                if (t.scrollTop !== goToScroll) {
-                    $('html,body').animate({
-                            scrollTop: goToScroll
-                        }, 350)
-                        .promise()
-                        .then(function() {
-                            t._resizeSinglePageInline();
-                            t.deferredInline.resolve();
-                        });
-                } else {
-                    t._resizeSinglePageInline();
-                    t.deferredInline.resolve();
-                }
-            } else {
-                t._resizeSinglePageInline();
-                t.deferredInline.resolve();
-            }
-
-            t.cubeportfolio.$obj.addClass('cbp-popup-singlePageInline-open');
-
-            t.wrap.css({
-                top: t.top
-            });
-
-            // register callback function
-            if ($.isFunction(t.options.singlePageInlineCallback)) {
-                t.options.singlePageInlineCallback.call(t, t.dataArray[t.current].url, t.dataArray[t.current].element);
-            }
-        },
-
-        _resizeSinglePageInline: function() {
-            var t = this;
-
-            t.height = (t.firstRow || t.lastRow) ? t.wrap.outerHeight(true) : t.wrap.outerHeight(true) - t.options.gapHorizontal;
-
-            t.storeBlocks.each(function(index, el) {
-                if (index < t.startInline) {
-                    if (CubePortfolio.Private.modernBrowser) {
-                        el.style[CubePortfolio.Private.transform] = '';
-                    } else {
-                        el.style.marginTop = '';
-                    }
-                } else {
-                    if (CubePortfolio.Private.modernBrowser) {
-                        el.style[CubePortfolio.Private.transform] = 'translate3d(0px, ' + t.height + 'px, 0)';
-                    } else {
-                        el.style.marginTop = t.height + 'px';
-                    }
-                }
-            });
-
-            t.cubeportfolio.obj.style.height = t.cubeportfolio.height + t.height + 'px';
-        },
-
-        _revertResizeSinglePageInline: function() {
-            var t = this;
-
-            // reset deferred object
-            t.deferredInline = $.Deferred();
-
-            t.storeBlocks.each(function(index, el) {
-                if (CubePortfolio.Private.modernBrowser) {
-                    el.style[CubePortfolio.Private.transform] = '';
-                } else {
-                    el.style.marginTop = '';
-                }
-            });
-
-            t.cubeportfolio.obj.style.height = t.cubeportfolio.height + 'px';
-        },
-
-        appendScriptsToWrap: function(scripts) {
-            var t = this,
-                index = 0,
-                loadScripts = function(item) {
-                    var script = document.createElement('script'),
-                        src = item.src;
-
-                    script.type = 'text/javascript';
-
-                    if (script.readyState) { // ie
-                        script.onreadystatechange = function() {
-                            if (script.readyState == 'loaded' || script.readyState == 'complete') {
-                                script.onreadystatechange = null;
-                                index++;
-                                if (scripts[index]) {
-                                    loadScripts(scripts[index]);
-                                }
-                            }
-                        };
-                    } else {
-                        script.onload = function() {
-                            index++;
-                            if (scripts[index]) {
-                                loadScripts(scripts[index]);
-                            }
-                        };
-                    }
-
-                    if (src) {
-                        script.src = src;
-                    } else {
-                        script.text = item.text;
-                    }
-
-                    t.content[0].appendChild(script);
-
-                };
-
-            loadScripts(scripts[0]);
-        },
-
-        updateSinglePage: function(html, scripts, isWrap) {
-            var t = this,
-                counterMarkup,
-                animationFinish;
-
-            t.content.addClass('cbp-popup-content').removeClass('cbp-popup-content-basic');
-
-            if (isWrap === false) {
-                t.content.removeClass('cbp-popup-content').addClass('cbp-popup-content-basic');
-            }
-
-            // update counter navigation
-            if (t.counter) {
-                counterMarkup = $(t._getCounterMarkup(t.options.singlePageCounter, t.current + 1, t.counterTotal));
-                t.counter.text(counterMarkup.text());
-            }
-
-            t.content.html(html);
-
-            if (scripts) {
-                t.appendScriptsToWrap(scripts);
-            }
-
-            // trigger public event
-            t.cubeportfolio.$obj.trigger('updateSinglePageStart.cbp');
-
-            t.finishOpen--;
-
-            if (t.finishOpen <= 0) {
-                t.updateSinglePageIsOpen.call(t);
-            }
-        },
-
-        updateSinglePageIsOpen: function() {
-            var t = this,
-                selectorSlider;
-
-            t.wrap.addClass('cbp-popup-ready');
-            t.wrap.removeClass('cbp-popup-loading');
-
-            // instantiate slider if exists
-            selectorSlider = t.content.find('.cbp-slider');
-            if (selectorSlider) {
-                selectorSlider.find('.cbp-slider-item').addClass('cbp-item');
-                t.slider = selectorSlider.cubeportfolio({
-                    layoutMode: 'slider',
-                    mediaQueries: [{
-                        width: 1,
-                        cols: 1
-                    }],
-                    gapHorizontal: 0,
-                    gapVertical: 0,
-                    caption: '',
-                    coverRatio: '', // wp version only
-                });
-            } else {
-                t.slider = null;
-            }
-
-            // scroll bug on android and ios
-            if (CubePortfolio.Private.browser === 'android' || CubePortfolio.Private.browser === 'ios') {
-                $('html').css({
-                    position: 'fixed'
-                });
-            }
-
-            // trigger public event
-            t.cubeportfolio.$obj.trigger('updateSinglePageComplete.cbp');
-
-        },
-
-
-        updateSinglePageInline: function(html, scripts) {
-            var t = this;
-
-            t.content.html(html);
-
-            if (scripts) {
-                t.appendScriptsToWrap(scripts);
-            }
-            // trigger public event
-            t.cubeportfolio.$obj.trigger('updateSinglePageInlineStart.cbp');
-
-            t.singlePageInlineIsOpen.call(t);
-
-        },
-
-        singlePageInlineIsOpen: function() {
-            var t = this;
-
-            function finishLoading() {
-                t.wrap.addClass('cbp-popup-singlePageInline-ready');
-                t.wrap[0].style.height = '';
-
-                t._resizeSinglePageInline();
-
-                // trigger public event
-                t.cubeportfolio.$obj.trigger('updateSinglePageInlineComplete.cbp');
-            }
-
-            // wait to load all images
-            t.cubeportfolio._load(t.wrap, function() {
-
-
-                // instantiate slider if exists
-                var selectorSlider = t.content.find('.cbp-slider');
-
-                if (selectorSlider.length) {
-                    selectorSlider.find('.cbp-slider-item').addClass('cbp-item');
-
-                    selectorSlider.one('initComplete.cbp', function() {
-                        t.deferredInline.done(finishLoading);
-                    });
-
-                    selectorSlider.on('pluginResize.cbp', function() {
-                        t.deferredInline.done(finishLoading);
-                    });
-
-                    t.slider = selectorSlider.cubeportfolio({
-                        layoutMode: 'slider',
-                        displayType: 'default',
-                        mediaQueries: [{
-                            width: 1,
-                            cols: 1
-                        }],
-                        gapHorizontal: 0,
-                        gapVertical: 0,
-                        caption: '',
-                        coverRatio: '', // wp version only
-                    });
-                } else {
-                    t.slider = null;
-                    t.deferredInline.done(finishLoading);
-                }
-
-            });
-
-        },
-
-
-        isImage: function(el) {
-            var t = this,
-                img = new Image();
-
-            t.tooggleLoading(true);
-
-            if ($('<img src="' + el.src + '">').is('img:uncached')) {
-
-                $(img).on('load.cbp' + ' error.cbp', function() {
-
-                    t.updateImagesMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
-
-                    t.tooggleLoading(false);
-
-                });
-                img.src = el.src;
-
-            } else {
-
-                t.updateImagesMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
-
-                t.tooggleLoading(false);
-            }
-        },
-
-        isVimeo: function(el) {
-            var t = this;
-
-            t.updateVideoMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
-        },
-
-        isYoutube: function(el) {
-            var t = this;
-            t.updateVideoMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
-
-        },
-
-        isTed: function(el) {
-            var t = this;
-            t.updateVideoMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
-        },
-
-        isSoundCloud: function(el) {
-            var t = this;
-            t.updateVideoMarkup(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
-        },
-
-        isSelfHostedVideo: function(el) {
-            var t = this;
-            t.updateSelfHostedVideo(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
-        },
-
-        isSelfHostedAudio: function(el) {
-            var t = this;
-            t.updateSelfHostedAudio(el.src, el.title, t._getCounterMarkup(t.options.lightboxCounter, t.current + 1, t.counterTotal));
-        },
-
-        _getCounterMarkup: function(markup, current, total) {
-            if (!markup.length) {
-                return '';
-            }
-
-            var mapObj = {
-                current: current,
-                total: total
-            };
-
-            return markup.replace(/\{\{current}}|\{\{total}}/gi, function(matched) {
-                return mapObj[matched.slice(2, -2)];
-            });
-        },
-
-        updateSelfHostedVideo: function(src, title, counter) {
-            var t = this,
-                i;
-
-            t.wrap.addClass('cbp-popup-lightbox-isIframe');
-
-            var markup = '<div class="cbp-popup-lightbox-iframe">' +
-                '<video controls="controls" height="auto" style="width: 100%">';
-
-            for (i = 0; i < src.length; i++) {
-                if (/(\.mp4)/i.test(src[i])) {
-                    markup += '<source src="' + src[i] + '" type="video/mp4">';
-                } else if (/(\.ogg)|(\.ogv)/i.test(src[i])) {
-                    markup += '<source src="' + src[i] + '" type="video/ogg">';
-                } else if (/(\.webm)/i.test(src[i])) {
-                    markup += '<source src="' + src[i] + '" type="video/webm">';
-                }
-            }
-
-            markup += 'Your browser does not support the video tag.' +
-                '</video>' +
-                '<div class="cbp-popup-lightbox-bottom">' +
-                ((title) ? '<div class="cbp-popup-lightbox-title">' + title + '</div>' : '') +
-                counter +
-                '</div>' +
-                '</div>';
-
-            t.content.html(markup);
-
-            t.wrap.addClass('cbp-popup-ready');
-
-            t.preloadNearbyImages();
-        },
-
-        updateSelfHostedAudio: function(src, title, counter) {
-            var t = this,
-                i;
-
-            t.wrap.addClass('cbp-popup-lightbox-isIframe');
-
-            var markup = '<div class="cbp-popup-lightbox-iframe">' +
-                '<audio controls="controls" height="auto" style="width: 100%">' +
-                '<source src="' + src + '" type="audio/mpeg">' +
-                'Your browser does not support the audio tag.' +
-                '</audio>' +
-                '<div class="cbp-popup-lightbox-bottom">' +
-                ((title) ? '<div class="cbp-popup-lightbox-title">' + title + '</div>' : '') +
-                counter +
-                '</div>' +
-                '</div>';
-
-            t.content.html(markup);
-
-            t.wrap.addClass('cbp-popup-ready');
-
-            t.preloadNearbyImages();
-        },
-
-        updateVideoMarkup: function(src, title, counter) {
-            var t = this;
-            t.wrap.addClass('cbp-popup-lightbox-isIframe');
-
-            var markup = '<div class="cbp-popup-lightbox-iframe">' +
-                '<iframe src="' + src + '" frameborder="0" allowfullscreen scrolling="no"></iframe>' +
-                '<div class="cbp-popup-lightbox-bottom">' +
-                ((title) ? '<div class="cbp-popup-lightbox-title">' + title + '</div>' : '') +
-                counter +
-                '</div>' +
-                '</div>';
-
-            t.content.html(markup);
-            t.wrap.addClass('cbp-popup-ready');
-            t.preloadNearbyImages();
-        },
-
-        updateImagesMarkup: function(src, title, counter) {
-            var t = this;
-
-            t.wrap.removeClass('cbp-popup-lightbox-isIframe');
-
-            var markup = '<div class="cbp-popup-lightbox-figure">' +
-                '<img src="' + src + '" class="cbp-popup-lightbox-img" ' + t.dataActionImg + ' />' +
-                '<div class="cbp-popup-lightbox-bottom">' +
-                ((title) ? '<div class="cbp-popup-lightbox-title">' + title + '</div>' : '') +
-                counter +
-                '</div>' +
-                '</div>';
-
-            t.content.html(markup);
-
-            t.wrap.addClass('cbp-popup-ready');
-
-            t.resizeImage();
-
-            t.preloadNearbyImages();
-        },
-
-        next: function() {
-            var t = this;
-            t[t.type + 'JumpTo'](1);
-        },
-
-        prev: function() {
-            var t = this;
-            t[t.type + 'JumpTo'](-1);
-        },
-
-        lightboxJumpTo: function(index) {
-            var t = this,
-                el;
-
-            t.current = t.getIndex(t.current + index);
-
-            // get the current element
-            el = t.dataArray[t.current];
-
-            // call function if current element is image or video (iframe)
-            t[el.type](el);
-        },
-
-
-        singlePageJumpTo: function(index) {
-            var t = this;
-
-            t.current = t.getIndex(t.current + index);
-
-            // register singlePageCallback function
-            if ($.isFunction(t.options.singlePageCallback)) {
-                t.resetWrap();
-
-                // go to top of the page (reset scroll)
-                t.wrap.scrollTop(0);
-
-                t.wrap.addClass('cbp-popup-loading');
-                t.options.singlePageCallback.call(t, t.dataArray[t.current].url, t.dataArray[t.current].element);
-
-                if (t.options.singlePageDeeplinking) {
-                    location.href = t.url + '#cbp=' + t.dataArray[t.current].url;
-                }
-            }
-        },
-
-        resetWrap: function() {
-            var t = this;
-
-            if (t.type === 'singlePage' && t.options.singlePageDeeplinking) {
-                location.href = t.url + '#';
-            }
-        },
-
-        getIndex: function(index) {
-            var t = this;
-
-            // go to interval [0, (+ or -)this.counterTotal.length - 1]
-            index = index % t.counterTotal;
-
-            // if index is less then 0 then go to interval (0, this.counterTotal - 1]
-            if (index < 0) {
-                index = t.counterTotal + index;
-            }
-
-            return index;
-        },
-
-        close: function(method, data) {
-            var t = this;
-
-            function finishClose() {
-                // reset content
-                t.content.html('');
-
-                // hide the wrap
-                t.wrap.detach();
-
-                t.cubeportfolio.$obj.removeClass('cbp-popup-singlePageInline-open cbp-popup-singlePageInline-close');
-
-                if (method === 'promise') {
-                    if ($.isFunction(data.callback)) {
-                        data.callback.call(t.cubeportfolio);
-                    }
-                }
-            }
-
-            function checkFocusInline() {
-                if (t.options.singlePageInlineInFocus && method !== 'promise') {
-                    $('html,body').animate({
-                            scrollTop: t.scrollTop
-                        }, 350)
-                        .promise()
-                        .then(function() {
-                            finishClose();
-                        });
-                } else {
-                    finishClose();
-                }
-            }
-
-            // now the popup is closed
-            t.isOpen = false;
-
-            if (t.type === 'singlePageInline') {
-
-                if (method === 'open') {
-
-                    t.wrap.removeClass('cbp-popup-singlePageInline-ready');
-
-                    $(t.dataArray[t.current].element).closest('.cbp-item').removeClass('cbp-singlePageInline-active');
-
-                    t.openSinglePageInline(data.blocks, data.currentBlock, data.fromOpen);
-
-                } else {
-
-                    t.height = 0;
-
-                    t._revertResizeSinglePageInline();
-
-                    t.wrap.removeClass('cbp-popup-singlePageInline-ready');
-
-                    t.cubeportfolio.$obj.addClass('cbp-popup-singlePageInline-close');
-
-                    t.startInline = -1;
-
-                    t.cubeportfolio.$obj.find('.cbp-item').removeClass('cbp-singlePageInline-active');
-
-                    if (CubePortfolio.Private.modernBrowser) {
-                        t.wrap.one(CubePortfolio.Private.transitionend, function() {
-                            checkFocusInline();
-                        });
-                    } else {
-                        checkFocusInline();
-                    }
-                }
-
-            } else if (t.type === 'singlePage') {
-
-                t.resetWrap();
-
-                t.wrap.removeClass('cbp-popup-ready');
-
-                // scroll bug on android and ios
-                if (CubePortfolio.Private.browser === 'android' || CubePortfolio.Private.browser === 'ios') {
-                    $('html').css({
-                        position: ''
-                    });
-
-                    t.navigationWrap.appendTo(t.wrap);
-                    t.navigationMobile.remove();
-                }
-
-                $(window).scrollTop(t.scrollTop);
-
-                // weird bug on mozilla. fixed with setTimeout
-                setTimeout(function() {
-                    t.stopScroll = true;
-
-                    t.navigationWrap.css({
-                        top: t.wrap.scrollTop()
-                    });
-
-                    t.wrap.removeClass('cbp-popup-singlePage-open cbp-popup-singlePage-sticky');
-
-                    if (CubePortfolio.Private.browser === 'ie8' || CubePortfolio.Private.browser === 'ie9') {
-                        // reset content
-                        t.content.html('');
-
-                        // hide the wrap
-                        t.wrap.detach();
-
-                        $('html').css({
-                            overflow: '',
-                            paddingRight: '',
-                            position: ''
-                        });
-
-                        t.navigationWrap.removeAttr('style');
-                    }
-
-                }, 0);
-
-                t.wrap.one(CubePortfolio.Private.transitionend, function() {
-
-                    // reset content
-                    t.content.html('');
-
-                    // hide the wrap
-                    t.wrap.detach();
-
-                    $('html').css({
-                        overflow: '',
-                        paddingRight: '',
-                        position: ''
-                    });
-
-                    t.navigationWrap.removeAttr('style');
-
-                });
-
-            } else {
-
-                if (t.originalStyle) {
-                    $('html').attr('style', t.originalStyle);
-                } else {
-                    $('html').css({
-                        overflow: '',
-                        paddingRight: ''
-                    });
-                }
-
-                $(window).scrollTop(t.scrollTop);
-
-                // reset content
-                t.content.html('');
-
-                // hide the wrap
-                t.wrap.detach();
-
-            }
-        },
-
-        tooggleLoading: function(state) {
-            var t = this;
-
-            t.stopEvents = state;
-            t.wrap[(state) ? 'addClass' : 'removeClass']('cbp-popup-loading');
-        },
-
-        resizeImage: function() {
-            // if lightbox is not open go out
-            if (!this.isOpen) {
-                return;
-            }
-
-            var height = $(window).height(),
-                img = this.content.find('img'),
-                padding = parseInt(img.css('margin-top'), 10) + parseInt(img.css('margin-bottom'), 10);
-
-            img.css('max-height', (height - padding) + 'px');
-        },
-
-        preloadNearbyImages: function() {
-            var arr = [],
-                img, t = this,
-                src;
-
-            arr.push(t.getIndex(t.current + 1));
-            arr.push(t.getIndex(t.current + 2));
-            arr.push(t.getIndex(t.current + 3));
-            arr.push(t.getIndex(t.current - 1));
-            arr.push(t.getIndex(t.current - 2));
-            arr.push(t.getIndex(t.current - 3));
-
-            for (var i = arr.length - 1; i >= 0; i--) {
-                if (t.dataArray[arr[i]].type === 'isImage') {
-                    src = t.dataArray[arr[i]].src;
-                    img = new Image();
-
-                    if ($('<img src="' + src + '">').is('img:uncached')) {
-                        img.src = src;
-                    }
-                }
-            }
-        }
-
-    };
-
-
-    function PopUp(parent) {
-        var t = this;
-
-        t.parent = parent;
-
-        // if lightboxShowCounter is false, put lightboxCounter to ''
-        if (parent.options.lightboxShowCounter === false) {
-            parent.options.lightboxCounter = '';
-        }
-
-        // if singlePageShowCounter is false, put singlePageCounter to ''
-        if (parent.options.singlePageShowCounter === false) {
-            parent.options.singlePageCounter = '';
-        }
-
-        // @todo - schedule this in  future
-        t.run();
-
-    }
-
-    var lightboxInit = false,
-        singlePageInit = false;
-
-    PopUp.prototype.run = function() {
-        var t = this,
-            p = t.parent,
-            body = $(document.body);
-
-        // default value for lightbox
-        p.lightbox = null;
-
-        // LIGHTBOX
-        if (p.options.lightboxDelegate && !lightboxInit) {
-
-            // init only one time @todo
-            lightboxInit = true;
-
-            p.lightbox = Object.create(popup);
-
-            p.lightbox.init(p, 'lightbox');
-
-            body.on('click.cbp', p.options.lightboxDelegate, function(e) {
-                e.preventDefault();
-
-                var self = $(this),
-                    gallery = self.attr('data-cbp-lightbox'),
-                    scope = t.detectScope(self),
-                    cbp = scope.data('cubeportfolio'),
-                    blocks = [];
-
-                // is inside a cbp
-                if (cbp) {
-
-                    cbp.blocksOn.each(function(index, el) {
-                        var item = $(el);
-
-                        if (item.not('.cbp-item-off')) {
-                            item.find(p.options.lightboxDelegate).each(function(index2, el2) {
-                                if (gallery) {
-                                    if ($(el2).attr('data-cbp-lightbox') === gallery) {
-                                        blocks.push(el2);
-                                    }
-                                } else {
-                                    blocks.push(el2);
-                                }
-                            });
-                        }
-                    });
-
-                } else {
-
-                    if (gallery) {
-                        blocks = scope.find(p.options.lightboxDelegate + '[data-cbp-lightbox=' + gallery + ']');
-                    } else {
-                        blocks = scope.find(p.options.lightboxDelegate);
-                    }
-                }
-
-                p.lightbox.openLightbox(blocks, self[0]);
-            });
-        }
-
-        // default value for singlePage
-        p.singlePage = null;
-
-        // SINGLEPAGE
-        if (p.options.singlePageDelegate && !singlePageInit) {
-
-            // init only one time @todo
-            singlePageInit = true;
-
-            p.singlePage = Object.create(popup);
-
-            p.singlePage.init(p, 'singlePage');
-
-            body.on('click.cbp', p.options.singlePageDelegate, function(e) {
-                e.preventDefault();
-
-                var self = $(this),
-                    gallery = self.attr('data-cbp-singlePage'),
-                    scope = t.detectScope(self),
-                    cbp = scope.data('cubeportfolio'),
-                    blocks = [];
-
-                // is inside a cbp
-                if (cbp) {
-                    cbp.blocksOn.each(function(index, el) {
-                        var item = $(el);
-
-                        if (item.not('.cbp-item-off')) {
-                            item.find(p.options.singlePageDelegate).each(function(index2, el2) {
-                                if (gallery) {
-                                    if ($(el2).attr('data-cbp-singlePage') === gallery) {
-                                        blocks.push(el2);
-                                    }
-                                } else {
-                                    blocks.push(el2);
-                                }
-                            });
-                        }
-                    });
-
-                } else {
-
-                    if (gallery) {
-                        blocks = scope.find(p.options.singlePageDelegate + '[data-cbp-singlePage=' + gallery + ']');
-                    } else {
-                        blocks = scope.find(p.options.singlePageDelegate);
-                    }
-
-                }
-
-                p.singlePage.openSinglePage(blocks, self[0]);
-            });
-        }
-
-        // default value for singlePageInline
-        p.singlePageInline = null;
-
-        // SINGLEPAGEINLINE
-        if (p.options.singlePageDelegate) {
-
-            p.singlePageInline = Object.create(popup);
-
-            p.singlePageInline.init(p, 'singlePageInline');
-
-            p.$obj.on('click.cbp', p.options.singlePageInlineDelegate, function(e) {
-                e.preventDefault();
-                p.singlePageInline.openSinglePageInline(p.blocksOn, this);
-            });
-
-        }
-    };
-
-    PopUp.prototype.detectScope = function(item) {
-        var singlePageInline,
-            singlePage,
-            cbp;
-
-        singlePageInline = item.closest('.cbp-popup-singlePageInline');
-        if (singlePageInline.length) {
-            cbp = item.closest('.cbp', singlePageInline[0]);
-            return (cbp.length) ? cbp : singlePageInline;
-        }
-
-        singlePage = item.closest('.cbp-popup-singlePage');
-        if (singlePage.length) {
-            cbp = item.closest('.cbp', singlePage[0]);
-            return (cbp.length) ? cbp : singlePage;
-        }
-
-        cbp = item.closest('.cbp');
-        return (cbp.length) ? cbp : $(document.body);
-
-    };
-
-    PopUp.prototype.destroy = function() {
-        var p = this.parent;
-
-        $(document.body).off('click.cbp');
-
-        // @todo - remove these from here
-        lightboxInit = false;
-        singlePageInit = false;
-
-        // destroy lightbox if enabled
-        if (p.lightbox) {
-            p.lightbox.destroy();
-        }
-
-        // destroy singlePage if enabled
-        if (p.singlePage) {
-            p.singlePage.destroy();
-        }
-
-        // destroy singlePage inline if enabled
-        if (p.singlePageInline) {
-            p.singlePageInline.destroy();
-        }
-    };
-
-    CubePortfolio.Plugins.PopUp = function(parent) {
-        return new PopUp(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    CubePortfolio.Private = {
-        /**
-         * Check if cubeportfolio instance exists on current element
-         */
-        checkInstance: function(method) {
-            var t = $.data(this, 'cubeportfolio');
-
-            if (!t) {
-                throw new Error('cubeportfolio is not initialized. Initialize it before calling ' + method + ' method!');
-            }
-
-            return t;
-        },
-
-        /**
-         * Get info about client browser
-         */
-        browserInfo: function() {
-            var t = CubePortfolio.Private,
-                appVersion = navigator.appVersion,
-                transition, animation, perspective;
-
-            if (appVersion.indexOf('MSIE 8.') !== -1) { // ie8
-                t.browser = 'ie8';
-            } else if (appVersion.indexOf('MSIE 9.') !== -1) { // ie9
-                t.browser = 'ie9';
-            } else if (appVersion.indexOf('MSIE 10.') !== -1) { // ie10
-                t.browser = 'ie10';
-            } else if (window.ActiveXObject || 'ActiveXObject' in window) { // ie11
-                t.browser = 'ie11';
-            } else if ((/android/gi).test(appVersion)) { // android
-                t.browser = 'android';
-            } else if ((/iphone|ipad|ipod/gi).test(appVersion)) { // ios
-                t.browser = 'ios';
-            } else if ((/chrome/gi).test(appVersion)) {
-                t.browser = 'chrome';
-            } else {
-                t.browser = '';
-            }
-
-            // check if perspective is available
-            perspective = t.styleSupport('perspective');
-
-            // if perspective is not available => no modern browser
-            if (typeof perspective === undefined) {
-                return;
-            }
-
-            transition = t.styleSupport('transition');
-
-            t.transitionend = {
-                WebkitTransition: 'webkitTransitionEnd',
-                transition: 'transitionend'
-            }[transition];
-
-            animation = t.styleSupport('animation');
-
-            t.animationend = {
-                WebkitAnimation: 'webkitAnimationEnd',
-                animation: 'animationend'
-            }[animation];
-
-            t.animationDuration = {
-                WebkitAnimation: 'webkitAnimationDuration',
-                animation: 'animationDuration'
-            }[animation];
-
-            t.animationDelay = {
-                WebkitAnimation: 'webkitAnimationDelay',
-                animation: 'animationDelay'
-            }[animation];
-
-            t.transform = t.styleSupport('transform');
-
-            if (transition && animation && t.transform) {
-                t.modernBrowser = true;
-            }
-
-        },
-
-
-        /**
-         * Feature testing for css3
-         */
-        styleSupport: function(prop) {
-            var supportedProp,
-                // capitalize first character of the prop to test vendor prefix
-                webkitProp = 'Webkit' + prop.charAt(0).toUpperCase() + prop.slice(1),
-                div = document.createElement('div');
-
-            // browser supports standard CSS property name
-            if (prop in div.style) {
-                supportedProp = prop;
-            } else if (webkitProp in div.style) {
-                supportedProp = webkitProp;
-            }
-
-            // avoid memory leak in IE
-            div = null;
-
-            return supportedProp;
-        }
-
-    };
-
-    CubePortfolio.Private.browserInfo();
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    CubePortfolio.Public = {
-
-        /*
-         * Init the plugin
-         */
-        init: function(options, callback) {
-            new CubePortfolio(this, options, callback);
-        },
-
-        /*
-         * Destroy the plugin
-         */
-        destroy: function(callback) {
-            var t = CubePortfolio.Private.checkInstance.call(this, 'destroy');
-
-            t._triggerEvent('beforeDestroy');
-
-            // remove data
-            $.removeData(this, 'cubeportfolio');
-
-            // remove data from blocks
-            t.blocks.each(function() {
-                $.removeData(this, 'cbp-wxh'); // wp only
-            });
-
-            // remove loading class and .cbp on container
-            t.$obj.removeClass('cbp-ready cbp-addItems' + 'cbp-cols-' + t.cols).removeAttr('style');
-
-            // remove class from ul
-            t.$ul.removeClass('cbp-wrapper');
-
-            // remove off resize event
-            $(window).off('resize.cbp');
-
-            t.$obj.off('.cbp');
-            $(document).off('.cbp');
-
-            // reset blocks
-            t.blocks.removeClass('cbp-item-off').removeAttr('style');
-
-            t.blocks.find('.cbp-item-wrapper').children().unwrap();
-
-            if (t.options.caption) {
-                t._captionDestroy();
-            }
-
-            t._destroySlider();
-
-            // remove .cbp-wrapper-outer
-            t.$ul.unwrap();
-
-            // remove .cbp-wrapper
-            if (t.addedWrapp) {
-                t.blocks.unwrap();
-            }
-
-            $.each(t._plugins, function(i, item) {
-                if (typeof item.destroy === 'function') {
-                    item.destroy();
-                }
-            });
-
-            if ($.isFunction(callback)) {
-                callback.call(t);
-            }
-
-            t._triggerEvent('afterDestroy');
-        },
-
-        /*
-         * Filter the plugin by filterName
-         */
-        filter: function(filterName, callback) {
-            var t = CubePortfolio.Private.checkInstance.call(this, 'filter'),
-                off2onBlocks, on2offBlocks, url;
-
-            // register callback function
-            if ($.isFunction(callback)) {
-                t._registerEvent('filterFinish', callback, true);
-            }
-
-            if (t.isAnimating || t.defaultFilter === filterName) {
-                return;
-            }
-
-            t.isAnimating = true;
-            t.defaultFilter = filterName;
-
-            if (t.singlePageInline && t.singlePageInline.isOpen) {
-                t.singlePageInline.close('promise', {
-                    callback: function() {
-                        t._filter(filterName);
-                    }
-                });
-            } else {
-                t._filter(filterName);
-            }
-
-            if (t.options.filterDeeplinking) {
-
-                url = location.href.replace(/#cbpf=(.*?)([#|?&]|$)/gi, '');
-
-                location.href = url + '#cbpf=' + filterName;
-
-                if (t.singlePage && t.singlePage.url) {
-                    t.singlePage.url = location.href;
-                }
-            }
-        },
-
-        /*
-         * Show counter for filters
-         */
-        showCounter: function(elems, callback) {
-            var t = CubePortfolio.Private.checkInstance.call(this, 'showCounter');
-
-            t.elems = elems;
-
-            $.each(elems, function() {
-                var el = $(this),
-                    filterName = el.data('filter'),
-                    count;
-
-                count = t.blocks.filter(filterName).length;
-                el.find('.cbp-filter-counter').text(count);
-            });
-
-            if ($.isFunction(callback)) {
-                callback.call(t);
-            }
-        },
-
-        /*
-         * ApendItems elements
-         */
-        appendItems: function(items, callback) {
-            var t = CubePortfolio.Private.checkInstance.call(this, 'appendItems');
-
-            if (t.isAnimating) {
-                return;
-            }
-
-            t.isAnimating = true;
-
-            if (t.singlePageInline && t.singlePageInline.isOpen) {
-                t.singlePageInline.close('promise', {
-                    callback: function() {
-                        t._addItems(items, callback);
-                    }
-                });
-            } else {
-                t._addItems(items, callback);
-            }
-        },
-
-    };
-
-})(jQuery, window, document);
-
-// Utility
-if (typeof Object.create !== 'function') {
-    Object.create = function(obj) {
-        function F() {}
-        F.prototype = obj;
-        return new F();
-    };
-}
-
-// jquery new filter for images uncached
-jQuery.expr[':'].uncached = function(obj) {
-    // Ensure we are dealing with an `img` element with a valid `src` attribute.
-    if (!jQuery(obj).is('img[src][src!=""]')) {
-        return false;
-    }
-
-    // Firefox's `complete` property will always be `true` even if the image has not been downloaded.
-    // Doing it this way works in Firefox.
-    var img = new Image();
-    img.src = obj.src;
-
-    // http://stackoverflow.com/questions/1977871/check-if-an-image-is-loaded-no-errors-in-javascript
-    // During the onload event, IE correctly identifies any images that
-    // weren�t downloaded as not complete. Others should too. Gecko-based
-    // browsers act like NS4 in that they report this incorrectly.
-    if (!img.complete) {
-        return true;
-    }
-
-    // However, they do have two very useful properties: naturalWidth and
-    // naturalHeight. These give the true size of the image. If it failed
-    // to load, either of these should be zero.
-    if (img.naturalWidth !== undefined && img.naturalWidth === 0) {
-        return true;
-    }
-
-    // No other way of checking: assume it�s ok.
-    return false;
-};
-
-// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
-
-// requestAnimationFrame polyfill by Erik M�ller. fixes from Paul Irish and Tino Zijdel
-
-// MIT license
-
-(function() {
-    var lastTime = 0;
-    var vendors = ['moz', 'webkit'];
-    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-        window.requestAnimationFrame = window[vendors[x] + 'RequestAnimationFrame'];
-        window.cancelAnimationFrame = window[vendors[x] + 'CancelAnimationFrame'] || window[vendors[x] + 'CancelRequestAnimationFrame'];
-    }
-
-    if (!window.requestAnimationFrame)
-        window.requestAnimationFrame = function(callback, element) {
-            var currTime = new Date().getTime();
-            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-            var id = window.setTimeout(function() {
-                    callback(currTime + timeToCall);
-                },
-                timeToCall);
-            lastTime = currTime + timeToCall;
-            return id;
-        };
-
-    if (!window.cancelAnimationFrame)
-        window.cancelAnimationFrame = function(id) {
-            clearTimeout(id);
-        };
-}());
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function AnimationClassic(parent) {
-        var t = this;
-
-        t.parent = parent;
-
-        parent.filterLayout = t.filterLayout;
-    }
-
-    // here this value point to parent grid
-    AnimationClassic.prototype.filterLayout = function(filterName) {
-        var t = this;
-
-        t.$obj.addClass('cbp-animation-' + t.options.animationType);
-
-        // [1] - blocks that are only moving with translate
-        t.blocksOnInitial
-            .filter(filterName)
-            .addClass('cbp-item-on2on')
-            .each(function(index, el) {
-                var data = $(el).data('cbp');
-                el.style[CubePortfolio.Private.transform] = 'translate3d(' + (data.leftNew - data.left) + 'px, ' + (data.topNew - data.top) + 'px, 0)';
-            });
-
-        // [2] - blocks than intialy are on but after applying the filter are off
-        t.blocksOn2Off = t.blocksOnInitial
-            .not(filterName)
-            .addClass('cbp-item-on2off');
-
-        // [3] - blocks that are off and it will be on
-        t.blocksOff2On = t.blocksOn
-            .filter('.cbp-item-off')
-            .removeClass('cbp-item-off')
-            .addClass('cbp-item-off2on')
-            .each(function(index, el) {
-                var data = $(el).data('cbp');
-
-                data.left = data.leftNew;
-                data.top = data.topNew;
-
-                el.style.left = data.left + 'px';
-                el.style.top = data.top + 'px';
-            });
-
-        if (t.blocksOn2Off.length) {
-            t.blocksOn2Off.last().data('cbp').wrapper.one(CubePortfolio.Private.animationend, animationend);
-        } else if (t.blocksOff2On.length) {
-            t.blocksOff2On.last().data('cbp').wrapper.one(CubePortfolio.Private.animationend, animationend);
-        } else {
-            animationend();
-        }
-
-        // resize main container height
-        t._resizeMainContainer();
-
-        function animationend() {
-            t.blocks
-                .removeClass('cbp-item-on2off cbp-item-off2on cbp-item-on2on')
-                .each(function(index, el) {
-                    var data = $(el).data('cbp');
-
-                    data.left = data.leftNew;
-                    data.top = data.topNew;
-
-                    el.style.left = data.left + 'px';
-                    el.style.top = data.top + 'px';
-
-                    el.style[CubePortfolio.Private.transform] = '';
-                });
-
-            t.blocksOff.addClass('cbp-item-off');
-
-            t.$obj.removeClass('cbp-animation-' + t.options.animationType);
-
-            t.filterFinish();
-        }
-
-    };
-
-    AnimationClassic.prototype.destroy = function() {
-        var parent = this.parent;
-        parent.$obj.removeClass('cbp-animation-' + parent.options.animationType);
-    };
-
-    CubePortfolio.Plugins.AnimationClassic = function(parent) {
-
-        if (!CubePortfolio.Private.modernBrowser || $.inArray(parent.options.animationType, ['boxShadow', 'fadeOut', 'flipBottom', 'flipOut', 'quicksand', 'scaleSides', 'skew']) < 0) {
-            return null;
-        }
-
-        return new AnimationClassic(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function AnimationClone(parent) {
-        var t = this;
-
-        t.parent = parent;
-
-        parent.filterLayout = t.filterLayout;
-    }
-
-    // here this value point to parent grid
-    AnimationClone.prototype.filterLayout = function(filterName) {
-        var t = this,
-            ulClone = t.$ul[0].cloneNode(true);
-
-        ulClone.setAttribute('class', 'cbp-wrapper-helper');
-        t.wrapper[0].insertBefore(ulClone, t.$ul[0]);
-
-        requestAnimationFrame(function() {
-            t.$obj.addClass('cbp-animation-' + t.options.animationType);
-
-            t.blocksOff.addClass('cbp-item-off');
-
-            t.blocksOn.removeClass('cbp-item-off')
-                .each(function(index, el) {
-                    var data = $(el).data('cbp');
-
-                    data.left = data.leftNew;
-                    data.top = data.topNew;
-
-                    el.style.left = data.left + 'px';
-                    el.style.top = data.top + 'px';
-
-                    if (t.options.animationType === 'sequentially') {
-                        data.wrapper[0].style[CubePortfolio.Private.animationDelay] = (index * 60) + 'ms';
-                    }
-                });
-
-            if (t.blocksOn.length) {
-                t.blocksOn.last().data('cbp').wrapper.one(CubePortfolio.Private.animationend, animationend);
-            } else if (t.blocksOnInitial.length) {
-                t.blocksOnInitial.last().data('cbp').wrapper.one(CubePortfolio.Private.animationend, animationend);
-            } else {
-                animationend();
-            }
-
-            // resize main container height
-            t._resizeMainContainer();
-        });
-
-        function animationend() {
-            t.wrapper[0].removeChild(ulClone);
-
-            if (t.options.animationType === 'sequentially') {
-                t.blocksOn.each(function(index, el) {
-                    $(el).data('cbp').wrapper[0].style[CubePortfolio.Private.animationDelay] = '';
-                });
-            }
-
-            t.$obj.removeClass('cbp-animation-' + t.options.animationType);
-
-            t.filterFinish();
-        }
-
-    };
-
-    AnimationClone.prototype.destroy = function() {
-        var parent = this.parent;
-        parent.$obj.removeClass('cbp-animation-' + parent.options.animationType);
-    };
-
-    CubePortfolio.Plugins.AnimationClone = function(parent) {
-
-        if (!CubePortfolio.Private.modernBrowser || $.inArray(parent.options.animationType, ['fadeOutTop', 'slideLeft', 'sequentially']) < 0) {
-            return null;
-        }
-
-        return new AnimationClone(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function AnimationCloneDelay(parent) {
-        var t = this;
-
-        t.parent = parent;
-
-        parent.filterLayout = t.filterLayout;
-    }
-
-    // here this value point to parent grid
-    AnimationCloneDelay.prototype.filterLayout = function(filterName) {
-        var t = this,
-            ulClone;
-
-        // t.blocksOnInitial.each(function(index, el) {
-        //     $(el).data('cbp').wrapper[0].style[CubePortfolio.Private.animationDelay] = (index * 50) + 'ms';
-        // });
-
-        ulClone = t.$ul[0].cloneNode(true);
-
-        ulClone.setAttribute('class', 'cbp-wrapper-helper');
-        t.wrapper[0].insertBefore(ulClone, t.$ul[0]);
-
-        // hack for safari osx because it doesn't want to work if I set animationDelay
-        // on cbp-item-wrapper before I clone the t.$ul
-        $(ulClone).find('.cbp-item').not('.cbp-item-off').children('.cbp-item-wrapper').each(function(index, el) {
-            el.style[CubePortfolio.Private.animationDelay] = (index * 50) + 'ms';
-        });
-
-        requestAnimationFrame(function() {
-            t.$obj.addClass('cbp-animation-' + t.options.animationType);
-
-            t.blocksOff.addClass('cbp-item-off');
-
-            t.blocksOn.removeClass('cbp-item-off')
-                .each(function(index, el) {
-                    var data = $(el).data('cbp');
-
-                    data.left = data.leftNew;
-                    data.top = data.topNew;
-
-                    el.style.left = data.left + 'px';
-                    el.style.top = data.top + 'px';
-
-                    data.wrapper[0].style[CubePortfolio.Private.animationDelay] = (index * 50) + 'ms';
-
-                });
-
-            if (t.blocksOn.length) {
-                t.blocksOn.last().data('cbp').wrapper.one(CubePortfolio.Private.animationend, animationend);
-            } else if (t.blocksOnInitial.length) {
-                t.blocksOnInitial.last().data('cbp').wrapper.one(CubePortfolio.Private.animationend, animationend);
-            } else {
-                animationend();
-            }
-
-            // resize main container height
-            t._resizeMainContainer();
-        });
-
-        function animationend() {
-            t.wrapper[0].removeChild(ulClone);
-
-            t.$obj.removeClass('cbp-animation-' + t.options.animationType);
-
-            t.blocks.each(function(index, el) {
-                $(el).data('cbp').wrapper[0].style[CubePortfolio.Private.animationDelay] = '';
-            });
-
-            t.filterFinish();
-        }
-
-    };
-
-    AnimationCloneDelay.prototype.destroy = function() {
-        var parent = this.parent;
-        parent.$obj.removeClass('cbp-animation-' + parent.options.animationType);
-    };
-
-    CubePortfolio.Plugins.AnimationCloneDelay = function(parent) {
-
-        if (!CubePortfolio.Private.modernBrowser || $.inArray(parent.options.animationType, ['3dflip', 'flipOutDelay', 'foldLeft', 'frontRow', 'rotateRoom', 'rotateSides', 'scaleDown', 'slideDelay', 'unfold']) < 0) {
-            return null;
-        }
-
-        return new AnimationCloneDelay(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function AnimationWrapper(parent) {
-        var t = this;
-
-        t.parent = parent;
-
-        parent.filterLayout = t.filterLayout;
-    }
-
-    // here this value point to parent grid
-    AnimationWrapper.prototype.filterLayout = function(filterName) {
-        var t = this,
-            ulClone = t.$ul[0].cloneNode(true);
-
-        ulClone.setAttribute('class', 'cbp-wrapper-helper');
-        t.wrapper[0].insertBefore(ulClone, t.$ul[0]);
-
-        requestAnimationFrame(function() {
-            t.$obj.addClass('cbp-animation-' + t.options.animationType);
-
-            t.blocksOff.addClass('cbp-item-off');
-
-            t.blocksOn.removeClass('cbp-item-off')
-                .each(function(index, el) {
-                    var data = $(el).data('cbp');
-
-                    data.left = data.leftNew;
-                    data.top = data.topNew;
-
-                    el.style.left = data.left + 'px';
-                    el.style.top = data.top + 'px';
-                });
-
-            if (t.blocksOn.length) {
-                t.$ul.one(CubePortfolio.Private.animationend, animationend);
-            } else if (t.blocksOnInitial.length) {
-                $(ulClone).one(CubePortfolio.Private.animationend, animationend);
-            } else {
-                animationend();
-            }
-
-            // resize main container height
-            t._resizeMainContainer();
-        });
-
-        function animationend() {
-            t.wrapper[0].removeChild(ulClone);
-
-            t.$obj.removeClass('cbp-animation-' + t.options.animationType);
-
-            t.filterFinish();
-        }
-
-    };
-
-    AnimationWrapper.prototype.destroy = function() {
-        var parent = this.parent;
-        parent.$obj.removeClass('cbp-animation-' + parent.options.animationType);
-    };
-
-    CubePortfolio.Plugins.AnimationWrapper = function(parent) {
-
-        if (!CubePortfolio.Private.modernBrowser || $.inArray(parent.options.animationType, ['bounceBottom', 'bounceLeft', 'bounceTop', 'moveLeft']) < 0) {
-            return null;
-        }
-
-        return new AnimationWrapper(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function CaptionExpand(parent) {
-        var t = this;
-
-        t.parent = parent;
-
-        parent._registerEvent('initFinish', function() {
-
-            parent.$obj.on('click.cbp', '.cbp-caption-defaultWrap', function(e) {
-                e.preventDefault();
-
-                if (parent.isAnimating) {
-                    return;
-                }
-
-                parent.isAnimating = true;
-
-                var defaultWrap = $(this),
-                    activeWrap = defaultWrap.next(),
-                    caption = defaultWrap.parent(),
-                    endStyle = {
-                        position: 'relative',
-                        height: activeWrap.outerHeight(true)
-                    },
-                    startStyle = {
-                        position: 'relative',
-                        height: 0
-                    };
-
-                parent.$obj.addClass('cbp-caption-expand-active');
-
-                // swap endStyle & startStyle
-                if (caption.hasClass('cbp-caption-expand-open')) {
-                    var temp = startStyle;
-                    startStyle = endStyle;
-                    endStyle = temp;
-                    caption.removeClass('cbp-caption-expand-open');
-                }
-
-                activeWrap.css(endStyle);
-
-                parent._gridAdjust();
-
-                // reposition the blocks
-                parent._layout();
-
-                // repositionate the blocks with the best transition available
-                parent.positionateItems();
-
-                // resize main container height
-                parent._resizeMainContainer();
-
-                // set activeWrap to 0 so I can start animation in the next frame
-                activeWrap.css(startStyle);
-
-                // delay animation
-                requestAnimationFrame(function() {
-
-                    caption.addClass('cbp-caption-expand-open');
-
-                    activeWrap.one(CubePortfolio.Private.transitionend, function() {
-                        parent.isAnimating = false;
-                        parent.$obj.removeClass('cbp-caption-expand-active');
-
-                        if (endStyle.height === 0) {
-                            caption.removeClass('cbp-caption-expand-open');
-                            activeWrap.attr('style', '');
-                        }
-
-                    });
-
-                    activeWrap.css(endStyle);
-
-                    if (parent.options.layoutMode === 'slider') {
-                        parent._updateSlider();
-                    }
-
-                    parent._triggerEvent('resizeGrid');
-                });
-            });
-        }, true);
-
-    }
-
-    CaptionExpand.prototype.destroy = function() {
-        this.parent.$obj.find('.cbp-caption-defaultWrap').off('click.cbp').parent().removeClass('cbp-caption-expand-active');
-    };
-
-    CubePortfolio.Plugins.CaptionExpand = function(parent) {
-
-        if (parent.options.caption !== 'expand') {
-            return null;
-        }
-
-        return new CaptionExpand(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function BottomToTop(parent) {
-
-        // skip next event from core
-        parent._skipNextEvent('delayFrame');
-
-        parent._registerEvent('initEndWrite', function() {
-
-            parent.blocksOn.each(function(index, item) {
-                item.style[CubePortfolio.Private.animationDelay] = (index * parent.options.displayTypeSpeed) + 'ms';
-            });
-
-            parent.$obj.addClass('cbp-displayType-bottomToTop');
-
-            // get last element
-            parent.blocksOn.last().one(CubePortfolio.Private.animationend, function() {
-                parent.$obj.removeClass('cbp-displayType-bottomToTop');
-
-                parent.blocksOn.each(function(index, item) {
-                    item.style[CubePortfolio.Private.animationDelay] = '';
-                });
-
-                // trigger event after the animation is finished
-                parent._triggerEvent('delayFrame');
-            });
-
-        }, true);
-
-    }
-
-    CubePortfolio.Plugins.BottomToTop = function (parent) {
-
-        if (!CubePortfolio.Private.modernBrowser || parent.options.displayType !== 'bottomToTop' || parent.blocks.length === 0) {
-            return null;
-        }
-
-        return new BottomToTop(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function FadeInToTop(parent) {
-
-        // skip next event from core
-        parent._skipNextEvent('delayFrame');
-
-        parent._registerEvent('initEndWrite', function() {
-            parent.obj.style[CubePortfolio.Private.animationDuration] = parent.options.displayTypeSpeed + 'ms';
-
-            parent.$obj.addClass('cbp-displayType-fadeInToTop');
-
-            parent.$obj.one(CubePortfolio.Private.animationend, function() {
-                parent.$obj.removeClass('cbp-displayType-fadeInToTop');
-
-                parent.obj.style[CubePortfolio.Private.animationDuration] = '';
-
-                // trigger event after the animation is finished
-                parent._triggerEvent('delayFrame');
-            });
-
-        }, true);
-
-    }
-
-    CubePortfolio.Plugins.FadeInToTop = function (parent) {
-
-        if (!CubePortfolio.Private.modernBrowser || parent.options.displayType !== 'fadeInToTop' || parent.blocks.length === 0) {
-            return null;
-        }
-
-        return new FadeInToTop(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function LazyLoading(parent) {
-
-        // skip next event from core
-        parent._skipNextEvent('delayFrame');
-
-        parent._registerEvent('initEndWrite', function() {
-            parent.obj.style[CubePortfolio.Private.animationDuration] = parent.options.displayTypeSpeed + 'ms';
-
-            parent.$obj.addClass('cbp-displayType-lazyLoading');
-
-            parent.$obj.one(CubePortfolio.Private.animationend, function() {
-                parent.$obj.removeClass('cbp-displayType-lazyLoading');
-
-                parent.obj.style[CubePortfolio.Private.animationDuration] = '';
-
-                // trigger event after the animation is finished
-                parent._triggerEvent('delayFrame');
-            });
-
-        }, true);
-
-    }
-
-    CubePortfolio.Plugins.LazyLoading = function (parent) {
-
-        if (!CubePortfolio.Private.modernBrowser || (parent.options.displayType !== 'lazyLoading' && parent.options.displayType !== 'fadeIn') || parent.blocks.length === 0) {
-            return null;
-        }
-
-        return new LazyLoading(parent);
-    };
-
-})(jQuery, window, document);
-
-(function($, window, document, undefined) {
-    'use strict';
-
-    var CubePortfolio = $.fn.cubeportfolio.Constructor;
-
-    function DisplaySequentially(parent) {
-
-        // skip next event from core
-        parent._skipNextEvent('delayFrame');
-
-        parent._registerEvent('initEndWrite', function() {
-
-            parent.blocksOn.each(function(index, item) {
-                item.style[CubePortfolio.Private.animationDelay] = (index * parent.options.displayTypeSpeed) + 'ms';
-            });
-
-            parent.$obj.addClass('cbp-displayType-sequentially');
-
-            // get last element
-            parent.blocksOn.last().one(CubePortfolio.Private.animationend, function() {
-                parent.$obj.removeClass('cbp-displayType-sequentially');
-
-                parent.blocksOn.each(function(index, item) {
-                    item.style[CubePortfolio.Private.animationDelay] = '';
-                });
-
-                // trigger event after the animation is finished
-                parent._triggerEvent('delayFrame');
-            });
-
-        }, true);
-
-    }
-
-    CubePortfolio.Plugins.DisplaySequentially = function (parent) {
-
-        if (!CubePortfolio.Private.modernBrowser || parent.options.displayType !== 'sequentially' || parent.blocks.length === 0) {
-            return null;
-        }
-
-        return new DisplaySequentially(parent);
     };
 
 })(jQuery, window, document);

@@ -4,21 +4,19 @@ var FancyBox = function () {
             
         //Fancybox
         initFancybox: function () {
-            jQuery(".fancybox").fancybox({
+            jQuery(".fancybox-button").fancybox({
             groupAttr: 'data-rel',
-            prevEffect: 'fade',
-            nextEffect: 'fade',
-            openEffect  : 'elastic',
-            closeEffect  : 'fade',
+            prevEffect: 'none',
+            nextEffect: 'none',
             closeBtn: true,
             helpers: {
                 title: {
-                        type: 'float'
+                    type: 'inside'
                     }
                 }
             });
 
-            $(".fbox-modal").fancybox({
+            jQuery(".iframe").fancybox({
                 maxWidth    : 800,
                 maxHeight   : 600,
                 fitToView   : false,
@@ -26,10 +24,10 @@ var FancyBox = function () {
                 height      : '70%',
                 autoSize    : false,
                 closeClick  : false,
-                closeEffect : 'fade',
-                openEffect  : 'elastic'
-            });
-        }
+                openEffect  : 'none',
+                closeEffect : 'none'
+            });            
+        },
 
     };
 

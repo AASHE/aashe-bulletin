@@ -37,7 +37,7 @@ var OwlCarousel = function () {
 
 	        //Owl Slider v3
 			jQuery(".owl-slider-v3").owlCarousel({
-            	items : 7,
+            	items : 9,
             	autoPlay : 5000,
 				itemsDesktop : [1000,5],
 				itemsDesktopSmall : [900,4],
@@ -79,7 +79,6 @@ var OwlCarousel = function () {
                 });
             });
 
-
             //Owl Twitter v1
             jQuery(".owl-twitter-v1").owlCarousel({
                 singleItem : true,
@@ -97,17 +96,6 @@ var OwlCarousel = function () {
             });
 
 
-            //Owl Clients v1
-            jQuery(".owl-clients-v1").owlCarousel({
-                items : 7,
-                autoPlay : 5000,
-                itemsDesktop : [1000,5],
-                itemsDesktopSmall : [900,4],
-                itemsTablet: [600,3],
-                itemsMobile : [300,2]
-            });
-
-
             //Owl Clients v2
             jQuery(".owl-clients-v2").owlCarousel({
                 items : 5,
@@ -117,16 +105,6 @@ var OwlCarousel = function () {
                 itemsTablet: [600,3],
                 itemsMobile : [300,2]
             });
-
-            
-            //Owl Video
-            jQuery(".owl-video").owlCarousel({
-                items : 1,
-                itemsDesktop : [1000,1],
-                itemsDesktopSmall : [900,1],
-                itemsTablet: [600,1],
-                itemsMobile : [300,1]
-            });            
 		}
         
     };
