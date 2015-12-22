@@ -2,6 +2,7 @@ from braces.views import SetHeadlineMixin
 from django.contrib.syndication.views import Feed
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
+from django.utils.http import urlunquote
 from django.views.generic import TemplateView
 
 from bulletin import views as bulletin_views
@@ -28,7 +29,8 @@ class LatestNewsFeedView(Feed):
 
     def get_object(self, request, category=None):
         if category:
-            return get_object_or_404(Category, name__iexact=category)
+            return get_object_or_404(Category,
+                                     name__iexact=urlunquote(category))
         return None
 
     def title(self, obj):
