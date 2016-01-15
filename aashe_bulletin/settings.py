@@ -14,11 +14,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-debug_string = os.environ.get('DEBUG', 'False')
-if debug_string.lower() == 'true':
-    DEBUG = True
-else:
-    DEBUG = False
+DEBUG = os.environ.get('DEBUG', 'False')
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -75,10 +71,9 @@ INSTALLED_APPS = (
 
     # misc 3rd party apps
     'overextends',
-    'raven.contrib.django.raven_compat',
 
     # good for development
-    'django_extensions',
+    # 'django_extensions',
     'template_repl'
 )
 
@@ -96,7 +91,8 @@ ROOT_URLCONF = 'aashe_bulletin.urls'
 
 WSGI_APPLICATION = 'aashe_bulletin.wsgi.application'
 
-DATABASES = {'default': dj_database_url.config(env='BULLETIN_DATABASE_URL')}
+# Assumes DATABASE_URL is set in the env
+DATABASES = {'default': dj_database_url.config()}
 
 SITE_ID = 1
 
@@ -104,26 +100,27 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'America/New_York'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.6/howto/static-files/
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'aashe_bulletin/static/theme'),
-                    os.path.join(BASE_DIR, 'aashe_bulletin/static'),)
-STATIC_URL = os.environ.get('STATIC_URL', '/static/')
-STATIC_ROOT = os.environ.get('STATIC_ROOT',
-                             os.path.join(BASE_DIR, STATIC_URL.strip('/')))
+# AASHE's Media Settings
+# if not DEBUG:
+from integration_settings.media.s3 import *
+INSTALLED_APPS += ('s3_folder_storage',)
+STATICFILES_DIRS = (os.path.join(os.path.dirname(__file__), 'static'),)
 
-MEDIA_URL = os.environ.get('MEDIA_URL', '/media/')
-MEDIA_ROOT = os.environ.get('MEDIA_ROOT',
-                            os.path.join(BASE_DIR, MEDIA_URL.strip("/")))
+# AASHE's Logging Settings
+# if not DEBUG:
+from integration_settings.logging import *
+INSTALLED_APPS += ('raven.contrib.django.raven_compat',)
+
+# HEROKU
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# Allow all host headers
+ALLOWED_HOSTS = ['*']
 
 AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',
                            'django.contrib.auth.backends.ModelBackend')
@@ -179,61 +176,36 @@ right of publicity).
 # MAX_STORY_TITLE_LENGTH = 90
 MAX_STORY_BLURB_LENGTH = 800
 
-RAVEN_CONFIG = {
-    'dsn': 'https://6f14dc148c26474f9d08c6de7c74f049:ad632c3061ce47e8b5c668aa25d2b449@app.getsentry.com/41366'
-}
-
 MESSAGE_TAGS = {message_constants.DEBUG: 'alert fade in alert-debug',
                 message_constants.INFO: 'alert fade in alert-info',
                 message_constants.SUCCESS: 'alert fade in alert-success',
                 message_constants.WARNING: 'alert fade in alert-warning',
                 message_constants.ERROR: 'alert fade in alert-error'}
 
-LOGGING_LEVEL = os.environ.get('LOGGING_LEVEL', 'INFO')
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-
-    'formatters': {
-        'console': {
-            'format': '%(asctime)s:%(levelname)s:%(name)s:%(message)s',
-            'datefmt': '%m/%d/%Y-%H:%M:%S'
-            },
-        },
-
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'console'
-            },
-        'sentry': {
-            'level': 'ERROR',
-            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler'
-            },
-        },
-
-    'loggers': {
-        '': {
-            'handlers': ['console', 'sentry'],
-            'level': LOGGING_LEVEL,
-            'propagate': False,
-        },
-    }
-}
-
-logging.config.dictConfig(LOGGING)
 
 # Define a css class for required fields so we can mark them.
 BOOTSTRAP3 = {'required_css_class': 'required-input'}
 
+# Searchbox backend for Haystack
+from urlparse import urlparse
+es = urlparse(os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/')
+port = es.port or 80
+HAYSTACK_ENGINE = os.environ.get(
+    'HAYSTACK_ENGINE',
+    'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine')
+
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'PATH': os.path.join(BASE_DIR, '..', 'bulletin_index')
+        'ENGINE': HAYSTACK_ENGINE,
+        'URL': es.scheme + '://' + es.hostname + ':' + str(port),
+        'INDEX_NAME': 'documents',
     },
 }
+
+if es.username:
+    HAYSTACK_CONNECTIONS['default']['KWARGS'] = {
+        'http_auth': es.username + ':' + es.password}
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 

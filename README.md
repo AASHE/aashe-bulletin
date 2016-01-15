@@ -17,3 +17,9 @@ For new installations, you'll need to initialize the Whoosh indexes
 by:
 
     ./manage.py rebuild_index
+
+# Heroku Configuration
+
+Uses the [searchbox addon](https://devcenter.heroku.com/articles/searchbox#using-haystack-with-django). Each dev instance should add the free tier of the add-on:
+
+    heroku addons:create searchbox
