@@ -253,3 +253,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
+
+# AWS secrets so we can use 'sync_s3' management command. Kind of
+# temporary, since we'll only use 'sync_s3' when we're transitioning
+# to Heroku.
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", None)
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", None)
+AWS_BUCKET_NAME = os.environ.get("AWS_BUCKET_NAME", None)
