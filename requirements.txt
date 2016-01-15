@@ -1,5 +1,6 @@
 Django>=1.8,<1.9
 dj_database_url
+django-extensions
 django-haystack==2.4.1
 django-overextends
 elasticsearch==1.6.0

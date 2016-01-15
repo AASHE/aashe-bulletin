@@ -47,7 +47,7 @@ urlpatterns = patterns(
         LatestNewsFeedView(),
         name='latest-news-feed'),
 
-    url(r'^rss/news/category/(?P<category>\w+)/$',
+    url(r'^rss/news/category/(?P<category>.+)/$',
         LatestNewsFeedView(),
         name='latest-news-category-feed'),
 
