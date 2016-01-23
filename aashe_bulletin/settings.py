@@ -233,3 +233,4 @@ AWS_HEADERS = {
     'Expires': 'Thu, 1 Jan 2026 20:00:00 GMT',
     'Cache-Control': 'max-age:311040000'
 }
+AWS_QUERYSTRING_AUTH = False
