@@ -14,7 +14,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
-DEBUG = os.environ.get('DEBUG', 'False')
+DEBUG = bool(os.environ.get('DEBUG', 'False'))
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -72,8 +72,8 @@ INSTALLED_APPS = (
     # misc 3rd party apps
     'overextends',
 
-    # good for development
-    # 'django_extensions',
+    # good for development and debugging
+    'django_extensions',
     'template_repl'
 )
 
