@@ -113,7 +113,7 @@ STATICFILES_DIRS = (os.path.join(os.path.dirname(__file__), 'static'),)
 
 # AASHE's Logging Settings
 # if not DEBUG:
-from integration_settings.logging import *
+from integration_settings.logging.sentry import *
 INSTALLED_APPS += ('raven.contrib.django.raven_compat',)
 
 # HEROKU
