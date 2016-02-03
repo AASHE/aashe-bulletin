@@ -234,3 +234,7 @@ AWS_HEADERS = {
     'Cache-Control': 'max-age:311040000'
 }
 AWS_QUERYSTRING_AUTH = False
+
+# Because https://github.com/python-pillow/Pillow/issues/1529:
+from PIL import ImageFile
+ImageFile.MAXBLOCK = 1024 * 1024
