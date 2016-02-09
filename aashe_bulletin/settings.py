@@ -200,6 +200,7 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': HAYSTACK_ENGINE,
         'URL': es.scheme + '://' + es.hostname + ':' + str(port),
         'INDEX_NAME': 'documents',
+        'TIMEOUT': 30
     },
 }
 
