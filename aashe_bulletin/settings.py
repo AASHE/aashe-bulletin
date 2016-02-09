@@ -175,14 +175,14 @@ privacy or right of publicity).
 
 # MAX_STORY_TITLE_LENGTH = 90
 MAX_STORY_BLURB_LENGTH = 800
+MAX_OPPORTUNITY_BLURB_LENGTH = 1100
+MAX_NEW_RESOURCE_BLURB_LENGTH = 1100
 
 MESSAGE_TAGS = {message_constants.DEBUG: 'alert fade in alert-debug',
                 message_constants.INFO: 'alert fade in alert-info',
                 message_constants.SUCCESS: 'alert fade in alert-success',
                 message_constants.WARNING: 'alert fade in alert-warning',
                 message_constants.ERROR: 'alert fade in alert-error'}
-
-
 
 # Define a css class for required fields so we can mark them.
 BOOTSTRAP3 = {'required_css_class': 'required-input'}
