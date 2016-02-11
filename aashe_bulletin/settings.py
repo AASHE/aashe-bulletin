@@ -210,7 +210,6 @@ if es.username:
 
 HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
-
 def is_member(user):
     try:
         aasheuser = user.aasheuser
