@@ -56,7 +56,7 @@ class LatestNewsFeedView(Feed):
     def items(self, obj):
         qs = Story.objects.filter(approved=True).order_by('-pub_date')
         if obj is not None:
-            qs = qs.filter(category=obj)
+            qs = qs.filter(categories__in=[obj])
         return qs[:30]
 
     def item_title(self, item):
