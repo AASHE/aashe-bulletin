@@ -24,6 +24,10 @@
      img {display: block;}
      a {text-decoration: none; color: #0080CF}
 
+     .section {
+       padding-top: 20px;
+     }
+
      .gradient {
        background: #15387F; /* For browsers that do not support gradients */
        background: -webkit-linear-gradient(left, #15387F , #0080CF); /* For Safari 5.1 to 6.0 */
@@ -42,6 +46,7 @@
        font-weight: normal;
        text-align: left;
        vertical-align: middle;
+       padding-top: 10px;
      }
 
      .blurb {
@@ -49,6 +54,22 @@
        color: #333333;
        font-weight: normal;
        vertical-align: middle;
+       margin-top: 5px;
+     }
+
+     .advertisementConfessionTd {
+       padding-top: 15px;
+     }
+
+     .advertisementConfession {
+       padding: 0px, 0px, 2px, 66px;
+       font-size: 11px;
+       vertical-align: bottom;
+       padding: 5px 0px 2px 66px;">
+     }
+
+     .greenButtonTd {
+       padding-top: 20px;
      }
 
      .bigGreenButton {
@@ -58,7 +79,10 @@
        line-height: 25px;
        vertical-align: middle;
        background-color:#00A060;
-       padding: 5px;
+     }
+
+     .socialMediaIcon {
+       padding-top: 10px;
      }
 
      @media only screen and (max-width: 640px)  {
@@ -89,10 +113,10 @@
     <table width="100%" border="0" cellpadding="0" cellspacing="0"
            align="center">
       <tbody>
+        <!--Start Header-->
         <tr>
           <td width="100%" valign="top" style="padding-top:20px">
-            <!--Start Header-->
-            <table width="600" border="2" cellpadding="0" cellspacing="0" align="center" class="deviceWidth">
+            <table width="600" border="0" cellpadding="0" cellspacing="0" align="center" class="deviceWidth">
               <tbody>
                 <tr>
                   <td width="100%">
@@ -200,34 +224,36 @@
                 <!--End nav-->
               </tbody>
             </table>
-            <!--End Header-->
           </td>
         </tr>
+        <!--End Header-->
         <!--Start of Intro-->
         <tr>
-          <table width="550"  border="0" cellpadding="0"
-                 cellspacing="0" align="center" class="deviceWidth">
-            <tbody>
-              <tr>
-                <td width="100%"
-                    style="font-size: 12px; color: #333333; vertical-align: middle; padding: 20px; align: center;">
-                  {% if issue.introduction %}
-                    {{ issue.introduction|safe }}
-                  {% else %}
-                    {% comment %}
-                    OK, what's up with the comment placeholder below? It's there
-                    to appease the Outlook 2007/2010 gods. W/o it, when there
-                    is no introductory text, the formatting of the news stories
-                    is broken. An image and one story title don't show. And maybe
-                    the images are displayed with the incorrect stories, that
-                    happens sometimes. No kidding. So leave it there.
-                    {% endcomment %}
-                    <!-- placeholder comment -->
-                  {% endif %}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <td>
+            <table width="550"  border="0" cellpadding="0"
+                   cellspacing="0" align="center" class="deviceWidth">
+              <tbody>
+                <tr>
+                  <td width="100%"
+                      style="font-size: 12px; color: #333333; vertical-align: middle; padding: 20px 20px 0px 20px; align: center;">
+                    {% if issue.introduction %}
+                      {{ issue.introduction|safe }}
+                    {% else %}
+                      {% comment %}
+                      OK, what's up with the comment placeholder below? It's there
+                      to appease the Outlook 2007/2010 gods. W/o it, when there
+                      is no introductory text, the formatting of the news stories
+                      is broken. An image and one story title don't show. And maybe
+                      the images are displayed with the incorrect stories, that
+                      happens sometimes. No kidding. So leave it there.
+                      {% endcomment %}
+                      <!-- placeholder comment -->
+                    {% endif %}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
         </tr>
         <!--End of Intro-->
         {% for section in issue.sections.all %}
@@ -235,7 +261,7 @@
             {% if section.name == "News" %}
               <!--Start News Stories-->
               <tr>
-                <td>
+                <td class="section">
                   <a name="news"></a>
                   <table width="600px" border="0" cellpadding="0" cellspacing="0"
                          align="center" class="deviceWidth">
@@ -248,14 +274,14 @@
                       {% for story in section.posts.all %}
                         {% if story.feature %}
                           <tr>
-                            <td>
+                            <td style="vertical-align: top; padding: 10px 0 0 0;">
                               <table width="176px" border="0" cellpadding="0"
                                      cellspacing="0"
                                      align="left"
                                      class="deviceWidth">
                                 <tbody>
                                   <tr>
-                                    <td style="vertical-align: middle; padding: 20px 10px 0;">
+                                    <td style="vertical-align: top;">
                                       <a href="{{ story.url }}">
                                         {% thumbnail story.image "172x125" as im %}
                                           <img src="{{ im.url }}"
@@ -277,13 +303,11 @@
                                       </a>
                                     </td>
                                   </tr>
-
                                   <tr>
                                     <td class="blurb">
-                                      {{ story.blurb|safe|truncatewords_html:25 }}
+                                      {{ story.blurb|safe|truncatechars_html:800 }}
                                     </td>
                                   </tr>
-
                                   {% with story.primary_category as category %}
                                     {% if category %}
                                       <tr>
@@ -295,7 +319,7 @@
                                                   <table>
                                                     <tbody>
                                                       <tr>
-                                                        <td style="font-size: 11px; font-weight: bold; vertical-align: middle; padding: 5px; background-color:#0080CF">
+                                                        <td style="font-size: 11px; font-weight: bold; bottom; background-color:#0080CF">
                                                           <a href="http://{{ domain }}{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
                                                              style="color: #ffffff">
                                                             More {{ category.name }} News
@@ -308,7 +332,7 @@
                                                 <td>
                                                   <table>
                                                     <tbody>
-                                                      <td style="font-size: 11px; font-weight: bold; vertical-align: middle; padding: 5px; background-color: #0080CF">
+                                                      <td style="font-size: 11px; font-weight: bold; background-color: #0080CF">
                                                         {% if category.url %}
                                                           <a href="{{ category.url }}"
                                                              style="color: #ffffff">
@@ -344,13 +368,11 @@
                           {% if not story.feature %}
                             {% if story.primary_category.parent.name == category %}
                               <tr>
-                                <td colspan="2">
-                                  <div class="post-title unfeatured-story"
-                                       style="font-size: 12px; padding-left: 5px; padding-top: 0px; padding-bottom: 2px;">
-                                    <a href="{{ story.url }}" class="postTitle">
-                                      {{ story.title }}
-                                    </a>
-                                  </div>
+                                <td colspan="2" class="postTitle"
+                                    style="padding-left: 5px; padding-bottom: 2px; padding-top: 0px;">
+                                  <a href="{{ story.url }}">
+                                    {{ story.title }}
+                                  </a>
                                 </td>
                               </tr>
                             {% endif %}
@@ -365,7 +387,7 @@
 
               <!-- Big Green Submit Button -->
               <tr>
-                <td>
+                <td class="greenButtonTd">
                   <table width="550px" border="0" cellpadding="0" cellspacing="0"
                          align="center" class="deviceWidth">
                     <tbody>
@@ -388,18 +410,18 @@
                 {% if forloop.first %}
                   <!--Start first 468x60 Ad-->
                   <tr>
-                    <td>
+                    <td class="advertisementConfessionTd">
                       <table width="600" border="0" cellpadding="0"
                              cellspacing="0" align="center"
                              class="deviceWidth">
                         <tbody>
                           <tr>
-                            <td style="font-size: 9px; padding: 5px 0px 2px 66px;">
+                            <td class="advertisementConfession">
                               Advertisement
                             </td>
                           </tr>
                           <tr>
-                            <td style="vertical-align: middle; padding: 0px 0px 0;">
+                            <td style="vertical-align: middle;">
                               <center>
                                 <a href="{{ ad.url }}">
                                   <img src="{{ ad.image.url }}"
@@ -425,13 +447,13 @@
                   {% if forloop.counter > 1 %}
                     <!--Start last 468x60 Ad-->
                     <tr>
-                      <td>
+                      <td class="advertisementConfessionTd">
                         <table width="600" border="0" cellpadding="0"
                                cellspacing="0" align="center"
                                class="deviceWidth">
                           <tbody>
                             <tr>
-                              <td style="font-size: 11px; vertical-align: bottom; padding: 5px 0px 2px 66px;">
+                              <td class="advertisementConfession">
                                 Advertisement
                               </td>
                             </tr>
@@ -457,7 +479,7 @@
 
               <!--Start Jobs-->
               <tr>
-                <td>
+                <td class="section">
                   <a name="jobs"></a>
                   <table width="600" border="0" cellpadding="0" cellspacing="0"
                          align="center" class="deviceWidth">
@@ -475,7 +497,7 @@
                                 <tr>
                                   <td>
                                     <a href="{{ job.url }}">
-                                      {% thumbnail job.image "156x125" as im %}
+                                      {% thumbnail job.image "103x83" as im %}
                                         <img src="{{ im.url }}"
                                              width="{{ im.width }}"
                                              height="{{ im.height }}">
@@ -490,8 +512,8 @@
                             <table>
                               <tbody>
                                 <tr>
-                                  <td>
-                                    <a href="{{ job.url }}" class="postTitle">
+                                  <td class="postTitle">
+                                    <a href="{{ job.url }}">
                                       {{ job.title }}
                                     </a>
                                   </td>
@@ -517,7 +539,7 @@
               buttons comes after jobs.
               {% endcomment %}
               <tr>
-                <td>
+                <td class="greenButtonTd">
                   <table width="550" border="1" cellpadding="5" cellspacing="10"
                          align="center" class="deviceWidth">
                     <tbody style="font-size: 11px; font-weight: bold; text-align: center; vertical-align: middle; padding: 5px">
@@ -552,26 +574,26 @@
               {# social media buttons: #}
               <tr>
                 <td>
-                  <table width="250" border="1" cellpadding="5" cellspacing="10"
+                  <table width="250" border="0" cellpadding="5" cellspacing="10"
                          align="center" class="deviceWidth">
-                    <tbody style="vertical-align: middle; padding: 5px">
+                    <tbody style="vertical-align: middle;">
                       <tr>
-                        <td>
+                        <td class="socialMediaIcon">
                           <a href="">
                             <img src="http://bulletin.aashe.org/static/assets/img/icons/facebook-dark.png">
                           </a>
                         </td>
-                        <td>
+                        <td class="socialMediaIcon">
                           <a href="">
                             <img src="http://bulletin.aashe.org/static/assets/img/icons/twitter-dark.png">
                           </a>
                         </td>
-                        <td>
+                        <td class="socialMediaIcon">
                           <a href="">
                             <img src="http://bulletin.aashe.org/static/assets/img/icons/youtube-dark.png">
                           </a>
                         </td>
-                        <td>
+                        <td class="socialMediaIcon">
                           <a href="">
                             <img src="http://bulletin.aashe.org/static/assets/img/icons/flickr-dark.png">
                           </a>
@@ -585,7 +607,7 @@
             {% elif section.name == "Opportunities" %}
               <!--Start Opportunities-->
               <tr>
-                <td>
+                <td class="section">
                   <a name="opportunities"></a>
                   <table width="600" border="0" cellpadding="0" cellspacing="0"
                          align="center" class="deviceWidth">
@@ -597,11 +619,14 @@
                       </tr>
                       {% for opportunity in section.posts.all %}
                         <tr>
-                          <td>
-                            <a href="{{ opportunity.url }}"
-                               class="postTitle">
+                          <td class="postTitle">
+                            <a href="{{ opportunity.url }}">
                               {{ opportunity.title }}
                             </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
                             <p class="blurb">
                               {{ opportunity.blurb|safe }}
                             </p>
@@ -617,7 +642,7 @@
             {% elif section.name == "New Resources" %}
               <!--Start New Resources-->
               <tr>
-                <td>
+                <td class="section">
                   <a name="new-resources"></a>
                   <table width="600" border="0" cellpadding="0" cellspacing="0"
                          align="center" class="deviceWidth">
@@ -629,11 +654,14 @@
                       </tr>
                       {% for resource in section.posts.all %}
                         <tr>
-                          <td>
-                            <a href="{{ resource.url }}"
-                               class="postTitle">
+                          <td class="postTitle">
+                            <a href="{{ resource.url }}">
                               {{ resource.title }}
                             </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>
                             <p class="blurb">
                               {{ resource.blurb|safe }}
                             </p>
@@ -649,7 +677,7 @@
             {% elif section.name == "Events" %}
               <!--Start Events-->
               <tr>
-                <td>
+                <td class="section">
                   <a name="events"></a>
                   <table width="600" border="0" cellpadding="0" cellspacing="0"
                          align="center" class="deviceWidth">
@@ -698,7 +726,7 @@
 
               <!-- Another Big Green Button -->
               <tr>
-                <td>
+                <td class="greenButtonTd">
                   <table width="550px" border="0" cellpadding="0" cellspacing="0"
                          align="center" class="deviceWidth">
                     <tbody>
