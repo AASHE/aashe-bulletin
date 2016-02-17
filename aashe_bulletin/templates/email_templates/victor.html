@@ -1,0 +1,728 @@
+<!doctype html>
+{% load thumbnail %}
+{% load newsletter %}
+
+{% comment %}
+  This is tim.html adapted to work when Posts can have >1 Category
+{% endcomment %}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>The AASHE Bulletin</title>
+    <style type="text/css">
+     .ReadMsgBody {width: 100%; background-color: #ffffff;}
+     .ExternalClass {width: 100%; background-color: #ffffff;}
+     body     {width: 100%; background-color: #ffffff; margin:0;
+               padding:0; -webkit-font-smoothing: antialiased;
+               font-family: Arial, Helvetica, sans-serif}
+     table {border-collapse: collapse;
+            border: none;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;}
+     img {display: block;}
+     a {text-decoration: none; color: #0080CF}
+
+     .gradient {
+       background: #15387F; /* For browsers that do not support gradients */
+       background: -webkit-linear-gradient(left, #15387F , #0080CF); /* For Safari 5.1 to 6.0 */
+       background: -o-linear-gradient(right, #15387F, #0080CF); /* For Opera 11.1 to 12.0 */
+       background: -moz-linear-gradient(right, #15387F, #0080CF); /* For Firefox 3.6 to 15 */
+       background: linear-gradient(to right, #15387F , #0080CF); /* Standard syntax */
+       font-size: 15px;
+       color: #ffffff;
+       font-weight: bold;
+       padding: 5px;
+       line-height: 25px;
+     }
+
+     .postTitle {
+       font-size: 12px;
+       font-weight: normal;
+       text-align: left;
+       vertical-align: middle;
+     }
+
+     .blurb {
+       font-size: 11px;
+       color: #333333;
+       font-weight: normal;
+       vertical-align: middle;
+     }
+
+     .bigGreenButton {
+       font-size: 12px;
+       font-weight: bold;
+       text-align: center;
+       line-height: 25px;
+       vertical-align: middle;
+       background-color:#00A060;
+       padding: 5px;
+     }
+
+     @media only screen and (max-width: 640px)  {
+       body[yahoo] .deviceWidth {width:440px!important;
+                                 padding:0;}
+       body[yahoo] .center {text-align: center!important;}
+     }
+
+     @media only screen and (max-width: 479px) {
+       body[yahoo] .deviceWidth {width:280px!important;
+                                 padding:0;}
+       body[yahoo] .center {text-align: center!important;}
+
+       {% comment %}
+       The following bit to overcome the fat footer Constant Contact puts on
+       emails and sets to 595px, breaking responsive design.
+       https://community.constantcontact.com/t5/Email-Marketing/Mobile-Friendly-Footer/td-p/70895/page/2
+       {% endcomment %}
+       body > table:last-of-type table{width:90% !important;}
+     }
+     </style>
+  </head>
+
+  <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0"
+        yahoo="fix">
+
+    <!-- Wrapper -->
+    <table width="100%" border="0" cellpadding="0" cellspacing="0"
+           align="center">
+      <tbody>
+        <tr>
+          <td width="100%" valign="top" style="padding-top:20px">
+            <!--Start Header-->
+            <table width="600" border="2" cellpadding="0" cellspacing="0" align="center" class="deviceWidth">
+              <tbody>
+                <tr>
+                  <td width="100%">
+                    <!-- Left box  -->
+                    <table width="40%" align="left" border="0" cellpadding="0" cellspacing="0" class="deviceWidth"
+                           style="vertical-align: bottom">
+                      <tbody>
+                        <tr>
+                          <td valign="bottom" style="padding: 20px 20px">
+                            <a href="http://{{ domain }}{% url "bulletin:plugins:story-list" %}">
+                              <img id="logo-header"
+                                   src="http://bulletin.aashe.org/static/assets/img/bulletin-logo_alt.png"
+                                   alt="AASHE Bulletin Logo" />
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <!--End left box-->
+                    <!--Right box-->
+                    <table width="40%" align="left" border="0" cellpadding="0" cellspacing="0" class="deviceWidth">
+                      <tbody>
+                        <tr>
+                          <td style="vertical-align: bottom; padding: 20px; 20px 0px 1 ">
+                            <img id="tagline"
+                                 src="http://bulletin.aashe.org/static/assets/img/bulletin_tagline.png"
+                                 alt="AASHE Bulletin Tagline" />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <!--End right box-->
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="2" width="100%"
+                      style="font-size: 15px; font-weight: bold; text-align: center; padding: 5px 5px 10px 5px">
+                    {{ issue.pub_date|date:"F j, Y" }}
+                  </td>
+                </tr>
+                <!--Start nav-->
+                <tr style="background-color: #15387F">
+                  <td width="100%">
+                    <!-- Left box  -->
+                    <table width="60%" align="left" border="0" cellpadding="0" cellspacing="0" class="deviceWidth"
+                           style="vertical-align: bottom">
+                      <tbody>
+                        <tr>
+                          <td style="font-size: 12px; color: #ffffff; font-weight: bold; padding: 10px 0px 10px 10px;">
+                            <a href="#news"
+                               style="color: #ffffff">
+                              News
+                            </a>
+                            |
+                            <a href="#opportunities"
+                               style="color: #ffffff;">
+                              Opportunities
+                            </a>
+                            |
+                            <a href="#new-resources"
+                               style="color: #ffffff;">
+                              Resources
+                            </a>
+                            |
+                            <a href="#events"
+                               style="color: #ffffff;">
+                              Events
+                            </a>
+                            |
+                            <a href="#jobs"
+                               style="color: #ffffff;">
+                              Jobs
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <!--End left box-->
+                    <!--Right box-->
+                    <table width="40%" align="right" border="0" cellpadding="0" cellspacing="0" class="deviceWidth">
+                      <tbody>
+                        <tr style="background-color: #15387F">
+                          <td style="font-size: 12px; color: #ffffff; font-weight: bold; padding: 10px 10px 10px 0px; text-align: right">
+                            <a href=""
+                               style="color: #ffffff;">
+                              Submit
+                            </a>
+                            |
+                            <a href=""
+                               style="color: #ffffff;">
+                              Subscribe
+                            </a>
+                            |
+                            <a href=""
+                               style="color: #ffffff;">
+                              Advertise
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                    <!--End right box-->
+                  </td>
+                </tr>
+                <!--End nav-->
+              </tbody>
+            </table>
+            <!--End Header-->
+          </td>
+        </tr>
+        <!--Start of Intro-->
+        <tr>
+          <table width="550"  border="0" cellpadding="0"
+                 cellspacing="0" align="center" class="deviceWidth">
+            <tbody>
+              <tr>
+                <td width="100%"
+                    style="font-size: 12px; color: #333333; vertical-align: middle; padding: 20px; align: center;">
+                  {% if issue.introduction %}
+                    {{ issue.introduction|safe }}
+                  {% else %}
+                    {% comment %}
+                    OK, what's up with the comment placeholder below? It's there
+                    to appease the Outlook 2007/2010 gods. W/o it, when there
+                    is no introductory text, the formatting of the news stories
+                    is broken. An image and one story title don't show. And maybe
+                    the images are displayed with the incorrect stories, that
+                    happens sometimes. No kidding. So leave it there.
+                    {% endcomment %}
+                    <!-- placeholder comment -->
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </tr>
+        <!--End of Intro-->
+        {% for section in issue.sections.all %}
+          {% if section.posts.count %}
+            {% if section.name == "News" %}
+              <!--Start News Stories-->
+              <tr>
+                <td>
+                  <a name="news"></a>
+                  <table width="600px" border="0" cellpadding="0" cellspacing="0"
+                         align="center" class="deviceWidth">
+                    <tbody>
+                      <tr>
+                        <td class="gradient">
+                          News of the Week
+                        </td>
+                      </tr>
+                      {% for story in section.posts.all %}
+                        {% if story.feature %}
+                          <tr>
+                            <td>
+                              <table width="176px" border="0" cellpadding="0"
+                                     cellspacing="0"
+                                     align="left"
+                                     class="deviceWidth">
+                                <tbody>
+                                  <tr>
+                                    <td style="vertical-align: middle; padding: 20px 10px 0;">
+                                      <a href="{{ story.url }}">
+                                        {% thumbnail story.image "172x125" as im %}
+                                          <img src="{{ im.url }}"
+                                               width="{{ im.x }}"
+                                               height="{{ im.y }}"
+                                               style="margin:{{ im|margin:"172x125" }}">
+                                        {% endthumbnail %}
+                                      </a>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                              <table>
+                                <tbody>
+                                  <tr>
+                                    <td class="postTitle">
+                                      <a href="{{ story.url }}">
+                                        {{ story.title }}
+                                      </a>
+                                    </td>
+                                  </tr>
+
+                                  <tr>
+                                    <td class="blurb">
+                                      {{ story.blurb|safe|truncatewords_html:25 }}
+                                    </td>
+                                  </tr>
+
+                                  {% with story.primary_category as category %}
+                                    {% if category %}
+                                      <tr>
+                                        <td>
+                                          <table>
+                                            <tbody>
+                                              <tr>
+                                                <td>
+                                                  <table>
+                                                    <tbody>
+                                                      <tr>
+                                                        <td style="font-size: 11px; font-weight: bold; vertical-align: middle; padding: 5px; background-color:#0080CF">
+                                                          <a href="http://{{ domain }}{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
+                                                             style="color: #ffffff">
+                                                            More {{ category.name }} News
+                                                          </a>
+                                                        </td>
+                                                      </tr>
+                                                    </tbody>
+                                                  </table>
+                                                </td>
+                                                <td>
+                                                  <table>
+                                                    <tbody>
+                                                      <td style="font-size: 11px; font-weight: bold; vertical-align: middle; padding: 5px; background-color: #0080CF">
+                                                        {% if category.url %}
+                                                          <a href="{{ category.url }}"
+                                                             style="color: #ffffff">
+                                                            {{ category.name|title }} Resources
+                                                          </a>
+                                                        {% endif %}
+                                                      </td>
+                                                    </tbody>
+                                                  </table>
+                                                </td>
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                        </td>
+                                      </tr>
+                                    {% endif %}
+                                  {% endwith %}
+                                </tbody>
+                              </table>
+                            </td>
+                          </tr>
+                        {% endif %}
+                      {% endfor %}
+                      {% unfeatured_posts_categories section.posts.all as categories %}
+                      {% for category in categories %}
+                        <tr>
+                          <td colspan="2" class="category-title"
+                              style="font-size: 14px; font-style: normal; padding-left: 5px; padding-top: 10px; padding-bottom: 2px;">
+                            {{ category }}
+                          </td>
+                        </tr>
+                        {% for story in section.posts.all %}
+                          {% if not story.feature %}
+                            {% if story.primary_category.parent.name == category %}
+                              <tr>
+                                <td colspan="2">
+                                  <div class="post-title unfeatured-story"
+                                       style="font-size: 12px; padding-left: 5px; padding-top: 0px; padding-bottom: 2px;">
+                                    <a href="{{ story.url }}" class="postTitle">
+                                      {{ story.title }}
+                                    </a>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endif %}
+                        {% endfor %}
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <!--End News Stories-->
+
+              <!-- Big Green Submit Button -->
+              <tr>
+                <td>
+                  <table width="550px" border="0" cellpadding="0" cellspacing="0"
+                         align="center" class="deviceWidth">
+                    <tbody>
+                      <tr>
+                        <td class="bigGreenButton">
+                          <a href="http://{{ request.get_host }}{% url "bulletin:plugins:plugin-list" %}"
+                             style="color: #ffffff">
+                            Submit sustainability news & information from your institution
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <!-- End Big Green Submit Button -->
+
+              {# First ad goes after Big Green Submit Button. #}
+              {% for ad in ads %}
+                {% if forloop.first %}
+                  <!--Start first 468x60 Ad-->
+                  <tr>
+                    <td>
+                      <table width="600" border="0" cellpadding="0"
+                             cellspacing="0" align="center"
+                             class="deviceWidth">
+                        <tbody>
+                          <tr>
+                            <td style="font-size: 9px; padding: 5px 0px 2px 66px;">
+                              Advertisement
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="vertical-align: middle; padding: 0px 0px 0;">
+                              <center>
+                                <a href="{{ ad.url }}">
+                                  <img src="{{ ad.image.url }}"
+                                       class="deviceWidth"
+                                       width="468" height="120">
+                                </a>
+                              </center>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td>
+                  </tr>
+                  <!--End first 468x60 Ad-->
+                {% endif %}
+              {% endfor %}
+
+            {% elif section.name == "Jobs" %}
+
+              {# Second ad goes before jobs. #}
+              {% for ad in ads %}
+                {% if forloop.last %}
+                  {% if forloop.counter > 1 %}
+                    <!--Start last 468x60 Ad-->
+                    <tr>
+                      <td>
+                        <table width="600" border="0" cellpadding="0"
+                               cellspacing="0" align="center"
+                               class="deviceWidth">
+                          <tbody>
+                            <tr>
+                              <td style="font-size: 11px; vertical-align: bottom; padding: 5px 0px 2px 66px;">
+                                Advertisement
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: middle; padding: 0px 0px 0;">
+                                <center>
+                                  <a href="{{ ad.url }}">
+                                    <img src="{{ ad.image.url }}"
+                                         class="deviceWidth"
+                                         width="468" height="120">
+                                  </a>
+                                </center>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <!--End last 468x60 Ad-->
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+
+              <!--Start Jobs-->
+              <tr>
+                <td>
+                  <a name="jobs"></a>
+                  <table width="600" border="0" cellpadding="0" cellspacing="0"
+                         align="center" class="deviceWidth">
+                    <tbody>
+                      <tr>
+                        <td class="gradient" colspan="2">
+                          Jobs & Internships
+                        </td>
+                      </tr>
+                      {% for job in section.posts.all %}
+                        <tr>
+                          <td>
+                            <table>
+                              <tbody>
+                                <tr>
+                                  <td>
+                                    <a href="{{ job.url }}">
+                                      {% thumbnail job.image "156x125" as im %}
+                                        <img src="{{ im.url }}"
+                                             width="{{ im.width }}"
+                                             height="{{ im.height }}">
+                                      {% endthumbnail %}
+                                    </a>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                          <td>
+                            <table>
+                              <tbody>
+                                <tr>
+                                  <td>
+                                    <a href="{{ job.url }}" class="postTitle">
+                                      {{ job.title }}
+                                    </a>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td class="blurb">
+                                    {{ job.organization }}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <!--End Jobs-->
+
+              {% comment %}
+              "Forward to a colleague", "Visit Website" and "Advertise"
+              buttons comes after jobs.
+              {% endcomment %}
+              <tr>
+                <td>
+                  <table width="550" border="1" cellpadding="5" cellspacing="10"
+                         align="center" class="deviceWidth">
+                    <tbody style="font-size: 11px; font-weight: bold; text-align: center; vertical-align: middle; padding: 5px">
+                      <tr>
+                        <td style="background-color:#00A060">
+                          <a class="button"
+                             href="http://ui.constantcontact.com/sa/fwtf.jsp?m=$ACCOUNT.UID&amp;a=$AGENT.AGENT_UID&amp;ea=$SUBSCRIBER.EMAIL"
+                             style="color: #ffffff">
+                            Forward to a Colleague
+                          </a>
+                        </td>
+                        <td style="background-color:#00A060">
+                          <a class="button"
+                             href="http://bulletin.aashe.org/"
+                             style="color: #ffffff">
+                            Visit Website
+                          </a>
+                        </td>
+                        <td style="background-color:#00A060">
+                          <a class="button"
+                             href="http://www.aashe.org/about/advertising-opportunities%20#e-newsletters"
+                             style="color: #ffffff">
+                            Advertise
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+
+              {# social media buttons: #}
+              <tr>
+                <td>
+                  <table width="250" border="1" cellpadding="5" cellspacing="10"
+                         align="center" class="deviceWidth">
+                    <tbody style="vertical-align: middle; padding: 5px">
+                      <tr>
+                        <td>
+                          <a href="">
+                            <img src="http://bulletin.aashe.org/static/assets/img/icons/facebook-dark.png">
+                          </a>
+                        </td>
+                        <td>
+                          <a href="">
+                            <img src="http://bulletin.aashe.org/static/assets/img/icons/twitter-dark.png">
+                          </a>
+                        </td>
+                        <td>
+                          <a href="">
+                            <img src="http://bulletin.aashe.org/static/assets/img/icons/youtube-dark.png">
+                          </a>
+                        </td>
+                        <td>
+                          <a href="">
+                            <img src="http://bulletin.aashe.org/static/assets/img/icons/flickr-dark.png">
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+
+            {% elif section.name == "Opportunities" %}
+              <!--Start Opportunities-->
+              <tr>
+                <td>
+                  <a name="opportunities"></a>
+                  <table width="600" border="0" cellpadding="0" cellspacing="0"
+                         align="center" class="deviceWidth">
+                    <tbody>
+                      <tr>
+                        <td class="gradient">
+                          Opportunities
+                        </td>
+                      </tr>
+                      {% for opportunity in section.posts.all %}
+                        <tr>
+                          <td>
+                            <a href="{{ opportunity.url }}"
+                               class="postTitle">
+                              {{ opportunity.title }}
+                            </a>
+                            <p class="blurb">
+                              {{ opportunity.blurb|safe }}
+                            </p>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <!--End Opportunities-->
+
+            {% elif section.name == "New Resources" %}
+              <!--Start New Resources-->
+              <tr>
+                <td>
+                  <a name="new-resources"></a>
+                  <table width="600" border="0" cellpadding="0" cellspacing="0"
+                         align="center" class="deviceWidth">
+                    <tbody>
+                      <tr>
+                        <td class="gradient">
+                          New Resources
+                        </td>
+                      </tr>
+                      {% for resource in section.posts.all %}
+                        <tr>
+                          <td>
+                            <a href="{{ resource.url }}"
+                               class="postTitle">
+                              {{ resource.title }}
+                            </a>
+                            <p class="blurb">
+                              {{ resource.blurb|safe }}
+                            </p>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <!--End New Resources-->
+
+            {% elif section.name == "Events" %}
+              <!--Start Events-->
+              <tr>
+                <td>
+                  <a name="events"></a>
+                  <table width="600" border="0" cellpadding="0" cellspacing="0"
+                         align="center" class="deviceWidth">
+                    <tbody>
+                      <tr>
+                        <td class="gradient">
+                          Events
+                        </td>
+                      </tr>
+                      {% for event in section.posts.all %}
+                        <tr>
+                          <td>
+                            <table width="100%" border="0" cellpadding="0"
+                                   cellspacing="0" class="deviceWidth">
+                              <tbody>
+                                <tr>
+                                  <td class="postTitle">
+                                    <a href="{{ event.url }}">
+                                      {{ event.title }}
+                                    </a>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td class="blurb">
+                                    {{ event.start_date|date }}
+                                    {% if event.end_date %}
+                                      - {{ event.end_date|date }}
+                                    {% endif %}
+                                    {% if event.time %}
+                                      ({{ event.time }})
+                                    {% endif %}
+                                    -
+                                    {{ event.location }}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <!--End Events-->
+
+              <!-- Another Big Green Button -->
+              <tr>
+                <td>
+                  <table width="550px" border="0" cellpadding="0" cellspacing="0"
+                         align="center" class="deviceWidth">
+                    <tbody>
+                      <tr>
+                        <td class="bigGreenButton">
+                          <a href="http://www.aashe.org/events/campus-sustainability-calendar"
+                             style="color: #ffffff">
+                            Visit the Subtainability Events Calendar
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+              <!-- End Another Big Green Button -->
+
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- End Wrapper -->
+  </body>
+</html>
