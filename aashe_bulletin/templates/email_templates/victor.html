@@ -34,10 +34,10 @@
        background: -o-linear-gradient(right, #15387F, #0080CF); /* For Opera 11.1 to 12.0 */
        background: -moz-linear-gradient(right, #15387F, #0080CF); /* For Firefox 3.6 to 15 */
        background: linear-gradient(to right, #15387F , #0080CF); /* Standard syntax */
-       font-size: 15px;
+       font-size: 17px;
        color: #ffffff;
        font-weight: bold;
-       padding: 5px;
+       padding: 5px 0px 5px 10px;
        line-height: 25px;
      }
 
@@ -47,14 +47,23 @@
        text-align: left;
        vertical-align: middle;
        padding-top: 10px;
+       padding-left: 10px;
      }
 
      .blurb {
-       font-size: 11px;
+       font-size: 12px;
        color: #333333;
        font-weight: normal;
        vertical-align: middle;
        margin-top: 5px;
+       padding-left: 10px;
+     }
+
+     .littleBlueButton {
+       font-size: 12px;
+       font-weight: bold;
+       background-color: #0080CF;
+       padding-left: 2px;
      }
 
      .advertisementConfessionTd {
@@ -63,13 +72,17 @@
 
      .advertisementConfession {
        padding: 0px, 0px, 2px, 66px;
-       font-size: 11px;
+       font-size: 12px;
        vertical-align: bottom;
        padding: 5px 0px 2px 66px;">
      }
 
      .greenButtonTd {
        padding-top: 20px;
+     }
+
+     .greenButtonTable {
+       width: 380px;
      }
 
      .bigGreenButton {
@@ -79,6 +92,11 @@
        line-height: 25px;
        vertical-align: middle;
        background-color:#00A060;
+     }
+
+     .littleGreenButton {
+       background-color: #00A060;
+       width: 80px;
      }
 
      .socialMediaIcon {
@@ -166,7 +184,7 @@
                       <tbody>
                         <tr>
                           <td style="font-size: 12px; color: #ffffff; font-weight: bold; padding: 10px 0px 10px 10px;">
-                            <a href="#news"
+                            <a href="http://bulletin.aashe.org/"
                                style="color: #ffffff">
                               News
                             </a>
@@ -200,17 +218,17 @@
                       <tbody>
                         <tr style="background-color: #15387F">
                           <td style="font-size: 12px; color: #ffffff; font-weight: bold; padding: 10px 10px 10px 0px; text-align: right">
-                            <a href=""
+                            <a href="http://bulletin.aashe.org/posts/submit/"
                                style="color: #ffffff;">
                               Submit
                             </a>
                             |
-                            <a href=""
+                            <a href="http://visitor.r20.constantcontact.com/manage/optin?v=001dLsZf5Cw4pPWhxXl-XjVc2YbNuB9F9g5WHF-pJzOfmOio-62f4QxmTdox3Z6GZltq9YoNLz1YmBJDSbdG_NLKwcVZNjYQbiC4Ll26TJOzO68cTYZ-voOF3V67Dem0t-O-In5yfb6iagTYJkwfjBuI_nFRXWg6ZeqbRItkWBZm4xVYoEgar2c-Q%3D%3D"
                                style="color: #ffffff;">
                               Subscribe
                             </a>
                             |
-                            <a href=""
+                            <a href="http://www.aashe.org/about/advertising-opportunities%20#e-newsletters"
                                style="color: #ffffff;">
                               Advertise
                             </a>
@@ -297,14 +315,14 @@
                               <table>
                                 <tbody>
                                   <tr>
-                                    <td class="postTitle">
+                                    <td class="postTitle" style="padding-top: 3px; padding-left: 2px;">
                                       <a href="{{ story.url }}">
                                         {{ story.title }}
                                       </a>
                                     </td>
                                   </tr>
                                   <tr>
-                                    <td class="blurb">
+                                    <td class="blurb" style="padding-left: 2px;">
                                       {{ story.blurb|safe|truncatechars_html:800 }}
                                     </td>
                                   </tr>
@@ -319,7 +337,7 @@
                                                   <table>
                                                     <tbody>
                                                       <tr>
-                                                        <td style="font-size: 11px; font-weight: bold; bottom; background-color:#0080CF">
+                                                        <td class="littleBlueButton">
                                                           <a href="http://{{ domain }}{% url "bulletin:plugins:story-list" %}?category={{ story.category.id }}"
                                                              style="color: #ffffff">
                                                             More {{ category.name }} News
@@ -332,7 +350,7 @@
                                                 <td>
                                                   <table>
                                                     <tbody>
-                                                      <td style="font-size: 11px; font-weight: bold; background-color: #0080CF">
+                                                      <td class="littleBlueButton">
                                                         {% if category.url %}
                                                           <a href="{{ category.url }}"
                                                              style="color: #ffffff">
@@ -388,8 +406,8 @@
               <!-- Big Green Submit Button -->
               <tr>
                 <td class="greenButtonTd">
-                  <table width="550px" border="0" cellpadding="0" cellspacing="0"
-                         align="center" class="deviceWidth">
+                  <table border="0" cellpadding="0" cellspacing="0"
+                         align="center" class="deviceWidth greenButtonTable">
                     <tbody>
                       <tr>
                         <td class="bigGreenButton">
@@ -491,8 +509,8 @@
                       </tr>
                       {% for job in section.posts.all %}
                         <tr>
-                          <td>
-                            <table>
+                          <td style="padding-top: 5px;">
+                            <table style="border: 1px solid lightgray;">
                               <tbody>
                                 <tr>
                                   <td>
@@ -540,25 +558,25 @@
               {% endcomment %}
               <tr>
                 <td class="greenButtonTd">
-                  <table width="550" border="1" cellpadding="5" cellspacing="10"
+                  <table width="500" border="1" cellpadding="5" cellspacing="10"
                          align="center" class="deviceWidth">
                     <tbody style="font-size: 11px; font-weight: bold; text-align: center; vertical-align: middle; padding: 5px">
                       <tr>
-                        <td style="background-color:#00A060">
+                        <td class="littleGreenButton">
                           <a class="button"
                              href="http://ui.constantcontact.com/sa/fwtf.jsp?m=$ACCOUNT.UID&amp;a=$AGENT.AGENT_UID&amp;ea=$SUBSCRIBER.EMAIL"
                              style="color: #ffffff">
                             Forward to a Colleague
                           </a>
                         </td>
-                        <td style="background-color:#00A060">
+                        <td class="littleGreenButton">
                           <a class="button"
                              href="http://bulletin.aashe.org/"
                              style="color: #ffffff">
                             Visit Website
                           </a>
                         </td>
-                        <td style="background-color:#00A060">
+                        <td class="littleGreenButton">
                           <a class="button"
                              href="http://www.aashe.org/about/advertising-opportunities%20#e-newsletters"
                              style="color: #ffffff">
@@ -631,7 +649,7 @@
                               {{ opportunity.blurb|safe }}
                             </p>
                           </td>
-                        </tr>
+                        </div>
                       {% endfor %}
                     </tbody>
                   </table>
@@ -727,8 +745,8 @@
               <!-- Another Big Green Button -->
               <tr>
                 <td class="greenButtonTd">
-                  <table width="550px" border="0" cellpadding="0" cellspacing="0"
-                         align="center" class="deviceWidth">
+                  <table border="0" cellpadding="0" cellspacing="0"
+                         align="center" class="deviceWidth greenButtonTable">
                     <tbody>
                       <tr>
                         <td class="bigGreenButton">
