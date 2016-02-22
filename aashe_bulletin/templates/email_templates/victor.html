@@ -327,14 +327,16 @@
                                                 <td>
                                                   <table>
                                                     <tbody>
-                                                      <td class="littleBlueButton">
-                                                        {% if category.url %}
-                                                          <a href="{{ category.url }}"
-                                                             style="color: #ffffff">
-                                                            {{ category.name|title }} Resources
-                                                          </a>
-                                                        {% endif %}
-                                                      </td>
+                                                      <tr>
+                                                        <td class="littleBlueButton">
+                                                          {% if category.url %}
+                                                            <a href="{{ category.url }}"
+                                                               style="color: #ffffff">
+                                                              {{ category.name|title }} Resources
+                                                            </a>
+                                                          {% endif %}
+                                                        </td>
+                                                      </tr>
                                                     </tbody>
                                                   </table>
                                                 </td>
