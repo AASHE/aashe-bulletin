@@ -12,35 +12,42 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>The AASHE Bulletin</title>
     <style type="text/css">
-     .ReadMsgBody {width: 100%; background-color: #ffffff;}
-     .ExternalClass {width: 100%; background-color: #ffffff;}
-     body     {width: 100%; background-color: #ffffff; margin:0;
-               padding:0; -webkit-font-smoothing: antialiased;
-               font-family: Arial, Helvetica, sans-serif}
-     table {border-collapse: collapse;
-            border: none;
-            mso-table-lspace: 0pt;
-            mso-table-rspace: 0pt;}
-     img {display: block;}
-     a {text-decoration: none; color: #0080CF}
-
+     .ReadMsgBody {
+       width: 100%; background-color: #ffffff;
+     }
+     .ExternalClass {
+       width: 100%; background-color: #ffffff;
+     }
+     body {
+       width: 100%; background-color: #ffffff; margin:0;
+       padding:0; -webkit-font-smoothing: antialiased;
+       font-family: Arial, Helvetica, sans-serif
+     }
+     table {
+       border-collapse: collapse;
+       border: none;
+       mso-table-lspace: 0pt;
+       mso-table-rspace: 0pt;
+     }
+     img {
+       display: block;
+       border: 0;  /* needed to prevent Live Mail from black-bordering images */
+     }
+     a {
+       text-decoration: none;
+       color: #0080CF
+     }
      .section {
        padding-top: 20px;
      }
-
-     .gradient {
-       background: #15387F; /* For browsers that do not support gradients */
-       background: -webkit-linear-gradient(left, #15387F , #0080CF); /* For Safari 5.1 to 6.0 */
-       background: -o-linear-gradient(right, #15387F, #0080CF); /* For Opera 11.1 to 12.0 */
-       background: -moz-linear-gradient(right, #15387F, #0080CF); /* For Firefox 3.6 to 15 */
-       background: linear-gradient(to right, #15387F , #0080CF); /* Standard syntax */
+     .sectionTitle {
+       background: #15387F;
        font-size: 17px;
        color: #ffffff;
        font-weight: bold;
        padding: 5px 0px 5px 10px;
        line-height: 25px;
      }
-
      .postTitle {
        font-size: 12px;
        font-weight: normal;
@@ -49,7 +56,6 @@
        padding-top: 10px;
        padding-left: 10px;
      }
-
      .blurb {
        font-size: 12px;
        color: #333333;
@@ -58,33 +64,27 @@
        margin-top: 5px;
        padding-left: 10px;
      }
-
      .littleBlueButton {
        font-size: 12px;
        font-weight: bold;
        background-color: #0080CF;
        padding-left: 2px;
      }
-
      .advertisementConfessionTd {
        padding-top: 15px;
      }
-
      .advertisementConfession {
        padding: 0px, 0px, 2px, 66px;
        font-size: 12px;
        vertical-align: bottom;
        padding: 5px 0px 2px 66px;">
      }
-
      .greenButtonTd {
        padding-top: 20px;
      }
-
      .greenButtonTable {
        width: 380px;
      }
-
      .bigGreenButton {
        font-size: 12px;
        font-weight: bold;
@@ -93,28 +93,31 @@
        vertical-align: middle;
        background-color:#00A060;
      }
-
      .littleGreenButton {
        background-color: #00A060;
        width: 80px;
      }
-
      .socialMediaIcon {
        padding-top: 10px;
      }
-
      @media only screen and (max-width: 640px)  {
-       body[yahoo] .deviceWidth {width:440px!important;
-                                 padding:0;}
-       body[yahoo] .center {text-align: center!important;}
+       body .deviceWidth {
+         width:440px!important;
+         padding:0;
+       }
+       body .center {
+         text-align: center!important;
+       }
      }
-
      @media only screen and (max-width: 479px) {
-       body[yahoo] .deviceWidth {width:280px!important;
-                                 padding:0;}
-       body[yahoo] .center {text-align: center!important;}
-
-       {% comment %}
+       body .deviceWidth {
+         width:280px!important;
+         padding:0;
+       }
+       body .center {
+         text-align: center!important;
+       }
+      {% comment %}
        The following bit to overcome the fat footer Constant Contact puts on
        emails and sets to 595px, breaking responsive design.
        https://community.constantcontact.com/t5/Email-Marketing/Mobile-Friendly-Footer/td-p/70895/page/2
@@ -124,8 +127,7 @@
      </style>
   </head>
 
-  <body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0"
-        yahoo="fix">
+  <body yahoo="fix">
 
     <!-- Wrapper -->
     <table width="100%" border="0" cellpadding="0" cellspacing="0"
@@ -142,12 +144,12 @@
                       <img id="logo-header"
                            src="http://bulletin.aashe.org/static/assets/img/bulletin-logo_alt.png"
                            alt="AASHE Bulletin Logo"
-                           width="280px" height="108px">
+                           width="280" height="108">
                     </a>
                   </td>
                 </tr>
                 <tr>
-                  <td colspan="2" width="100%"
+                  <td width="100%"
                       style="font-size: 15px; font-weight: bold; text-align: center; padding: 5px 5px 10px 5px">
                     {{ issue.pub_date|date:"F j, Y" }}
                   </td>
@@ -257,20 +259,19 @@
               <!--Start News Stories-->
               <tr>
                 <td class="section">
-                  <a name="news"></a>
-                  <table width="600px" border="0" cellpadding="0" cellspacing="0"
-                         align="center" class="deviceWidth">
+                  <table width="600" border="0" cellpadding="0"
+                         cellspacing="0" align="center" class="deviceWidth">
                     <tbody>
                       <tr>
-                        <td class="gradient">
+                        <td class="sectionTitle">
                           News of the Week
                         </td>
                       </tr>
                       {% for story in section.posts.all %}
                         {% if story.feature %}
                           <tr>
-                            <td style="vertical-align: top; padding: 10px 0 0 0;">
-                              <table width="176px" border="0" cellpadding="0"
+                            <td style="vertical-align: top; padding: 10px 0 0 5px;">
+                              <table width="176" border="0" cellpadding="0"
                                      cellspacing="0"
                                      align="left"
                                      class="deviceWidth">
@@ -289,7 +290,10 @@
                                   </tr>
                                 </tbody>
                               </table>
-                              <table>
+                              <table width="400" border="0" cellpadding="0"
+                                     cellspacing="0"
+                                     align="left"
+                                     class="deviceWidth">
                                 <tbody>
                                   <tr>
                                     <td class="postTitle" style="padding-top: 3px; padding-left: 2px;">
@@ -356,7 +360,7 @@
                       {% unfeatured_posts_categories section.posts.all as categories %}
                       {% for category in categories %}
                         <tr>
-                          <td colspan="2" class="category-title"
+                          <td class="category-title"
                               style="font-size: 14px; font-style: normal; padding-left: 5px; padding-top: 10px; padding-bottom: 2px;">
                             {{ category }}
                           </td>
@@ -365,7 +369,7 @@
                           {% if not story.feature %}
                             {% if story.primary_category.parent.name == category %}
                               <tr>
-                                <td colspan="2" class="postTitle"
+                                <td class="postTitle"
                                     style="padding-left: 5px; padding-bottom: 2px; padding-top: 0px;">
                                   <a href="{{ story.url }}">
                                     {{ story.title }}
@@ -381,7 +385,6 @@
                 </td>
               </tr>
               <!--End News Stories-->
-
               <!-- Big Green Submit Button -->
               <tr>
                 <td class="greenButtonTd">
@@ -482,7 +485,7 @@
                          align="center" class="deviceWidth">
                     <tbody>
                       <tr>
-                        <td class="gradient" colspan="2">
+                        <td class="sectionTitle" colspan="2">
                           Jobs & Internships
                         </td>
                       </tr>
@@ -610,7 +613,7 @@
                          align="center" class="deviceWidth">
                     <tbody>
                       <tr>
-                        <td class="gradient">
+                        <td class="sectionTitle">
                           Opportunities
                         </td>
                       </tr>
@@ -628,7 +631,7 @@
                               {{ opportunity.blurb|safe }}
                             </p>
                           </td>
-                        </div>
+                        </tr>
                       {% endfor %}
                     </tbody>
                   </table>
@@ -645,7 +648,7 @@
                          align="center" class="deviceWidth">
                     <tbody>
                       <tr>
-                        <td class="gradient">
+                        <td class="sectionTitle">
                           New Resources
                         </td>
                       </tr>
@@ -680,7 +683,7 @@
                          align="center" class="deviceWidth">
                     <tbody>
                       <tr>
-                        <td class="gradient">
+                        <td class="sectionTitle">
                           Events
                         </td>
                       </tr>
@@ -740,12 +743,9 @@
                 </td>
               </tr>
               <!-- End Another Big Green Button -->
-
             {% endif %}
           {% endif %}
         {% endfor %}
-          </td>
-        </tr>
       </tbody>
     </table>
     <!-- End Wrapper -->
