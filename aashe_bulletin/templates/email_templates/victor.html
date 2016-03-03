@@ -38,7 +38,7 @@
        color: #0080CF
      }
      .section {
-       padding-top: 20px;
+       padding-top: 5px;
      }
      .sectionTitle {
        background: #15387F;
@@ -71,6 +71,7 @@
      }
      .advertisementConfessionTd {
        padding-top: 15px;
+       padding-bottom: 15px;
      }
      .advertisementConfession {
        padding: 0px, 0px, 2px, 66px;
@@ -224,33 +225,23 @@
         </tr>
         <!--End Header-->
         <!--Start of Intro-->
-        <tr>
-          <td>
-            <table width="550"  border="0" cellpadding="0"
-                   cellspacing="0" align="center" class="deviceWidth">
-              <tbody>
-                <tr>
-                  <td width="100%"
-                      style="font-size: 12px; color: #333333; vertical-align: middle; padding: 20px 20px 0px 20px; align: center;">
-                    {% if issue.introduction %}
-                      {{ issue.introduction|safe }}
-                    {% else %}
-                      {% comment %}
-                      OK, what's up with the comment placeholder below? It's there
-                      to appease the Outlook 2007/2010 gods. W/o it, when there
-                      is no introductory text, the formatting of the news stories
-                      is broken. An image and one story title don't show. And maybe
-                      the images are displayed with the incorrect stories, that
-                      happens sometimes. No kidding. So leave it there.
-                      {% endcomment %}
-                      <!-- placeholder comment -->
-                    {% endif %}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </td>
-        </tr>
+        {% if issue.introduction %}
+          <tr>
+            <td>
+              <table width="550"  border="0" cellpadding="0"
+                     cellspacing="0" align="center" class="deviceWidth">
+                <tbody>
+                  <tr>
+                    <td width="100%"
+                        style="font-size: 12px; color: #333333; vertical-align: middle; padding: 20px 20px 15px 20px; align: center;">
+                        {{ issue.introduction|safe }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        {% endif %}
         <!--End of Intro-->
         {% for section in issue.sections.all %}
           {% if section.posts.count %}
