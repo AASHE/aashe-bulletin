@@ -46,7 +46,16 @@ def get_confirmation(months_to_keep):
            "destroyed.")
     print ("WARNING: Only the {} most recent months of data will "
            "remain.").format(months_to_keep)
-
+    print
+    print "\t(Something you might consider doing is commenting out the line"
+    print "\t in settings.py that defines HAYSTACK_SIGNAL_PROCESSOR.  That"
+    print "\t will radically speed up the truncation process, since the"
+    print "\t search index won't be modified on each Post deletion.  If you"
+    print "\t do do this, quit this process and restart it after you've"
+    print "\t modified settings.py. Don't forget to uncomment it when the"
+    print "\t truncation is complete, and run `manage.py rebuild_index` so"
+    print "\t only the Posts remaining will be indexed.)"
+    print
     this_uuid = uuid.uuid4()
     print "TO CONTINUE, enter the following UUID:", this_uuid
 

@@ -14,7 +14,7 @@ raven==5.8.1
 whitenoise
 
 -e git+https://github.com/AASHE/aashe-auth.git@migrations#egg=aashe_auth
--e git+https://github.com/AASHE/django-bulletin.git@v1.0#egg=django_bulletin
+-e git+https://github.com/AASHE/django-bulletin.git@v2.0#egg=django_bulletin
 -e git+https://github.com/AASHE/django-constant-contact.git#egg=django_constant_contact
 -e git+https://github.com/AASHE/django-integration-settings.git#egg=django_integration_settings
 -e git+https://github.com/riltsken/python-constant-contact.git#egg=python-constant-contact
