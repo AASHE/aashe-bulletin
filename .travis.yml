@@ -32,6 +32,8 @@ env:
   - secure: "cXzhRxudavCi7UFpI+rnVnCUbbYHEQUfoWXyiL8awe+KUicVJEEljnfzNgQ/u7Dh/abtBnfI8cBmdBc5ksHcLpdm1tj1IxQ0dhFILvI19ugc9gtct8y7HzrnGUtTYnwC5PeKY3iHRWHvwlUDMknWRBiFFd4MWaHSonNGamh2hOg="
   # AASHE_DRUPAL_COOKIE_SESSION
   - secure: "DfwcgfEkkZnbx1X+7VINjkOx5Lt0a7jQFTrDA8MNRKXCU9+Ef1/ZgpkMS1FFFZ+r8MQNSH19KhaVlWLermVWCvC35bCN65OzXhnQg0AfQLbph38zH0/9aku0SSq52ultv+g5BsfghY/vGxZ/zzlcHISW2UGROOq2nMElIsU3eKc="
+  # RAVEN_DSN
+  - secure: "H7PmTPJwm3xVHvXvWN+z3z94pD4pT0kStM0FborSxoJrQdqmXvCV2BCmpSQ8ISnF36MpO7JqkzHQGCehmbvrTKD3jByu/FRjcY8YgqS0xFl6q7fod56oQVFo+I/2wxjYkLSamRGoaCsFSaQJD8WaYI0QE+bhDRcpx+JV8HENV2s="
 install:
 - pip install -r requirements.txt
 - pip install -r requirements_test.txt
