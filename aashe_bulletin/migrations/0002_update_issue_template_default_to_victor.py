@@ -9,11 +9,12 @@ from django.db import migrations
 def update_issue_template(apps, schema_editor):
     IssueTemplate = apps.get_model("bulletin", "IssueTemplate")
     first_issue_template = IssueTemplate.objects.first()
-    # make sure there's only one:
-    last_issue_template = IssueTemplate.objects.first()
-    assert first_issue_template == last_issue_template
-    first_issue_template.html_template_name = "email_templates/victor.html"
-    first_issue_template.save()
+    if first_issue_template:
+        # make sure there's only one:
+        last_issue_template = IssueTemplate.objects.first()
+        assert first_issue_template == last_issue_template
+        first_issue_template.html_template_name = "email_templates/victor.html"
+        first_issue_template.save()
 
 
 class Migration(migrations.Migration):
