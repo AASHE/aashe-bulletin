@@ -1,11 +1,9 @@
 """
 Django settings for aashe_bulletin project.
 """
-import logging.config
 import os
 
 import dj_database_url
-import raven
 from django.contrib.messages import constants as message_constants
 
 
