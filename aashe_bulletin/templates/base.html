@@ -347,18 +347,15 @@
             Education
           </p>
         </div>
+        {% if user.is_staff %}
+          <div class="fortune">
+            <p class="text-center">
+              {% fortune %}
+            </p>
+          </div>
+        {% endif %}
       </div><!--/copyright-->
     {% endblock %}
-
-    {% if user.is_staff %}
-      <div class="fortune">
-        <div class="container">
-          <p class="text-center">
-            {% fortune %}
-          </p>
-        </div>
-      </div>
-    {% endif %}
 
     {% block end_of_body %}
     {% endblock %}
