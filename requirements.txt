@@ -1,7 +1,7 @@
 Django>=1.8,<1.9
 dj_database_url
 django-extensions
-django-fortune
+django-fortune==1.1.1
 django-haystack==2.4.1
 django-overextends
 elasticsearch==1.6.0

@@ -51,6 +51,10 @@ urlpatterns = patterns(
         LatestNewsFeedView(),
         name='latest-news-category-feed'),
 
+    url(r'^fortune/',
+        include('fortune.urls',
+                namespace='fortune')),
+
     url(r'^',
         include('bulletin.urls',
                 namespace='bulletin')),
