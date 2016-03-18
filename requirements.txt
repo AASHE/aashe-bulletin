@@ -1,11 +1,9 @@
 Django>=1.8,<1.9
 dj_database_url
-django-extensions
 django-fortune==1.1.1
 django-haystack==2.4.1
 django-overextends
 elasticsearch==1.6.0
-ipython
 
 # Deployment
 django-s3-folder-storage==0.3
@@ -14,8 +12,10 @@ psycopg2
 raven==5.8.1
 whitenoise
 
+# Develpment
+django-template-repl
+django-extensions
+
 -e git+https://github.com/AASHE/aashe-auth.git@migrations#egg=aashe_auth
--e git+https://github.com/AASHE/django-bulletin.git@v2.0.1#egg=django_bulletin
--e git+https://github.com/AASHE/django-constant-contact.git#egg=django_constant_contact
+-e git+https://github.com/AASHE/django-bulletin.git@v2.0.7#egg=django_bulletin
 -e git+https://github.com/AASHE/django-integration-settings.git#egg=django_integration_settings
--e git+https://github.com/riltsken/python-constant-contact.git#egg=python-constant-contact
