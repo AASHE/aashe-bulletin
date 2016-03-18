@@ -3,6 +3,12 @@
 ## [Unreleased]
 ### Changed
 
+## [2.2.3] - 2016-03-18
+### Changed
+- Removed mailchimp key.
+- Trimmed requirements.txt.
+- Updated django-bulletin.
+
 ## [2.2.2] - 2016-03-15
 ### Changed
 - Increased blurb font size in victor email template.
