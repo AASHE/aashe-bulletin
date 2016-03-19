@@ -17,5 +17,5 @@ django-template-repl
 django-extensions
 
 -e git+https://github.com/AASHE/aashe-auth.git@migrations#egg=aashe_auth
--e git+https://github.com/AASHE/django-bulletin.git@v2.0.7#egg=django_bulletin
+-e git+https://github.com/AASHE/django-bulletin.git@v2.0.8#egg=django_bulletin
 -e git+https://github.com/AASHE/django-integration-settings.git#egg=django_integration_settings

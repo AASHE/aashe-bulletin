@@ -3,6 +3,10 @@
 ## [Unreleased]
 ### Changed
 
+## [2.2.4] - 2016-03-18
+### Changed
+- Updated django-bulletin.
+
 ## [2.2.3] - 2016-03-18
 ### Changed
 - Removed mailchimp key.
