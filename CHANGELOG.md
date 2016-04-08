@@ -3,6 +3,12 @@
 ## [Unreleased]
 ### Changed
 
+## [2.2.5] - 2016-04-08
+### Changed
+- Added Hub to page header.
+- Updated copyright year.
+- Moved 2nd ad up in newsletter.
+
 ## [2.2.4] - 2016-03-18
 ### Changed
 - Updated django-bulletin.
