@@ -434,42 +434,6 @@
 
             {% elif section.name == "Jobs" %}
 
-              {# Second ad goes before jobs. #}
-              {% for ad in ads %}
-                {% if forloop.last %}
-                  {% if forloop.counter > 1 %}
-                    <!--Start last 468x60 Ad-->
-                    <tr>
-                      <td class="advertisementConfessionTd">
-                        <table width="600" border="0" cellpadding="0"
-                               cellspacing="0" align="center"
-                               class="deviceWidth">
-                          <tbody>
-                            <tr>
-                              <td class="advertisementConfession">
-                                Advertisement
-                              </td>
-                            </tr>
-                            <tr>
-                              <td style="vertical-align: middle; padding: 0px 0px 0;">
-                                <center>
-                                  <a href="{{ ad.url }}">
-                                    <img src="{{ ad.image.url }}"
-                                         class="deviceWidth"
-                                         width="468" height="120">
-                                  </a>
-                                </center>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
-                    <!--End last 468x60 Ad-->
-                  {% endif %}
-                {% endif %}
-              {% endfor %}
-
               <!--Start Jobs-->
               <tr>
                 <td class="section">
@@ -633,6 +597,43 @@
               <!--End Opportunities-->
 
             {% elif section.name == "New Resources" %}
+
+              {# Second ad goes before new resources. #}
+              {% for ad in ads %}
+                {% if forloop.last %}
+                  {% if forloop.counter > 1 %}
+                    <!--Start last 468x60 Ad-->
+                    <tr>
+                      <td class="advertisementConfessionTd">
+                        <table width="600" border="0" cellpadding="0"
+                               cellspacing="0" align="center"
+                               class="deviceWidth">
+                          <tbody>
+                            <tr>
+                              <td class="advertisementConfession">
+                                Advertisement
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: middle; padding: 0px 0px 0;">
+                                <center>
+                                  <a href="{{ ad.url }}">
+                                    <img src="{{ ad.image.url }}"
+                                         class="deviceWidth"
+                                         width="468" height="120">
+                                  </a>
+                                </center>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                    <!--End last 468x60 Ad-->
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+
               <!--Start New Resources-->
               <tr>
                 <td class="section">
