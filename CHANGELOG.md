@@ -3,7 +3,7 @@
 ## [Unreleased]
 ### Changed
 
-## [2.2.6] - 2016-04-09
+## [2.3] - 2016-04-09
 ### Changed
 - Removed fortunes.
 
