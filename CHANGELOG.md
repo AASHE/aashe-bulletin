@@ -3,6 +3,10 @@
 ## [Unreleased]
 ### Changed
 
+## [2.2.6] - 2016-04-09
+### Changed
+- Removed fortunes.
+
 ## [2.2.5] - 2016-04-08
 ### Changed
 - Added Hub to page header.

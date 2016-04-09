@@ -348,37 +348,10 @@
             Education
           </p>
         </div>
-        {% if user.is_staff %}
-          <div class="fortune">
-            <p class="text-center">
-              <a name="fortune"></a>
-              <a href="#fortune" id="fortuneLink"
-                 style="text-decoration:none; color:#333333">
-              </a>
-            </p>
-          </div>
-        {% endif %}
       </div><!--/copyright-->
     {% endblock %}
 
     {% block end_of_body %}
-      {% if user.is_staff %}
-        <script>
-         $("#fortuneLink").click(function() {
-           $.ajax({
-             type: "GET",
-             url: "{% url "fortune:api:fortune-random" %}",
-             success: function(msg) {
-               $("#fortuneLink").text(msg.text);
-             },
-             error: function(xhr, ajaxOptions, thrownError) {
-               alert("Something broke. " + thrownError + "\n" + xhr.responseText);
-             }
-           });
-         });
-         this.window.onload = $("#fortuneLink").click();
-        </script>
-      {% endif %}
     {% endblock %}
 
   </body>

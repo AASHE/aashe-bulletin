@@ -69,7 +69,6 @@ INSTALLED_APPS = (
     'rest_framework',
 
     # misc 3rd party apps
-    'fortune',
     'overextends',
 
     # good for development and debugging
