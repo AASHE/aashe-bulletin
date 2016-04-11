@@ -401,7 +401,7 @@
               {# First ad goes after Big Green Submit Button. #}
               {% for ad in ads %}
                 {% if forloop.first %}
-                  <!--Start first 468x60 Ad-->
+                  <!--Start first 480x60 Ad-->
                   <tr>
                     <td class="advertisementConfessionTd">
                       <table width="600" border="0" cellpadding="0"
@@ -419,7 +419,7 @@
                                 <a href="{{ ad.url }}">
                                   <img src="{{ ad.image.url }}"
                                        class="deviceWidth"
-                                       width="468" height="120">
+                                       width="480" height="120">
                                 </a>
                               </center>
                             </td>
@@ -428,7 +428,7 @@
                       </table>
                     </td>
                   </tr>
-                  <!--End first 468x60 Ad-->
+                  <!--End first 480x60 Ad-->
                 {% endif %}
               {% endfor %}
 
@@ -602,7 +602,7 @@
               {% for ad in ads %}
                 {% if forloop.last %}
                   {% if forloop.counter > 1 %}
-                    <!--Start last 468x60 Ad-->
+                    <!--Start last 480x60 Ad-->
                     <tr>
                       <td class="advertisementConfessionTd">
                         <table width="600" border="0" cellpadding="0"
@@ -620,7 +620,7 @@
                                   <a href="{{ ad.url }}">
                                     <img src="{{ ad.image.url }}"
                                          class="deviceWidth"
-                                         width="468" height="120">
+                                         width="480" height="120">
                                   </a>
                                 </center>
                               </td>
@@ -629,7 +629,7 @@
                         </table>
                       </td>
                     </tr>
-                    <!--End last 468x60 Ad-->
+                    <!--End last 480x60 Ad-->
                   {% endif %}
                 {% endif %}
               {% endfor %}

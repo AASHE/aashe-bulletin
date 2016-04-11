@@ -3,6 +3,10 @@
 ## [Unreleased]
 ### Changed
 
+## [2.3.1] - 2016-04-09
+### Changed
+- Changed ad size in email template.
+
 ## [2.3] - 2016-04-09
 ### Changed
 - Removed fortunes.
