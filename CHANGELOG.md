@@ -3,6 +3,12 @@
 ## [Unreleased]
 ### Changed
 
+## [2.4]
+### Changed
+- Updated to django-bulletin v2.1.
+### Added
+- admin.py to allow editing of bulletin.Category objects.
+
 ## [2.3.1] - 2016-04-09
 ### Changed
 - Changed ad size in email template.
