@@ -3,6 +3,11 @@
 ## [Unreleased]
 ### Changed
 
+## [2.4.1]
+### Changed
+- Install django-bulletin from source. Installing from pyPi doesn't
+  install bulletin.tools.
+
 ## [2.4]
 ### Changed
 - Updated to django-bulletin v2.1.
