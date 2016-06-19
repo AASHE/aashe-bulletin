@@ -151,10 +151,57 @@
                   All Items
                 </a>
               </li>
-              <li class="{% block submissions_tab_class %}{% endblock %}">
-                <a href="{% url 'bulletin:plugins:plugin-list' %}">
-                  Submit
+              <li class="dropdown {% block submissions_tab_class %}{% endblock %}">
+                <a href="{% url 'bulletin:plugins:plugin-list' %}"
+                   class="dropdown-toggle"
+                   data-toggle="dropdown" data-hover="dropdown"
+                   data-delay="0" data-close-others="false">
+                  Submit &nbsp;
+                  <i class="icon-angle-down"></i>
                 </a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a href="{% url 'bulletin:plugins:story-submit' %}?next={{ request.path }}">
+                      News
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:opportunity-submit' %}?next={{ request.path }}">
+                      Opportunity
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:newresource-submit' %}?next={{ request.path }}">
+                      New Resource
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:event-submit' %}?next={{ request.path }}">
+                      Event
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:job-submit' %}?next={{ request.path }}">
+                      Job
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:plugin-list' %}?next={{ request.path }}">
+                      Any Item
+                    </a>
+                  </li>
+                  <li role="separator" class="divider"></li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:plugin-list' %}?next={{ request.path }}">
+                      Submission Help
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url "submission-guidelines" %}">
+                      Submission Guidelines
+                    </a>
+                  </li>
+                </ul>
               </li>
               <li class="dropdown {% block help_tab_class %}{% endblock %}">
                 <a href="#" class="dropdown-toggle"
