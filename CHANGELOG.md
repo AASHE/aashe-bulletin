@@ -3,6 +3,16 @@
 ## [Unreleased]
 ### Changed
 
+## [2.5] - 2016-06-28
+### Fixed
+- Bug in email template regarding Category News Link.
+### Changed
+- Shorten length of "Submit and Item" button.
+- Submit menu item is now a dropdown, allowing choice of type of Post to submit.
+- Update to django-bulletin 2.2.
+### Added
+- Ads.
+
 ## [2.4.1]
 ### Changed
 - Install django-bulletin from source. Installing from pyPi doesn't
