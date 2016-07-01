@@ -3,6 +3,10 @@
 ## [Unreleased]
 ### Changed
 
+## [2.5.1] - 2016-07-01
+### Changed
+- Moved 2nd banner ad on Post list pages after 6th Post, not 7th.
+
 ## [2.5] - 2016-06-28
 ### Fixed
 - Bug in email template regarding Category News Link.
