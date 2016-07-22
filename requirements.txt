@@ -1,5 +1,6 @@
-Django>=1.8,<1.9
+Django>=1.8.14,<1.9
 dj_database_url
+django-bulletin
 django-haystack==2.4.1
 django-overextends
 elasticsearch==1.6.0
@@ -17,5 +18,4 @@ django-template-repl
 django-extensions
 
 -e git+https://github.com/AASHE/aashe-auth.git@migrations#egg=aashe_auth
--e git+https://github.com/AASHE/django-bulletin.git@v2.2#egg=django_bulletin
 -e git+https://github.com/AASHE/django-integration-settings.git#egg=django_integration_settings
