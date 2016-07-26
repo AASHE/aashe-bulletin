@@ -3,6 +3,10 @@
 ## [Unreleased]
 ### Changed
 
+## [3.0] - 2016-07-25
+### Removed
+- Django bootstrap breadcrumbs. Weren't using them anyway.
+
 ## [2.5.1] - 2016-07-01
 ### Changed
 - Moved 2nd banner ad on Post list pages after 6th Post, not 7th.
