@@ -65,7 +65,6 @@ INSTALLED_APPS = (
     'bootstrap3',
     'bootstrap_pagination',
     'datetimewidget',
-    'django_bootstrap_breadcrumbs',
     'rest_framework',
 
     # misc 3rd party apps
