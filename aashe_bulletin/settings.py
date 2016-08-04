@@ -2,9 +2,14 @@
 Django settings for aashe_bulletin project.
 """
 import os
+from urlparse import urlparse
 
 import dj_database_url
+from PIL import ImageFile
 from django.contrib.messages import constants as message_constants
+
+from integration_settings.media.s3 import *
+from integration_settings.logging.sentry import *
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -83,6 +88,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'htmlmin.middleware.HtmlMinifyMiddleware',
+    'htmlmin.middleware.MarkRequestMiddleware'
 )
 
 ROOT_URLCONF = 'aashe_bulletin.urls'
@@ -105,13 +112,11 @@ USE_TZ = True
 
 # AASHE's Media Settings
 # if not DEBUG:
-from integration_settings.media.s3 import *
 INSTALLED_APPS += ('s3_folder_storage',)
 STATICFILES_DIRS = (os.path.join(os.path.dirname(__file__), 'static'),)
 
 # AASHE's Logging Settings
 # if not DEBUG:
-from integration_settings.logging.sentry import *
 INSTALLED_APPS += ('raven.contrib.django.raven_compat',)
 
 # HEROKU
@@ -184,7 +189,6 @@ MESSAGE_TAGS = {message_constants.DEBUG: 'alert fade in alert-debug',
 BOOTSTRAP3 = {'required_css_class': 'required-input'}
 
 # Searchbox backend for Haystack
-from urlparse import urlparse
 es = urlparse(os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/')
 port = es.port or 80
 HAYSTACK_ENGINE = os.environ.get(
@@ -245,5 +249,6 @@ AWS_HEADERS = {
 AWS_QUERYSTRING_AUTH = False
 
 # Because https://github.com/python-pillow/Pillow/issues/1529:
-from PIL import ImageFile
 ImageFile.MAXBLOCK = 1024 * 1024
+
+HTML_MINIFY = True
