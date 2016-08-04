@@ -33,6 +33,8 @@ env:
   # RAVEN_DSN
   - secure: "S6SQGc6qrEFjSeAv0xnQyVIltlykQPsZL76NM5sJ8F5GfHgEVZ+Q3ggW98beYHckUw4set8SBEHI+rOb/jTNNXVT9ZM3V9HQUVZQ8sDtOSW9Snf0FMp5f26BGvVttZIPGIphtNgd4FsVVrUqPFoH4A0GZy8qf+k7c/Dd0hVpTUA="
 install:
+- pip install -U pip
+- pip install -U setuptools
 - pip install -r requirements.txt
 - pip install -r requirements_test.txt
 before_script:
