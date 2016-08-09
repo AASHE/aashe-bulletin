@@ -3,6 +3,14 @@
 ## [Unreleased]
 ### Changed
 
+## [3.1.1] - 2016-08-04
+### Added Upgrade of pip and setuptools in .travis.yml. django-htmlmin
+needs html5lib, which requires updated setuptools.
+
+## [3.1] - 2016-08-04
+### Added
+HTML minification.
+
 ## [3.0] - 2016-07-25
 ### Removed
 - Django bootstrap breadcrumbs. Weren't using them anyway.
