@@ -1,5 +1,5 @@
 # aashe-bulletin
-The AASHE Bulletin - our newsletter
+The AASHE Bulletin - AASHE's newsletter
 
 Uses [django-bulletin](http://github.com/aashe/django-bulletin)
 
