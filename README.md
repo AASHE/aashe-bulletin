@@ -10,14 +10,6 @@ Install as you would any other package, but you must run
 syncdb completes, or else migration of bulletin, first in the list,
 will fail.
 
-# Configuring Search.
-
-Presently, we're using Whoosh as the backend for Haystack search.
-For new installations, you'll need to initialize the Whoosh indexes
-by:
-
-    ./manage.py rebuild_index
-
 # Heroku Configuration
 
 Uses the [searchbox addon](https://devcenter.heroku.com/articles/searchbox#using-haystack-with-django). Each dev instance should add the free tier of the add-on:
