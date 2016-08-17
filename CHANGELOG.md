@@ -3,13 +3,18 @@
 ## [Unreleased]
 ### Changed
 
+## [3.2] - 2016-08-17
+### Added
+- `create_next_issue` management command.
+
 ## [3.1.1] - 2016-08-04
-### Added Upgrade of pip and setuptools in .travis.yml. django-htmlmin
-needs html5lib, which requires updated setuptools.
+### Added
+- Upgrade of pip and setuptools in .travis.yml. django-htmlmin
+  needs html5lib, which requires updated setuptools.
 
 ## [3.1] - 2016-08-04
 ### Added
-HTML minification.
+- HTML minification.
 
 ## [3.0] - 2016-07-25
 ### Removed
