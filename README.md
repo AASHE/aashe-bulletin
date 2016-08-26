@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/AASHE/aashe-bulletin.svg?branch=master)](https://travis-ci.org/AASHE/aashe-bulletin)
 [![Issue Count](https://codeclimate.com/github/AASHE/aashe-bulletin/badges/issue_count.svg)](https://codeclimate.com/github/AASHE/aashe-bulletin)
 
 # aashe-bulletin
