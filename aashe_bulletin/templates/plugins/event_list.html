@@ -1,0 +1,11 @@
+{% overextends "plugins/event_list.html" %}
+
+{% block before_right_sidebar %}
+  {% include "250x250_ad.html" %}
+{% endblock %}
+
+{% block after_event %}
+  {% if forloop.counter == 3 %}
+    {% include "728x90_ad.html" with differ="three" %}
+  {% endif %}
+{% endblock %}

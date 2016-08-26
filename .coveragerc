@@ -1,0 +1,8 @@
+[run]
+source = aashe_bulletin
+omit =
+    *tests*
+    *migrations*
+    aashe_bulletin/settings.py
+    aashe_bulletin/utils/*
+    aashe_bulletin/wsgi.py

@@ -1,5 +1,4 @@
 {% load static from staticfiles %}
-{% load django_bootstrap_breadcrumbs %}
 <!DOCTYPE html>
 <!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
 <!--[if IE 9]> <html lang="en" class="ie9"> <![endif]-->
@@ -151,10 +150,57 @@
                   All Items
                 </a>
               </li>
-              <li class="{% block submissions_tab_class %}{% endblock %}">
-                <a href="{% url 'bulletin:plugins:plugin-list' %}">
-                  Submit
+              <li class="dropdown {% block submissions_tab_class %}{% endblock %}">
+                <a href="{% url 'bulletin:plugins:plugin-list' %}"
+                   class="dropdown-toggle"
+                   data-toggle="dropdown" data-hover="dropdown"
+                   data-delay="0" data-close-others="false">
+                  Submit &nbsp;
+                  <i class="icon-angle-down"></i>
                 </a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a href="{% url 'bulletin:plugins:story-submit' %}?next={{ request.path }}">
+                      News
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:opportunity-submit' %}?next={{ request.path }}">
+                      Opportunity
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:newresource-submit' %}?next={{ request.path }}">
+                      New Resource
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:event-submit' %}?next={{ request.path }}">
+                      Event
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:job-submit' %}?next={{ request.path }}">
+                      Job
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:plugin-list' %}?next={{ request.path }}">
+                      Any Item
+                    </a>
+                  </li>
+                  <li role="separator" class="divider"></li>
+                  <li>
+                    <a href="{% url 'bulletin:plugins:plugin-list' %}?next={{ request.path }}">
+                      Submission Help
+                    </a>
+                  </li>
+                  <li>
+                    <a href="{% url "submission-guidelines" %}">
+                      Submission Guidelines
+                    </a>
+                  </li>
+                </ul>
               </li>
               <li class="dropdown {% block help_tab_class %}{% endblock %}">
                 <a href="#" class="dropdown-toggle"
@@ -204,23 +250,11 @@
     </div>
     <!--=== End Header ===-->
 
-    <!--=== Breadcrumbs ===-->
-    {% block breadcrumbs %}
-    {% endblock %}
-    <div class="breadcrumbs margin-bottom-40">
-      <div class="container">
-        <div class="pull-right">
-          {% render_breadcrumbs "django_bootstrap_breadcrumbs/bootstrap3.html" %}
-        </div>
-      </div>
-    </div>
-    <!--=== End Breadcrumbs ===-->
-
     <!--=== Content Part ===-->
     <div class="container">
       {% if headline %}
         <div class="row">
-          <div class="col-sm-4 col-xs-6 pull-right">
+          <div class="col-sm-3 col-xs-6 pull-right">
             {% block before_headline %}
             {% endblock %}
           </div>
