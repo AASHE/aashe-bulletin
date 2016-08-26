@@ -6,3 +6,4 @@ omit =
     aashe_bulletin/settings.py
     aashe_bulletin/utils/*
     aashe_bulletin/wsgi.py
+    **/management/commands/*
