@@ -1,3 +1,5 @@
+[![Issue Count](https://codeclimate.com/github/AASHE/aashe-bulletin/badges/issue_count.svg)](https://codeclimate.com/github/AASHE/aashe-bulletin)
+
 # aashe-bulletin
 The AASHE Bulletin - our newsletter
 
