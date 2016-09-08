@@ -1,0 +1,20 @@
+# Input for pip-compile.
+
+Django
+dj_database_url
+django-extensions
+django-haystack
+django-htmlmin
+django-overextends
+django-s3-folder-storage
+django-template-repl
+elasticsearch
+gunicorn
+newrelic
+psycopg2
+raven
+whitenoise
+
+-e git+https://github.com/AASHE/aashe-auth.git@migrations#egg=aashe_auth
+-e git+https://github.com/AASHE/django-bulletin.git#egg=django_bulletin
+-e git+https://github.com/AASHE/django-integration-settings.git#egg=django_integration_settings
