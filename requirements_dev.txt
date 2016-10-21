@@ -1,2 +1,3 @@
 django-template-repl
 ipython
+pip-tools
