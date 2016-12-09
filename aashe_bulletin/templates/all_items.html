@@ -24,7 +24,6 @@
     <div class="col-md-9 md-margin-bottom-40">
       {% for post in object_list %}
         <!--Post-->
-        {% block before_post %}{% endblock %}
         <div class="row blog blog-medium margin-bottom-40">
           <div class="col-sm-3 text-right">
             {% if post.image %}
@@ -58,14 +57,10 @@
           </div>
         </div>
         <!--End Post-->
-        {% if forloop.counter == 3 %}
-          {% include "728x90_ad.html" with differ="three" %}
-        {% endif %}
       {% endfor %}
     </div>
     <!-- End Left Sidebar -->
 
-    {% include "250x250_ad.html" %}
     {% include "bulletin/sidebar.html" %}
 
     <!--Pagination-->
