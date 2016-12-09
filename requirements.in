@@ -1,6 +1,6 @@
 # Input for pip-compile.
 
-Django
+Django>=1.8,<1.9
 dj_database_url
 django-extensions
 django-haystack
