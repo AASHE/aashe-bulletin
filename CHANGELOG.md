@@ -3,6 +3,10 @@
 ## [Unreleased]
 ### Changed
 
+## [3.2.1] - 2017-01-07
+### Changed
+- Refreshed requirements.txt to specify updated dependencies.
+
 ## [3.2] - 2016-08-17
 ### Added
 - `create_next_issue` management command.
