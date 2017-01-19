@@ -1,7 +1,10 @@
 # Change Log
 
 ## [Unreleased]
+
+## [3.2.2] - 2017-01-18
 ### Changed
+- Updated copyright year in base template.
 
 ## [3.2.1] - 2017-01-07
 ### Changed
