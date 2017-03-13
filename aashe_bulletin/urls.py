@@ -1,4 +1,4 @@
-import aashe.aasheauth.urls
+import django_membersuite_auth.urls
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from bulletin.tools.plugins.views.story import StoryListView
@@ -23,7 +23,7 @@ urlpatterns = patterns(
         name='all-items'),
 
     url(r'^accounts/',
-        include(aashe.aasheauth.urls)),
+        include(django_membersuite_auth.urls)),
 
     url(r'^help/',
         FAQView.as_view(),

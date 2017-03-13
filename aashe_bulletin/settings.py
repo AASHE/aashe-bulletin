@@ -56,10 +56,11 @@ INSTALLED_APPS = (
 
     # AASHE Apps
     'aashe.aasheauth',
-    'django_constant_contact',
     'bulletin',
     'bulletin.tools.plugins',
     'bulletin.tools.issue_editor',
+    'django_constant_contact',
+    'django_membersuite_auth',
 
     # required by our email templates
     'mathfilters',
@@ -125,8 +126,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Allow all host headers
 ALLOWED_HOSTS = ['*']
 
-AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',
-                           'django.contrib.auth.backends.ModelBackend')
+AUTHENTICATION_BACKENDS = (
+    'django_membersuite_auth.backends.MemberSuiteBackend',
+    'django.contrib.auth.backends.ModelBackend')
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 
@@ -155,11 +157,11 @@ CONSTANT_CONTACT_USERNAME = os.environ['CONSTANT_CONTACT_USERNAME']
 CONSTANT_CONTACT_PASSWORD = os.environ['CONSTANT_CONTACT_PASSWORD']
 
 # aasheauth
-AASHE_DRUPAL_URI = os.environ['AASHE_DRUPAL_URI']
-AASHE_DRUPAL_KEY = os.environ['AASHE_DRUPAL_KEY']
-AASHE_DRUPAL_KEY_DOMAIN = os.environ['AASHE_DRUPAL_KEY_DOMAIN']
-AASHE_DRUPAL_COOKIE_SESSION = os.environ['AASHE_DRUPAL_COOKIE_SESSION']
-AASHE_DRUPAL_COOKIE_DOMAIN = os.environ['AASHE_DRUPAL_COOKIE_DOMAIN']
+MS_ACCESS_KEY = os.environ["MS_ACCESS_KEY"]
+MS_SECRET_KEY = os.environ["MS_SECRET_KEY"]
+MS_ASSOCIATION_ID = os.environ["MS_ASSOCIATION_ID"]
+DMA_COOKIE_SESSION = os.environ["DMA_COOKIE_SESSION"]
+DMA_COOKIE_DOMAIN = os.environ["DMA_COOKIE_DOMAIN"]
 
 SCREEN_IMAGE_UPLOADS = True
 SCREEN_IMAGE_LICENSE_TEXT = """
@@ -214,12 +216,13 @@ if es.username:
 
 def is_member(user):
     try:
-        aasheuser = user.aasheuser
+        membersuiteuser = user.membersuiteportaluser
     except AttributeError:
         return False
-    return aasheuser.is_member()
+    return membersuiteportaluser.is_member
 
-SEARCH_LOGIN_REQUIRED = True
+
+SEARCH_LOGIN_REQUIRED = False
 SEARCH_USER_PASSES_TEST = is_member
 SEARCH_USER_FAILS_TEST_URL = '/search-permission-denied/'
 

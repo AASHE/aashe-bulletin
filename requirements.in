@@ -16,6 +16,8 @@ psycopg2
 raven
 whitenoise
 
--e git+https://github.com/AASHE/aashe-auth.git@migrations#egg=aashe_auth
--e git+https://github.com/AASHE/django-bulletin.git#egg=django_bulletin
--e git+https://github.com/AASHE/django-integration-settings.git#egg=django_integration_settings
+-e git+https://github.com/AASHE/aashe-auth.git@migrations#egg=aashe-auth-dev
+-e git+https://github.com/AASHE/django-bulletin.git#egg=django-bulletin-dev
+-e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings-dev
+-e git+https://github.com/AASHE/django-membersuite-auth.git#egg=django-membersuite-auth-dev
+-e git+https://github.com/AASHE/python-membersuite-api-client#egg=python-membersuite-api-client-dev
