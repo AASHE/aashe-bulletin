@@ -16,6 +16,9 @@ psycopg2
 raven
 whitenoise
 
--e git+https://github.com/AASHE/django-bulletin.git#egg=django-bulletin-dev
--e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings-dev
--e git+https://github.com/AASHE/django-membersuite-auth.git#egg=django-membersuite-auth-dev
+# The following should be cut and pasted into requirements.txt (and
+# uncommented) after pip-compile'ing it. Until pip-compile can handle
+# URLs like these.
+# https://github.com/AASHE/django-bulletin/archive/master.zip
+# https://github.com/AASHE/django-integration-settings/archive/master.zip
+# https://github.com/AASHE/django-membersuite-auth/archive/master.zip
