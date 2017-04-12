@@ -55,7 +55,6 @@ INSTALLED_APPS = (
     'aashe_bulletin',  # so aashe_bulletin/management/commands are available
 
     # AASHE Apps
-    'aashe.aasheauth',
     'bulletin',
     'bulletin.tools.plugins',
     'bulletin.tools.issue_editor',

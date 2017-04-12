@@ -1,4 +1,4 @@
-import django_membersuite_auth.urls
+import django.contrib.auth.views
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from bulletin.tools.plugins.views.story import StoryListView
@@ -22,8 +22,13 @@ urlpatterns = patterns(
         AllItemsView.as_view(),
         name='all-items'),
 
-    url(r'^accounts/',
-        include(django_membersuite_auth.urls)),
+    url(r'^accounts/login/$',
+        django.contrib.auth.views.login,
+        name="login"),
+
+    url(r'^accounts/logout/$',
+        django.contrib.auth.views.logout,
+        name="logout"),
 
     url(r'^help/',
         FAQView.as_view(),
