@@ -4,9 +4,9 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
-https://github.com/AASHE/django-bulletin/archive/master.zip
-https://github.com/AASHE/django-integration-settings/archive/master.zip
-https://github.com/AASHE/django-membersuite-auth/archive/master.zip
+-e git+https://github.com/AASHE/django-bulletin.git#egg=django-bulletin-dev
+-e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings-dev
+-e git+https://github.com/AASHE/django-membersuite-auth.git#egg=django-membersuite-auth-dev
 appdirs==1.4.3            # via setuptools, zeep
 argparse==1.4.0           # via django-htmlmin
 beautifulsoup4==4.5.3     # via django-htmlmin
@@ -76,7 +76,6 @@ webencodings==0.5         # via html5lib
 whitenoise==3.2.3
 wsgiref==0.1.2
 zeep==1.2.0               # via membersuite-api-client
-https://github.com/AASHE/python-membersuite-api-client/archive/master.zip
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools                # via django-polymorphic, django-positions, html5lib
