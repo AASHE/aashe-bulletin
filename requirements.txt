@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
-https://github.com/AASHE/django-bulletin.git/archive/master.zip
+https://github.com/AASHE/django-bulletin/archive/master.zip
 https://github.com/AASHE/django-integration-settings/archive/master.zip
 https://github.com/AASHE/django-membersuite-auth/archive/master.zip
 appdirs==1.4.3            # via setuptools, zeep
