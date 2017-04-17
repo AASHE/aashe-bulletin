@@ -41,7 +41,10 @@
     {{ form.media }}
     <!-- End datetimepicker widget -->
 
-    {% block extra_css %}{% endblock %}
+    {% block extra_css %}
+      <link href="https://fonts.googleapis.com/css?family=Libre+Franklin:400,400i,700,700i" rel="stylesheet">
+      <link href="{% static 'aashestrap/css/style.css' %}" rel="stylesheet" type="text/css" />
+    {% endblock %}
 
     {% block extra_head %}{% endblock %}
 
@@ -58,40 +61,7 @@
 
   <body>
     <!--=== Top ===-->
-    <div class="top">
-      <div class="container">
-        <div class="row top-nav margin-bottom-10">
-          <div class="span7 aashe-tabs">
-            <a href="http://www.aashe.org/" class="left aashe-site-link">
-              aashe</a>
-            <a href="{% url "front-page" %}" class="left aashe-site-link">
-              bulletin</a>
-            <a href="http://www.aashe.org/conference"
-               class="left aashe-site-link">
-              conference</a>
-            <a href="http://hub.aashe.org/" class="left aashe-site-link">
-              hub</a>
-            <a href="http://stars.aashe.org/" class="left aashe-site-link">
-              stars</a>
-            <div class="top-menu" style="float: right;">
-              <span>
-                {% if user.is_authenticated %}
-                  <a href="/accounts/logout/">
-                    Logout</a>
-                {% else %}
-                  <a href="/accounts/login/?next={{ request.get_full_path }}">
-                    Login</a>
-                {% endif %}
-                <a href="{% url "bulletin:haystack_search" %}" %}">
-                  Search</a>
-                <a href="http://www.aashe.org/membership">
-                  Become a Member</a>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    {% include 'aashestrap/header.html' %}
 
     <!--=== End Top ===-->
 
@@ -291,98 +261,7 @@
 
     <!---=== Footer Part ===-->
     {% block footer %}
-      <div class="footer-v2">
-        <div class="footer">
-          <div class="container">
-            <div class="row">
-              <!-- Subscribe -->
-              <div class="col-md-3 md-margin-bottom-40">
-                <div class="headline"><h2>Subscribe</h2></div>
-                <p>Subscribe to the email version of
-                  the AASHE Bulletin, curated and delivered weekly.</p>
-                <form class="footer-subscribe margin-bottom-25 md-margin-bottom-40"
-                      method="post"
-                      action="{% url "bulletin:newsletter-subscribe" 1 %}">
-                  {% csrf_token %}
-                  <div class="input-group">
-                    <input type="email" class="form-control"
-                           required="true"
-                           placeholder="Email Address" name="email_address"
-                           id="id_email_address">
-                    <span class="input-group-btn">
-                      <button class="btn-u" type="submit">Subscribe</button>
-                    </span>
-                  </div>
-                </form>
-              </div>
-              <!-- End Subscribe -->
-
-              <!-- About AASHE -->
-              <div class="col-md-6 md-margin-bottom-40">
-                <div class="headline"><h2>About AASHE</h2></div>
-                <div class="media">
-                  <a class="pull-left" href="http://www.aashe.org/">
-                    <img class="media-object"
-                         src="{% static "assets/img/AASHE_rgb.png" %}">
-                  </a>
-                  <div class="media-body">
-                    <p>The Association for the Advancement of
-                    Sustainability in Higher Education is a membership
-                    association of colleges &amp; universities,
-                    businesses, and nonprofits who are working
-                    together to lead the sustainability
-                    transformation.
-                      <a href="http://www.aashe.org/about">
-                        Learn more about AASHE's mission.</a>
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <!-- End About AASHE -->
-
-              <!-- Contact Us -->
-              <div class="col-md-3 md-margin-bottom-40">
-                <div class="headline"><h2>Contact Us</h2></div>
-                <address>
-                  <ul class="list-unstyled">
-                    <li><i class="icon-envelope-alt"
-                           style="color: white;"></i>
-                      <a href="mailto:bulletin@aashe.org">
-                        bulletin@aashe.org</a>
-                    </li>
-                  </ul>
-                </address>
-
-                <div class="headline"><h2>Stay Connected</h2></div>
-                <ul class="social-icons">
-                  <li><a href="https://www.facebook.com/aasheorg"
-                         data-original-title="Facebook"
-                         class="social_facebook"></a></li>
-                  <li><a href="http://twitter.com/AASHENews"
-                         data-original-title="Twitter"
-                         class="social_twitter"></a></li>
-                  <li><a href="http://www.linkedin.com/company/aashe"
-                         data-original-title="LinkedIn"
-                         class="social_linkedin"></a></li>
-                </ul>
-              </div>
-              <!-- End Contact Us -->
-            </div>
-          </div>
-        </div><!--/footer-->
-    <!--=== End Footer ===-->
-    {% endblock footer %}
-
-    {% block copyright %}
-      <div class="copyright">
-        <div class="container">
-          <p class="text-center">
-            Copyright © 2017 •
-            Association for the Advancement of Sustainability in Higher
-            Education
-          </p>
-        </div>
-      </div><!--/copyright-->
+      {% include 'aashestrap/footer.html' %}
     {% endblock %}
 
     {% block end_of_body %}

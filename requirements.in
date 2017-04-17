@@ -19,3 +19,4 @@ whitenoise
 -e git+https://github.com/AASHE/django-bulletin.git#egg=django-bulletin-dev
 -e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings-dev
 -e git+https://github.com/AASHE/django-membersuite-auth.git#egg=django-membersuite-auth-dev
+https://github.com/AASHE/django-aashestrap/archive/master.zip
