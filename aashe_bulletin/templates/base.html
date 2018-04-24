@@ -64,15 +64,17 @@
           <div class="span7 aashe-tabs">
             <a href="http://www.aashe.org/" class="left aashe-site-link">
               aashe</a>
-            <a href="{% url "front-page" %}" class="left aashe-site-link">
-              bulletin</a>
-            <a href="http://www.aashe.org/conference"
-               class="left aashe-site-link">
-              conference</a>
-            <a href="http://hub.aashe.org/" class="left aashe-site-link">
-              hub</a>
             <a href="http://stars.aashe.org/" class="left aashe-site-link">
               stars</a>
+            <a href="http://www.aashe.org/conference"
+               class="left aashe-site-link">
+              conference</a>    
+            <a href="http://community.aashe.org" class="left aashe-site-link">
+              community</a>
+            <a href="http://hub.aashe.org/" class="left aashe-site-link">
+              hub</a>
+            <a href="{% url "front-page" %}" class="left aashe-site-link">
+              bulletin</a>
             <div class="top-menu" style="float: right;">
               <span>
                 {% if user.is_authenticated %}
