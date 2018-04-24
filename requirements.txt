@@ -58,7 +58,7 @@ packaging==16.8           # via setuptools
 pillow==4.0.0
 pip-tools==1.8.0
 premailer==3.0.1          # via django-constant-contact
-psycopg2==2.6.2
+psycopg2==2.7.3.2
 pyparsing==2.2.0          # via packaging
 python-constantcontact==0.1
 python-dateutil==2.6.0    # via botocore
