@@ -2,9 +2,11 @@
 
 Django>=1.8,<1.9
 dj_database_url
+django-bulletin
 django-extensions
 django-haystack
 django-htmlmin
+django-membersuite-auth
 django-overextends
 django-s3-folder-storage
 django-template-repl
@@ -16,6 +18,4 @@ psycopg2
 raven
 whitenoise
 
--e git+https://github.com/AASHE/django-bulletin.git#egg=django-bulletin-dev
 -e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings-dev
--e git+https://github.com/AASHE/django-membersuite-auth.git#egg=django-membersuite-auth-dev
