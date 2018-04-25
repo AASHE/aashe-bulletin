@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [3.2.3] - 2017-04-25
+### Changed
+- Added "community" to page header nav
+
 ## [3.2.2] - 2017-01-18
 ### Changed
 - Updated copyright year in base template.
