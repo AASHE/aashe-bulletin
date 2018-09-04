@@ -36,6 +36,12 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request"
 )
 
+TEMPLATES = [{
+    "BACKEND": "django.template.backends.django.DjangoTemplates",
+    "APP_DIRS": True,
+    "OPTIONS": {
+        "builtins": ["overextends.templatetags.overextends_tags"]}}]
+
 ALLOWED_HOSTS = [".aashe.org"]
 
 ADMINS = (('Bob Erb', 'bob.erb@aashe.org'),)
@@ -50,14 +56,14 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
-    'haystack',
+    "corsheaders",
+    "haystack",
 
     'aashe_bulletin',  # so aashe_bulletin/management/commands are available
 
     # AASHE Apps
     'bulletin',
     'bulletin.tools.plugins',
-    'bulletin.tools.issue_editor',
     'django_constant_contact',
     'django_membersuite_auth',
 
@@ -132,8 +138,13 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 
 # CORS Setup:
-CORS_ORIGIN_ALLOW_ALL = True  # @todo - security risk?
+CORS_ORIGIN_ALLOW_ALL = False
 CORS_URLS_REGEX = r'^.*/api/.*$'
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = (
+    "localhost:8000",
+    "127.0.0.1:8000",
+)
 
 # Bulletin Settings:
 NUM_POSTS_ON_FRONT_PAGE = 50
@@ -216,7 +227,7 @@ def is_member(user):
         membersuiteuser = user.membersuiteportaluser
     except AttributeError:
         return False
-    return membersuiteportaluser.is_member
+    return membersuiteuser.is_member
 
 
 SEARCH_LOGIN_REQUIRED = False
