@@ -4,24 +4,25 @@
 #
 #    pip-compile --output-file requirements.txt requirements.in
 #
--e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings-dev
+-e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings
+-e git+https://github.com/AASHE/django-s3-folder-storage.git#egg=django-s3-folder-storage
 appdirs==1.4.3            # via zeep
 argparse==1.4.0           # via django-htmlmin
 beautifulsoup4==4.5.3     # via django-htmlmin
-boto3==1.4.3              # via django-s3-folder-storage
+boto3==1.4.3
 botocore==1.4.93          # via boto3, s3transfer
 cached-property==1.3.0    # via zeep
 click==6.6                # via pip-tools
 contextlib2==0.5.4        # via raven
-cssselect==1.0.0          # via premailer
-cssutils==1.0.1           # via premailer
+cssselect==1.0.3          # via premailer
+cssutils==1.0.2           # via premailer
 defusedxml==0.5.0         # via zeep
 dj-database-url==0.5.0
 django-bootstrap-pagination==1.5.0  # via django-bulletin
 django-bootstrap3==4.11.0  # via django-bulletin
 django-braces==1.4.0      # via django-bulletin
-django-bulletin==3.2.1
-django-constant-contact==1.1.3  # via django-bulletin
+django-bulletin==3.4.3
+django-constant-contact==1.4  # via django-bulletin
 django-cors-headers==0.13  # via django-bulletin
 django-datetime-widget==0.9.3  # via django-bulletin
 django-extensions==1.7.5
@@ -32,12 +33,11 @@ django-jsonfield==0.9.15  # via django-bulletin, django-constant-contact
 django-mathfilters==0.4.0  # via django-bulletin
 django-membersuite-auth==2.0
 django-overextends==0.4.2
-django-polymorphic==0.7.2  # via django-bulletin
+django-polymorphic==1.1   # via django-bulletin
 django-positions==0.5.1   # via django-bulletin
-django-s3-folder-storage==0.5
-django-storages==1.5.1    # via django-s3-folder-storage
+django-storages==1.6
 django-template-repl==0.3.0
-Django==1.8.14            # via django-bulletin, django-constant-contact, django-datetime-widget, django-haystack, django-overextends, django-positions
+django==1.9.13
 djangorestframework==3.3.1  # via django-bulletin
 docutils==0.13.1          # via botocore
 elasticsearch==5.0.1
@@ -47,14 +47,15 @@ future==0.16.0            # via django-membersuite-auth, membersuite-api-client
 futures==3.0.5            # via s3transfer
 gunicorn==19.6.0
 html5lib==0.999999999     # via django-htmlmin
-httplib2==0.9.2           # via python-constantcontact
+httplib2==0.11.3          # via python-constantcontact
 isodate==0.5.4            # via zeep
 jmespath==0.9.0           # via boto3, botocore
 lxml==3.7.1               # via premailer, zeep
 membersuite-api-client==0.4.4  # via django-membersuite-auth
 nap==2.0.0                # via django-constant-contact
 newrelic==2.78.0.57
-Pillow==3.3.0             # via django-bulletin
+olefile==0.45.1           # via pillow
+pillow==4.3.0             # via django-bulletin
 pip-tools==1.8.0
 premailer==3.0.1          # via django-constant-contact
 psycopg2==2.7.3.2
@@ -67,13 +68,10 @@ requests==2.9.1           # via django-constant-contact, nap, premailer, request
 retrying==1.3.3           # via membersuite-api-client
 s3transfer==0.1.10        # via boto3
 six==1.10.0               # via django-braces, django-extensions, html5lib, pip-tools, python-dateutil, retrying, zeep
-sorl-thumbnail==12.3      # via django-bulletin
+sorl-thumbnail==12.4.1    # via django-bulletin
 sphinx-me==0.3            # via django-overextends
 urllib3==1.19.1           # via elasticsearch
 webencodings==0.5         # via html5lib
 whitenoise==3.2.3
 wsgiref==0.1.2            # via django-bulletin
 zeep==1.2.0               # via membersuite-api-client
-
-# The following packages are considered to be unsafe in a requirements file:
-# setuptools                # via django-polymorphic, django-positions, html5lib

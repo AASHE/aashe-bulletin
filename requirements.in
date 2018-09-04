@@ -1,14 +1,14 @@
 # Input for pip-compile.
 
-Django>=1.8,<1.9
+Django==1.9.13
 dj_database_url
-django-bulletin
+django-bulletin==3.4.3
 django-extensions
 django-haystack
 django-htmlmin
 django-membersuite-auth
 django-overextends
-django-s3-folder-storage
+# django-s3-folder-storage
 django-template-repl
 elasticsearch
 gunicorn
@@ -18,4 +18,6 @@ psycopg2
 raven
 whitenoise
 
--e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings-dev
+-e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings
+
+-e git+https://github.com/AASHE/django-s3-folder-storage.git#egg=django-s3-folder-storage
