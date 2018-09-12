@@ -19,10 +19,10 @@ cssutils==1.0.2           # via premailer
 defusedxml==0.5.0         # via zeep
 dj-database-url==0.5.0
 django-bootstrap-pagination==1.5.0  # via django-bulletin
-django-bootstrap3==4.11.0  # via django-bulletin
+django-bootstrap3==7.0.0  # via django-bulletin
 django-braces==1.4.0      # via django-bulletin
-django-bulletin==3.4.3
-django-constant-contact==1.4  # via django-bulletin
+django-bulletin==3.4.6
+django-constant-contact==1.4.1  # via django-bulletin
 django-cors-headers==0.13  # via django-bulletin
 django-datetime-widget==0.9.3  # via django-bulletin
 django-extensions==1.7.5
