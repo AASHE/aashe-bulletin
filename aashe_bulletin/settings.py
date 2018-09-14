@@ -19,28 +19,22 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 
 DEBUG = os.environ.get('DEBUG', False)
 
-TEMPLATE_DEBUG = DEBUG
-
-TEMPLATE_DIRS = (
-    BASE_DIR + '/aashe_bulletin/templates/',
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    "django.core.context_processors.request"
-)
-
 TEMPLATES = [{
     "BACKEND": "django.template.backends.django.DjangoTemplates",
     "APP_DIRS": True,
+    "DIRS": [BASE_DIR + '/aashe_bulletin/templates/'],
     "OPTIONS": {
-        "builtins": ["overextends.templatetags.overextends_tags"]}}]
+        "builtins": ["overextends.templatetags.overextends_tags"],
+        "context_processors": (
+            "django.contrib.auth.context_processors.auth",
+            "django.core.context_processors.debug",
+            "django.core.context_processors.i18n",
+            "django.core.context_processors.media",
+            "django.core.context_processors.static",
+            "django.core.context_processors.tz",
+            "django.contrib.messages.context_processors.messages",
+            "django.core.context_processors.request"),
+        "debug": DEBUG}}]
 
 ALLOWED_HOSTS = [".aashe.org"]
 
@@ -86,7 +80,7 @@ INSTALLED_APPS = (
     'template_repl'
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',

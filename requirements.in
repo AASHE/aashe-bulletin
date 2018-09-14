@@ -1,6 +1,6 @@
 # Input for pip-compile.
 
-Django==1.9.13
+Django>=1.10,<1.11
 dj_database_url
 django-bulletin==3.4.6
 django-extensions
