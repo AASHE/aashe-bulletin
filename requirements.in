@@ -2,7 +2,7 @@
 
 Django==1.9.13
 dj_database_url
-django-bulletin==3.4.6
+django-bulletin==3.4.10
 django-extensions
 django-haystack
 django-htmlmin
