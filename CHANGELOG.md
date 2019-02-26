@@ -1,10 +1,18 @@
 # Change Log
 
 ## [Unreleased]
+### Changed
+
+## [3.2.4]
+- Updated copyright year in base.html.
+- New email template named william.
+  - Based on template named victor.
+  - Removed social media icons.
+  - Added footer from Informz, and required style sheets.
 
 ## [3.2.3] - 2017-04-25
 ### Changed
-- Added "community" to page header nav
+- Added "community" to page header nav.
 
 ## [3.2.2] - 2017-01-18
 ### Changed
