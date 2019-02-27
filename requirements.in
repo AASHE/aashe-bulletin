@@ -8,7 +8,6 @@ django-haystack
 django-htmlmin
 django-membersuite-auth
 django-overextends
-# django-s3-folder-storage
 django-template-repl
 elasticsearch
 gunicorn

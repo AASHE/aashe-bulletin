@@ -3,6 +3,9 @@
 ## [Unreleased]
 ### Changed
 
+## [3.2.5]
+- Upgraded django-s3-folder-storage.
+
 ## [3.2.4]
 - Updated copyright year in base.html.
 - New email template named william.
