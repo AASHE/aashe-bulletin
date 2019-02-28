@@ -261,4 +261,4 @@ AWS_QUERYSTRING_AUTH = False
 # Because https://github.com/python-pillow/Pillow/issues/1529:
 ImageFile.MAXBLOCK = 1024 * 1024
 
-HTML_MINIFY = True
+HTML_MINIFY = False
