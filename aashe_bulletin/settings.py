@@ -261,4 +261,7 @@ AWS_QUERYSTRING_AUTH = False
 # Because https://github.com/python-pillow/Pillow/issues/1529:
 ImageFile.MAXBLOCK = 1024 * 1024
 
+# Because https://github.com/jazzband/sorl-thumbnail/issues/564:
+THUMBNAIL_PRESERVE_FORMAT = True
+
 HTML_MINIFY = False
