@@ -300,25 +300,15 @@
         <div class="footer">
           <div class="container">
             <div class="row">
+
               <!-- Subscribe -->
               <div class="col-md-3 md-margin-bottom-40">
                 <div class="headline"><h2>Subscribe</h2></div>
-                <p>Subscribe to the email version of
-                  the AASHE Bulletin, curated and delivered weekly.</p>
-                <form class="footer-subscribe margin-bottom-25 md-margin-bottom-40"
-                      method="post"
-                      action="{% url "bulletin:newsletter-subscribe" 1 %}">
-                  {% csrf_token %}
-                  <div class="input-group">
-                    <input type="email" class="form-control"
-                           required="true"
-                           placeholder="Email Address" name="email_address"
-                           id="id_email_address">
-                    <span class="input-group-btn">
-                      <button class="btn-u" type="submit">Subscribe</button>
-                    </span>
-                  </div>
-                </form>
+                <p>
+                  <a href="https://www.aashe.org/get-involved/connect/stay-connected/">
+                    Subscribe</a> to the email version of
+                  the AASHE Bulletin, curated and delivered weekly.
+                </p>
               </div>
               <!-- End Subscribe -->
 
