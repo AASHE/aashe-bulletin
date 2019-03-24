@@ -2,14 +2,13 @@
 
 Django==1.9.13
 dj_database_url
-django-bulletin==3.4.10
+django-bulletin==3.4.11
 django-extensions
-django-haystack
 django-htmlmin
 django-membersuite-auth
 django-overextends
 django-template-repl
-elasticsearch
+elasticsearch==5.5.3
 gunicorn
 newrelic
 pip-tools
