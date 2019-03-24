@@ -84,11 +84,8 @@
                   <a href="/accounts/login/?next={{ request.get_full_path }}">
                     Login</a>
                 {% endif %}
-                {# search is broken, so hide the search link #}
-                {% comment %}
                 <a href="{% url "bulletin:haystack_search" %}" %}">
                   Search</a>
-                {% endcomment %}
                 <a href="http://www.aashe.org/membership">
                   Become a Member</a>
               </span>
