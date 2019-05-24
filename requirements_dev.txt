@@ -4,36 +4,30 @@
 #
 #    pip-compile --output-file requirements_dev.txt requirements_dev.in
 #
-appnope==0.1.0            # via ipython
 backports.shutil-get-terminal-size==1.0.0  # via ipython
 click==6.6                # via pip-tools, stellar
 decorator==4.0.10         # via ipython, traitlets
 django-template-repl==0.3.0
 enum34==1.1.6             # via traitlets
-first==2.0.1              # via pip-tools
 humanize==0.5.1           # via stellar
 ipython-genutils==0.1.0   # via traitlets
 ipython==5.1.0
 pathlib2==2.1.0           # via ipython, pickleshare
 pexpect==4.2.1            # via ipython
 pickleshare==0.7.4        # via ipython
-pip-tools==1.8.0
+pip-tools==3.7.0
 prompt-toolkit==1.0.9     # via ipython
 psutil==5.0.0             # via stellar
 ptyprocess==0.5.1         # via pexpect
 py==1.4.31                # via pytest
 pygments==2.1.3           # via ipython
 pytest==3.0.5             # via stellar
-PyYAML==3.12              # via stellar
+pyyaml==3.12              # via stellar
 schema==0.6.5             # via stellar
 simplegeneric==0.8.1      # via ipython
 six==1.10.0               # via pathlib2, pip-tools, prompt-toolkit, sqlalchemy-utils, traitlets
-SQLAlchemy-Utils==0.32.11  # via stellar
-SQLAlchemy==1.1.4         # via sqlalchemy-utils, stellar
+sqlalchemy-utils==0.32.11  # via stellar
+sqlalchemy==1.1.4         # via sqlalchemy-utils, stellar
 stellar==0.4.3
 traitlets==4.3.1          # via ipython
 wcwidth==0.1.7            # via prompt-toolkit
-
-# The following packages are commented out because they are
-# considered to be unsafe in a requirements file:
-# setuptools                # via ipython

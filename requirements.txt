@@ -42,7 +42,6 @@ djangorestframework==3.3.1  # via django-bulletin
 docutils==0.13.1          # via botocore
 elasticsearch==5.5.3
 feedparser==5.2.1         # via python-constantcontact
-first==2.0.1              # via pip-tools
 future==0.16.0            # via django-membersuite-auth, membersuite-api-client
 futures==3.0.5            # via s3transfer
 gunicorn==19.6.0
@@ -57,7 +56,7 @@ nap==2.0.0                # via django-constant-contact
 newrelic==2.78.0.57
 olefile==0.45.1           # via pillow
 pillow==4.3.0             # via django-bulletin
-pip-tools==1.8.0
+pip-tools==3.7.0
 premailer==3.0.1          # via django-constant-contact
 psycopg2==2.7.3.2
 python-constantcontact==0.1  # via django-bulletin
