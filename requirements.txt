@@ -25,7 +25,7 @@ django-bulletin==3.4.11
 django-constant-contact==1.5  # via django-bulletin
 django-cors-headers==1.1.0  # via django-bulletin
 django-datetime-widget==0.9.3  # via django-bulletin
-django-extensions==1.7.5
+django-extensions==2.1.7
 django-form-utils==1.0.2  # via django-bulletin
 django-haystack==2.5.1    # via django-bulletin
 django-htmlmin==0.9.1
@@ -71,6 +71,7 @@ s3transfer==0.1.10        # via boto3
 six==1.10.0               # via django-braces, django-extensions, html5lib, pip-tools, python-dateutil, retrying, zeep
 sorl-thumbnail==12.3      # via django-bulletin
 sphinx-me==0.3            # via django-overextends
+typing==3.6.6             # via django-extensions
 urllib3==1.24.1           # via elasticsearch
 webencodings==0.5         # via html5lib
 whitenoise==3.2.3
