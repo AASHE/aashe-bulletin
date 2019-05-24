@@ -59,7 +59,7 @@ olefile==0.45.1           # via pillow
 pillow==4.3.0             # via django-bulletin
 pip-tools==1.8.0
 premailer==3.0.1          # via django-constant-contact
-psycopg2==2.7.3.2
+psycopg2==2.8.2
 python-constantcontact==0.1  # via django-bulletin
 python-dateutil==2.6.0    # via botocore
 pytz==2014.7              # via django-bulletin, django-datetime-widget, zeep
