@@ -64,3 +64,6 @@ stellar.yaml
 
 .envrc
 .idea
+
+# Kubernetes Secrets
+kubernetes-manifests/overlays/secrets/kustomization.yaml

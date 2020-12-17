@@ -1,0 +1,10 @@
+#Build base image for bullletin
+
+steps:
+
+# Docker build
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/aashe-migration/bulletin-base-image:$BUILD_ID', '.']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/aashe-migration/bulletin-base-image:$BUILD_ID']

@@ -33,7 +33,7 @@ configMapGenerator:
  
 images:
 - name: bulletin-django-image
-  newName: gcr.io/aashe-migration/bulletin-base-image
+  newName: gcr.io/aashe-migration/bulletin-image
   newTag: 1f0350eb-3f37-47ed-9405-827204a2314e
 
 
