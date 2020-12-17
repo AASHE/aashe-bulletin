@@ -9,4 +9,4 @@ python manage.py migrate
 python manage.py collectstatic --noinput
 
 # Start Django
-gunicorn --bind :$PORT -w 2 --timeout 180 stars.wsgi:application
+gunicorn --bind :$PORT -w 2 --timeout 30 aashe_bulletin.wsgi:application
