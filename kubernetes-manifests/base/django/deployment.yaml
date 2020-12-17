@@ -69,6 +69,11 @@ spec:
             secretKeyRef:
               name: bulletin-django
               key: ms_access_key
+        - name: MS_ASSOCIATION_ID
+          valueFrom:
+            secretKeyRef:
+              name: bulletin-django
+              key: ms_association_id
         - name: MS_SECRET_KEY
           valueFrom:
             secretKeyRef:
