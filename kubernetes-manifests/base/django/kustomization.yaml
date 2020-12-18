@@ -2,3 +2,4 @@ commonLabels:
   app: bulletin-django
 resources:
 - deployment.yaml
+- service.yaml
