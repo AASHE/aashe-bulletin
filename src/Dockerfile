@@ -22,12 +22,12 @@ RUN pip install --trusted-host pypi.python.org google-cloud-logging
 RUN pip install --trusted-host pypi.python.org google-cloud-storage==1.29.0
 
 # Make directories for django and celery
-#RUN mkdir -p /var/www/ \
-#    mkdir -p /var/www/stars \
-#    mkdir -p /var/www/stars/media \
-#    mkdir -p /var/www/stars/static \
-#    mkdir -p /var/www/stars/logs \
-#    mkdir -p /var/www/stars/src/
+RUN mkdir -p /var/www/ \
+    mkdir -p /var/www/aashe_bulletin \
+    mkdir -p /var/www/aashe_bulletin/media \
+    mkdir -p /var/www/aashe_bulletin/static \
+    mkdir -p /var/www/aashe_bulletin/logs \
+    mkdir -p /var/www/aashe_bulletin/src/
 
 # Copy the rest of the working directory contents into the container at /app
 COPY . . 
