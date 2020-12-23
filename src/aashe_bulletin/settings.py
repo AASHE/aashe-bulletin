@@ -124,10 +124,10 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Allow all host headers
 ALLOWED_HOSTS = ["*"]
 
-# AUTHENTICATION_BACKENDS = (
-#     "django_membersuite_auth.backends.MemberSuiteBackend",
-#     "django.contrib.auth.backends.ModelBackend",
-# )
+AUTHENTICATION_BACKENDS = (
+    "django_membersuite_auth.backends.MemberSuiteBackend",
+    "django.contrib.auth.backends.ModelBackend",
+)
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 
