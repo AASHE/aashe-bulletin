@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - bulletin.prod.namespace.yaml
+  - ../../base/django
+  - secrets
+
+nameSuffix: -prod
+namespace: bulletin-prod
+commonLabels:
+  env: prod
+  app: bulletin
+commonAnnotations:
+  pythonver: "2.7"
+
+replicas:
+ - name: bulletin-django
+   count: 2
+
+configMapGenerator:
+  - name: bulletin-django-map
+    literals:
+    - AASHE_DRUPAL_COOKIE_DOMAIN=.aashe.org
+    - AASHE_DRUPAL_KEY_DOMAIN=acupcc.aashe.org
+    - AASHE_DRUPAL_URI=http://www.aashe.org/services/xmlrpc
+    - AWS_STORAGE_BUCKET_NAME=aashe-bulletin-production
+    - CONSTANT_CONTACT_FROM_EMAIL=bulletin@aashe.org
+    - CONSTANT_CONTACT_REPLY_TO_EMAIL=bulletin@aashe.org
+    - CONSTANT_CONTACT_USERNAME=aashelist
+    - DEBUG=1
+    - DMA_COOKIE_DOMAIN='it dies-ez'
+    - DMA_COOKIE_SESSION='doesn't matter'
+    - PORT=8080
+ 
+images:
+- name: bulletin-django-image
+  newName: gcr.io/aashe-migration/bulletin-image
+  newTag: 1f0350eb-3f37-47ed-9405-827204a2314e
