@@ -8,8 +8,6 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-staging
     cloud.google.com/neg: '{"ingress": false}'
 spec:
-  tls:
-  - secretName: bulletin-prod-cert-ingress
   backend:
     serviceName: bulletin-prod
     servicePort: 8080
@@ -21,3 +19,7 @@ spec:
         backend:
           serviceName: bulletin-prod
           servicePort: 8080
+  tls:
+  - hosts:
+     - bulletin.aashe.org
+    secretName: bulletin-prod-cert-ingresss
