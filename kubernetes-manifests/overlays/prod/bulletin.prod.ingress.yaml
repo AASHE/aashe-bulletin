@@ -1,22 +1,23 @@
 apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
-  name: bulletin-dev-ingress
-  namespace: bulletin-dev
+  name: bulletin-ingress
+  namespace: bulletin-prod
   annotations:
     kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-staging
     cloud.google.com/neg: '{"ingress": false}'
 spec:
   tls:
-  - secretName: bulletin-test-cert-vvkpp
+  - secretName: bulletin-prod-cert-ingress
   backend:
-    serviceName: dev-bulletin
+    serviceName: bulletin-prod
     servicePort: 8080
   rules:
-  - host: bulletin-dev.aashe.org
+  - host: bulletin.aashe.org
     http:
       paths:
       - path: /*
         backend:
-          serviceName: dev-bulletin
+          serviceName: bulletin-prod
           servicePort: 8080

@@ -5,6 +5,7 @@ resources:
   - bulletin.prod.namespace.yaml
   - ../../base/django
   - secrets
+  - bulletin.prod.ingress.yaml
 
 nameSuffix: -prod
 namespace: bulletin-prod
