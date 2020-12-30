@@ -1,10 +1,13 @@
-#Build base image for bullletin
+#Build base image for bulletin
 
 steps:
 
 # Docker build
   - name: 'gcr.io/cloud-builders/docker'
+    id: build container
+    dir: docker-base
     args: ['build', '-t', 'gcr.io/aashe-migration/bulletin-base-image:$BUILD_ID', '.']
 
   - name: 'gcr.io/cloud-builders/docker'
+    id: push to container registry
     args: ['push', 'gcr.io/aashe-migration/bulletin-base-image:$BUILD_ID']
