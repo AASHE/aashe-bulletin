@@ -1,0 +1,94 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: bulletin-remove-index-cronjob
+spec:
+  schedule: "*/10 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: bulletin-job
+            image: bulletin-django-image
+            command: ["python",  "manage.py", "update_index", "--remove"]
+            envFrom:
+            - configMapRef:
+                name: bulletin-django-map
+            env:
+            - name: AASHE_DRUPAL_COOKIE_SESSION
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: aashe_drupal_cookie_session
+            - name: AASHE_DRUPAL_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: aashe_drupal_key
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django 
+                  key: aws_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: aws_secret_access_key
+            - name: CONSTANT_CONTACT_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: constant_constact_access_token
+            - name: CONSTANT_CONTACT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: constant_contact_api_key
+            - name: CONSTANT_CONTACT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: constant_contact_password
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: database_url
+            - name: MS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: ms_access_key
+            - name: MS_ASSOCIATION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: ms_association_id
+            - name: MS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: ms_secret_key
+            - name: RAVEN_CONFIG_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django 
+                  key: raven_config_dsn
+            - name: SEARCHBOX_SSL_URL
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: searchbox_ssl_url
+            - name: SEARCHBOX_URL
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: searchbox_url
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: bulletin-django
+                  key: secret_key
+          restartPolicy: OnFailure

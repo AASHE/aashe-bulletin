@@ -1,0 +1,3 @@
+resources:
+- remove.index.cronjob.yaml
+- create.next.issue.cronjob.yaml
