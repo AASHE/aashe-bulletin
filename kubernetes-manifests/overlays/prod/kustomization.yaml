@@ -6,12 +6,16 @@ resources:
   - ../../base/django
   - secrets
   - bulletin.prod.ingress.yaml
+  - np.allow.egress.yaml
+  - np.allow.http.yaml
+  - np.deny.from.other.ns.yaml
 
 nameSuffix: -prod
 namespace: bulletin-prod
 commonLabels:
   env: prod
   app: bulletin
+  ns: bulletin-prod
 commonAnnotations:
   pythonver: "2.7"
 

@@ -13,6 +13,7 @@ namespace: bulletin-dev
 commonLabels:
   env: dev
   app: bulletin
+  ns: bulletin-dev
 commonAnnotations:
   pythonver: "2.7"
 
