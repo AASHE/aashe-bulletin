@@ -10,12 +10,12 @@ django-overextends
 django-template-repl
 elasticsearch==5.5.3
 gunicorn
-newrelic
+django-debug-toolbar==1.4
+#newrelic
 pip-tools
 psycopg2
-raven
+#raven
 whitenoise
 
 -e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings
-
 -e git+https://github.com/AASHE/django-s3-folder-storage.git#egg=django-s3-folder-storage

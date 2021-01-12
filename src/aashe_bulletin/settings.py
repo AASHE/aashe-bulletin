@@ -9,7 +9,8 @@ from PIL import ImageFile
 from django.contrib.messages import constants as message_constants
 
 from integration_settings.media.s3 import *
-from integration_settings.logging.sentry import *
+
+# from integration_settings.logging.sentry import *
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -18,7 +19,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = os.environ.get("DEBUG", False)
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -45,7 +45,7 @@ ALLOWED_HOSTS = [".aashe.org"]
 
 ADMINS = (("Rogelio ZunigaRubio", "rogelio@aashe.org"),)
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -77,7 +77,7 @@ INSTALLED_APPS = (
     # good for development and debugging
     "django_extensions",
     "template_repl",
-)
+]
 
 MIDDLEWARE_CLASSES = (
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -110,13 +110,12 @@ USE_L10N = True
 USE_TZ = True
 
 # AASHE's Media Settings
-# if not DEBUG:
-INSTALLED_APPS += ("s3_folder_storage",)
-STATICFILES_DIRS = (os.path.join(os.path.dirname(__file__), "static"),)
+if not DEBUG:
+    INSTALLED_APPS += ("s3_folder_storage",)
+    STATICFILES_DIRS = (os.path.join(os.path.dirname(__file__), "static"),)
 
 # AASHE's Logging Settings
-# if not DEBUG:
-INSTALLED_APPS += ("raven.contrib.django.raven_compat",)
+#    INSTALLED_APPS += ("raven.contrib.django.raven_compat",)
 
 # HEROKU
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
@@ -125,7 +124,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 ALLOWED_HOSTS = ["*"]
 
 AUTHENTICATION_BACKENDS = (
-    "django_membersuite_auth.backends.MemberSuiteBackend",
+    #    "django_membersuite_auth.backends.MemberSuiteBackend",
     "django.contrib.auth.backends.ModelBackend",
 )
 LOGIN_URL = "/accounts/login/"
@@ -218,8 +217,6 @@ if es.username:
     }
 
 # HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
-
-
 def is_member(user):
     try:
         membersuiteuser = user.membersuiteportaluser
@@ -258,8 +255,26 @@ AWS_QUERYSTRING_AUTH = False
 
 # Because https://github.com/python-pillow/Pillow/issues/1529:
 ImageFile.MAXBLOCK = 1024 * 1024
-
 # Because https://github.com/jazzband/sorl-thumbnail/issues/564:
 THUMBNAIL_PRESERVE_FORMAT = True
-
 HTML_MINIFY = False
+# django debug toolbar
+DEBUG_TOOLBAR = os.environ.get("DEBUG", False)
+if DEBUG_TOOLBAR:
+    INTERNAL_IPS = [
+        "127.0.0.1",
+    ]
+    INSTALLED_APPS.append("debug_toolbar")
+    DEBUG_TOOLBAR_CONFIG = {
+        "INTERCEPT_REDIRECTS": False,
+    }
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
+    DEBUG_TOOLBAR_PANELS = [
+        "debug_toolbar.panels.versions.VersionsPanel",
+        "debug_toolbar.panels.timer.TimerPanel",
+        "debug_toolbar.panels.settings.SettingsPanel",
+        "debug_toolbar.panels.request.RequestPanel",
+        "debug_toolbar.panels.sql.SQLPanel",
+        "debug_toolbar.panels.templates.TemplatesPanel",
+        "debug_toolbar.panels.logging.LoggingPanel",
+    ]
