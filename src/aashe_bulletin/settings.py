@@ -8,9 +8,34 @@ import dj_database_url
 from PIL import ImageFile
 from django.contrib.messages import constants as message_constants
 
-from integration_settings.media.s3 import *
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", None)
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", None)
+AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", None)
 
-# from integration_settings.logging.sentry import *
+AWS_QUERYSTRING_AUTH = False  # Prefer unsigned S3 URLs.
+
+# User uploaded media
+DEFAULT_FILE_STORAGE = "s3_folder_storage.s3.DefaultStorage"
+DEFAULT_S3_PATH = os.environ.get("DEFAULT_S3_PATH", "uploads")
+MEDIA_ROOT = "/%s/" % DEFAULT_S3_PATH
+MEDIA_URL = "//s3.amazonaws.com/%s/%s/" % (AWS_STORAGE_BUCKET_NAME, DEFAULT_S3_PATH)
+
+# Static files, served with whitenoise
+STATIC_ROOT = "staticfiles"
+STATICFILES_STORAGE = "whitenoise.django.GzipManifestStaticFilesStorage"
+STATIC_URL = "/static/"
+
+# CDN Settings
+CDN_STATIC_HOST = os.environ.get("CDN_STATIC_HOST", None)
+if CDN_STATIC_HOST:
+    STATIC_URL = "//%s%s" % (CDN_STATIC_HOST, STATIC_URL)
+
+CDN_MEDIA_HOST = os.environ.get("CDN_MEDIA_HOST", None)
+if CDN_MEDIA_HOST:
+    MEDIA_URL = "//%s/%s/" % (CDN_MEDIA_HOST, DEFAULT_S3_PATH)
+    AWS_S3_CUSTOM_DOMAIN = CDN_MEDIA_HOST
+
+ADMIN_MEDIA_PREFIX = STATIC_URL + "admin/"
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -43,7 +68,10 @@ TEMPLATES = [
 
 ALLOWED_HOSTS = [".aashe.org"]
 
-ADMINS = (("Rogelio ZunigaRubio", "rogelio@aashe.org"),)
+ADMINS = (
+    ("Rogelio ZunigaRubio", "rogelio@aashe.org"),
+    ("Crystal", "crystal.simmons@aashe.org"),
+)
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -62,7 +90,6 @@ INSTALLED_APPS = [
     "bulletin.tools.issue_editor",
     "bulletin.tools.plugins",
     "django_constant_contact",
-    "django_membersuite_auth",
     # required by our email templates
     "mathfilters",
     "sorl.thumbnail",
@@ -110,9 +137,9 @@ USE_L10N = True
 USE_TZ = True
 
 # AASHE's Media Settings
-if not DEBUG:
-    INSTALLED_APPS += ("s3_folder_storage",)
-    STATICFILES_DIRS = (os.path.join(os.path.dirname(__file__), "static"),)
+# if not DEBUG:
+#     INSTALLED_APPS += ("s3_folder_storage",)
+#     STATICFILES_DIRS = (os.path.join(os.path.dirname(__file__), "static"),)
 
 # AASHE's Logging Settings
 #    INSTALLED_APPS += ("raven.contrib.django.raven_compat",)
@@ -124,7 +151,7 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 ALLOWED_HOSTS = ["*"]
 
 AUTHENTICATION_BACKENDS = (
-    #    "django_membersuite_auth.backends.MemberSuiteBackend",
+    # "django_membersuite_auth.backends.MemberSuiteBackend",
     "django.contrib.auth.backends.ModelBackend",
 )
 LOGIN_URL = "/accounts/login/"
@@ -218,11 +245,12 @@ if es.username:
 
 # HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 def is_member(user):
-    try:
-        membersuiteuser = user.membersuiteportaluser
-    except AttributeError:
-        return False
-    return membersuiteuser.is_member
+    return True
+    # try:
+    #     membersuiteuser = user.membersuiteportaluser
+    # except AttributeError:
+    #     return False
+    # return membersuiteuser.is_member
 
 
 SEARCH_LOGIN_REQUIRED = False
@@ -244,14 +272,14 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {"anon": "100/minute", "user": "100/minute"},
 }
 
-AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", None)
-AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", None)
-AWS_BUCKET_NAME = os.environ.get("AWS_BUCKET_NAME", None)
-AWS_HEADERS = {
-    "Expires": "Thu, 1 Jan 2026 20:00:00 GMT",
-    "Cache-Control": "max-age:311040000",
-}
-AWS_QUERYSTRING_AUTH = False
+# AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", None)
+# AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", None)
+# AWS_BUCKET_NAME = os.environ.get("AWS_BUCKET_NAME", None)
+# AWS_HEADERS = {
+#     "Expires": "Thu, 1 Jan 2026 20:00:00 GMT",
+#     "Cache-Control": "max-age:311040000",
+# }
+# AWS_QUERYSTRING_AUTH = False
 
 # Because https://github.com/python-pillow/Pillow/issues/1529:
 ImageFile.MAXBLOCK = 1024 * 1024
