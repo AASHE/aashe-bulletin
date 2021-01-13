@@ -2,6 +2,7 @@
 Django settings for aashe_bulletin project.
 """
 import os
+import certifi
 from urlparse import urlparse
 
 import dj_database_url
@@ -272,14 +273,14 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {"anon": "100/minute", "user": "100/minute"},
 }
 
-# AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", None)
-# AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", None)
-# AWS_BUCKET_NAME = os.environ.get("AWS_BUCKET_NAME", None)
-# AWS_HEADERS = {
-#     "Expires": "Thu, 1 Jan 2026 20:00:00 GMT",
-#     "Cache-Control": "max-age:311040000",
-# }
-# AWS_QUERYSTRING_AUTH = False
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", None)
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", None)
+AWS_BUCKET_NAME = os.environ.get("AWS_BUCKET_NAME", None)
+AWS_HEADERS = {
+    "Expires": "Thu, 1 Jan 2026 20:00:00 GMT",
+    "Cache-Control": "max-age:311040000",
+}
+AWS_QUERYSTRING_AUTH = False
 
 # Because https://github.com/python-pillow/Pillow/issues/1529:
 ImageFile.MAXBLOCK = 1024 * 1024
