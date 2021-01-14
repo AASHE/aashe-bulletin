@@ -1,6 +1,8 @@
 # Python image to use.
 FROM gcr.io/aashe-migration/bulletin-base-image:405c6e9b-6622-40e1-a202-22bf67525874
 
+#test Ro
+
 # Set the working directory to /app
 WORKDIR /app
 
