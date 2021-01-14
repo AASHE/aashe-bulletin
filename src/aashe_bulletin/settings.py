@@ -38,7 +38,6 @@ if CDN_MEDIA_HOST:
 
 ADMIN_MEDIA_PREFIX = STATIC_URL + "admin/"
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
