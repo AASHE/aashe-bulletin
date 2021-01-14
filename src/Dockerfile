@@ -1,5 +1,5 @@
 # Python image to use.
-FROM gcr.io/aashe-migration/bulletin-base-image:405c6e9b-6622-40e1-a202-22bf67525874
+FROM gcr.io/aashe-migration/bulletin-base-image:ff57e4ef-f47c-4282-89b0-ad9c04d43392
 
 #test Ro
 
