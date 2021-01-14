@@ -31,7 +31,7 @@ configMapGenerator:
     - CONSTANT_CONTACT_FROM_EMAIL=bulletin@aashe.org
     - CONSTANT_CONTACT_REPLY_TO_EMAIL=bulletin@aashe.org
     - CONSTANT_CONTACT_USERNAME=aashelist
-    - DEBUG=1
+    - DEBUG=True
     - DMA_COOKIE_DOMAIN='it dies-ez'
     - DMA_COOKIE_SESSION='doesn't matter'
     - PORT=8080
