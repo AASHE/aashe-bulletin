@@ -35,6 +35,7 @@ configMapGenerator:
     - DMA_COOKIE_DOMAIN='it dies-ez'
     - DMA_COOKIE_SESSION='doesn't matter'
     - PORT=8080
+    - PYTHONWARNINGS=ignore
 
 patches:
   - path: create.next.issue.patch.yaml
@@ -50,7 +51,7 @@ patches:
       version: v1beta1
       kind: CronJob
       name: bulletin-remove-index-cronjob
- 
+
 images:
 - name: bulletin-django-image
   newName: gcr.io/aashe-migration/bulletin-image
