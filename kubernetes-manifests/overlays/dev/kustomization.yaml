@@ -5,7 +5,7 @@ resources:
   - bulletin.dev.namespace.yaml
   - ../../base/django
   - ../../base/cronjob
-  - ../secrets/prod
+  - secrets
   - bulletin.dev.ingress.yaml
 
 nameSuffix: -dev
@@ -35,7 +35,7 @@ configMapGenerator:
     - DMA_COOKIE_DOMAIN='it dies-ez'
     - DMA_COOKIE_SESSION='doesn't matter'
     - PORT=8080
-    - PYTHONWARNINGS=ignore
+    - PYTHONWARNINGS='ignore'
 
 patches:
   - path: create.next.issue.patch.yaml
