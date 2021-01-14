@@ -76,6 +76,7 @@ webencodings==0.5         # via html5lib
 whitenoise==3.2.3
 wsgiref==0.1.2            # via django-bulletin
 zeep==1.2.0               # via membersuite-api-client
+certifi
 
 # Google Cloud Libraries
 google-cloud-logging
