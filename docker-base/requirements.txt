@@ -8,7 +8,7 @@
 -e git+https://github.com/AASHE/django-s3-folder-storage.git#egg=django-s3-folder-storage
 -e git+https://github.com/AASHE/django-bulletin.git#egg=django-bulletin
 -e git+https://github.com/AASHE/django-constant-contact.git#egg=django-constant-contact
--e git+https://github.com/AASHE/django-membersuite-auth#egg=django-membersuite-auth
+# -e git+https://github.com/AASHE/django-membersuite-auth#egg=django-membersuite-auth
 appdirs==1.4.3            # via zeep
 argparse==1.4.0           # via django-htmlmin
 beautifulsoup4==4.5.3     # via django-htmlmin
@@ -38,6 +38,7 @@ django-positions==0.5.1   # via django-bulletin
 django-storages==1.5.1
 django-template-repl==0.3.0
 django==1.9.13
+django-membersuite-auth==2.7.2
 djangorestframework==3.3.1  # via django-bulletin
 docutils==0.13.1          # via botocore
 elasticsearch==5.5.3
