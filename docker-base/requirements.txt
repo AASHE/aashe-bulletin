@@ -4,11 +4,16 @@
 #
 #    pip-compile
 #
+
+#newrelic==2.78.0.57
+
+
 -e git+https://github.com/AASHE/django-integration-settings.git#egg=django-integration-settings
 -e git+https://github.com/AASHE/django-s3-folder-storage.git#egg=django-s3-folder-storage
 -e git+https://github.com/AASHE/django-bulletin.git#egg=django-bulletin
 -e git+https://github.com/AASHE/django-constant-contact.git#egg=django-constant-contact
-# -e git+https://github.com/AASHE/django-membersuite-auth#egg=django-membersuite-auth
+#-e git+https://github.com/AASHE/django-membersuite-auth#egg=django-membersuite-auth
+-e git+https://github.com/AASHE/django-membersuite-auth.git@is-member-fail#egg=django_membersuite_auth
 appdirs==1.4.3            # via zeep
 argparse==1.4.0           # via django-htmlmin
 beautifulsoup4==4.5.3     # via django-htmlmin
@@ -38,7 +43,6 @@ django-positions==0.5.1   # via django-bulletin
 django-storages==1.5.1
 django-template-repl==0.3.0
 django==1.9.13
-django-membersuite-auth
 djangorestframework==3.3.1  # via django-bulletin
 docutils==0.13.1          # via botocore
 elasticsearch==5.5.3
@@ -53,9 +57,9 @@ isodate==0.5.4            # via zeep
 jmespath==0.9.0           # via boto3, botocore
 jsonfield==2.0.2          # via django-constant-contact
 lxml==3.7.1               # via premailer, zeep
-membersuite-api-client  # via django-membersuite-auth
+#membersuite-api-client  # via django-membersuite-auth
+-e git+https://github.com/AASHE/python-membersuite-api-client.git@is-member-fix#egg=membersuite_api_client
 nap==2.0.0                # via django-constant-contact
-newrelic==2.78.0.57
 olefile==0.45.1           # via pillow
 pillow==4.3.0             # via django-bulletin
 pip-tools==1.8.0
@@ -76,7 +80,7 @@ urllib3==1.24.1           # via elasticsearch
 webencodings==0.5         # via html5lib
 whitenoise==3.2.3
 wsgiref==0.1.2            # via django-bulletin
-zeep==1.2.0               # via membersuite-api-client
+zeep==3.3.1               # via membersuite-api-client
 certifi
 django-debug-toolbar==1.5
 
