@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     "bulletin.tools.issue_editor",
     "bulletin.tools.plugins",
     "django_constant_contact",
+    "django_membersuite_auth",
     # required by our email templates
     "mathfilters",
     "sorl.thumbnail",
