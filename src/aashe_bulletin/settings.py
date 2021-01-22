@@ -246,12 +246,11 @@ if es.username:
 
 # HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 def is_member(user):
-    return True
-    # try:
-    #     membersuiteuser = user.membersuiteportaluser
-    # except AttributeError:
-    #     return False
-    # return membersuiteuser.is_member
+    try:
+        membersuiteuser = user.membersuiteportaluser
+    except AttributeError:
+        return False
+    return membersuiteuser.is_member
 
 
 SEARCH_LOGIN_REQUIRED = False
