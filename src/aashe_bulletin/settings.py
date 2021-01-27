@@ -223,7 +223,8 @@ MESSAGE_TAGS = {
 BOOTSTRAP3 = {"required_css_class": "required-input"}
 
 # Searchbox backend for Haystack
-es = urlparse(os.environ.get("SEARCHBOX_URL") or "http://127.0.0.1:9200/")
+es = urlparse(os.environ.get("SEARCHBOX_URL"))
+print es
 port = es.port or 80
 HAYSTACK_ENGINE = os.environ.get(
     "HAYSTACK_ENGINE",
