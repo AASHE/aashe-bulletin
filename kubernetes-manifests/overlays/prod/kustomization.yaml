@@ -37,8 +37,8 @@ configMapGenerator:
     - DMA_COOKIE_DOMAIN='it dies-ez'
     - DMA_COOKIE_SESSION='doesn't matter'
     - PORT=8080
- 
+
 images:
 - name: bulletin-django-image
   newName: gcr.io/aashe-migration/bulletin-image
-  newTag: 1f0350eb-3f37-47ed-9405-827204a2314e
+  newTag: 349ce687-c6a5-4eaa-ba94-217738819e1b

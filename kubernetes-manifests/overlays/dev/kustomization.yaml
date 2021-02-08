@@ -55,4 +55,4 @@ patches:
 images:
 - name: bulletin-django-image
   newName: gcr.io/aashe-migration/bulletin-image
-  newTag: d0658d1f-a0f0-4786-8f9d-db8743be8691
+  newTag: 349ce687-c6a5-4eaa-ba94-217738819e1b
