@@ -1,6 +1,6 @@
 - op: replace
   path: /spec/schedule
-  value: "0 0 * ? * * *"
+  value: "@hourly"
 
 - op: replace
   path: /spec/jobTemplate/spec/template/spec/containers/0/command
