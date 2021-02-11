@@ -224,7 +224,7 @@ BOOTSTRAP3 = {"required_css_class": "required-input"}
 
 # Searchbox backend for Haystack
 es = urlparse(os.environ.get("SEARCHBOX_URL"))
-print os.environ.get("SEARCHBOX_URL")
+
 port = es.port or 80
 HAYSTACK_ENGINE = os.environ.get(
     "HAYSTACK_ENGINE",
