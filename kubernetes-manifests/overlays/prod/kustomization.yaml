@@ -38,6 +38,21 @@ configMapGenerator:
     - DMA_COOKIE_SESSION='doesn't matter'
     - PORT=8080
 
+patches:
+  - path: create.next.issue.patch.yaml
+    target:
+      group: batch
+      version: v1beta1
+      kind: CronJob
+      name: bulletin-create-next-issue-cronjob
+
+  - path: remove.index.patch.yaml
+    target:
+      group: batch
+      version: v1beta1
+      kind: CronJob
+      name: bulletin-remove-index-cronjob
+
 images:
 - name: bulletin-django-image
   newName: gcr.io/aashe-migration/bulletin-image

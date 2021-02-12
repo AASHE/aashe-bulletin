@@ -1,0 +1,7 @@
+- op: replace
+  path: /spec/schedule
+  value: "*/10 * * * *"
+
+- op: replace
+  path: /spec/jobTemplate/spec/template/spec/containers/0/command
+  value: ["python",  "manage.py", "update_index", "--remove"]
