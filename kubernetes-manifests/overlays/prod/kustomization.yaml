@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - bulletin.prod.namespace.yaml
   - ../../base/django
+  - ../../base/cronjob
   - secrets
   - bulletin.prod.ingress.yaml
   - np.allow.egress.yaml
